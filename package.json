@@ -1,0 +1,33 @@
+{
+  "name": "you-liked-what",
+  "version": "1.0.0",
+  "description": "Jeu multijoueur — auth par scrape profil Instagram + option ngrok (likes simulés)",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "instagram",
+    "socket.io",
+    "game",
+    "oauth"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "better-sqlite3": "^12.8.0",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "multer": "^2.1.1",
+    "puppeteer": "^24.40.0",
+    "socket.io": "^4.8.1",
+    "unzipper": "^0.12.3"
+  }
+}
