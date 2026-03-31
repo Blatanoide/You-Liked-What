@@ -2,10 +2,10 @@
   "name": "you-liked-what",
   "version": "1.0.0",
   "description": "Jeu multijoueur — auth par scrape profil Instagram + option ngrok (likes simulés)",
-  "main": "backend/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node --watch backend/server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "engines": {
     "node": ">=18"
