@@ -10,7 +10,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const { Server } = require('socket.io');
-
+const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const authController = require('./controllers/authController');
 const instagramOAuth = require('./services/instagramOAuthService');
@@ -38,6 +38,12 @@ const useSecureCookies =
   process.env.NODE_ENV === 'production';
 
 const app = express();
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
+
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true,
+}));
 
 if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', 1);
@@ -46,7 +52,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: false,
+    origin: FRONTEND_URL,
     credentials: true,
   },
 });
