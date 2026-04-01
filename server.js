@@ -40,6 +40,20 @@ const useSecureCookies =
   process.env.FORCE_SECURE_COOKIE === 'true' ||
   process.env.NODE_ENV === 'production';
 
+/**
+ * Front (ex. Vercel) et API (ex. Render) = sites différents : sans SameSite=None,
+ * le navigateur n’envoie pas le cookie de session sur fetch() → « pas connecté » sur /import-likes.
+ * SESSION_COOKIE_SAMESITE=lax pour tout servir sur le même domaine (localhost, un seul hôte).
+ */
+const sessionSameSiteRaw = (process.env.SESSION_COOKIE_SAMESITE || '').toLowerCase();
+let sessionSameSite = 'lax';
+if (sessionSameSiteRaw === 'none' || sessionSameSiteRaw === 'lax' || sessionSameSiteRaw === 'strict') {
+  sessionSameSite = sessionSameSiteRaw;
+} else if (process.env.NODE_ENV === 'production') {
+  sessionSameSite = 'none';
+}
+const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies;
+
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
 
@@ -68,8 +82,8 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    sameSite: 'lax',
-    secure: useSecureCookies,
+    sameSite: sessionSameSite,
+    secure: sessionCookieSecure,
   },
 });
 
@@ -172,11 +186,10 @@ server.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log('  Instagram OAuth  inactif (INSTAGRAM_APP_ID + INSTAGRAM_APP_SECRET dans .env pour un vrai compte)');
   }
-  if (useSecureCookies) {
-    console.log('  Cookies session : Secure=true (SESSION_COOKIE_SECURE ou production)');
-  } else {
-    console.log('  Cookies session : Secure=false (ok localhost + ngrok dev)');
-  }
+  console.log(
+    `  Cookie session : SameSite=${sessionSameSite}, Secure=${sessionCookieSecure}` +
+      (sessionSameSite === 'none' ? ' (cross-origin front + API, ex. Vercel + Render)' : '')
+  );
   console.log('═══════════════════════════════════════════');
   console.log('');
 });
