@@ -53,6 +53,7 @@ router.get('/instagram/callback', authController.instagramOAuthCallback);
 
 router.post('/register', authController.registerSite);
 router.post('/verify-email', authController.verifySiteEmail);
+router.post('/resend-verification', authController.resendVerification);
 router.post('/login-site', authController.loginSite);
 router.post('/profile/avatar', (req, res, next) => {
   uploadAvatar.single('photo')(req, res, (err) => {

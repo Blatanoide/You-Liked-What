@@ -558,6 +558,14 @@ async function registerSite(req, res) {
       return res.status(409).json({ error: 'Ce pseudo est déjà pris.' });
     }
     if (e.message === 'EMAIL_TAKEN') {
+      const existing = siteUserStore.findByEmail(email);
+      if (existing && !existing.verified) {
+        return res.status(409).json({
+          error: 'Cet e-mail est déjà inscrit mais pas encore vérifié.',
+          pendingVerification: true,
+          email,
+        });
+      }
       return res.status(409).json({ error: 'Cette adresse e-mail est déjà utilisée.' });
     }
     console.error('[Auth] registerSite:', e);
@@ -565,13 +573,13 @@ async function registerSite(req, res) {
   }
 
   let emailResult;
+  let mailThrew = false;
   try {
     emailResult = await emailService.sendVerificationEmail(email, pending.code);
   } catch (mailErr) {
     console.error('[Auth] sendVerificationEmail:', mailErr.message || mailErr);
-    return res.status(502).json({
-      error: 'Impossible d’envoyer l’e-mail pour le moment. Réessaie plus tard.',
-    });
+    mailThrew = true;
+    emailResult = { sent: false };
   }
 
   const body = {
@@ -580,12 +588,42 @@ async function registerSite(req, res) {
     emailSent: Boolean(emailResult.sent),
     message: emailResult.sent
       ? 'Compte créé. Ouvre ton e-mail : le texte contient ton code de vérification entre crochets [123456].'
-      : 'Compte créé. Le serveur n’a pas encore d’SMTP : le code est dans les logs serveur (ligne [Email]). Configure SMTP_USER et SMTP_PASS pour l’envoi réel.',
+      : mailThrew
+        ? 'Compte créé, mais l’e-mail n’a pas pu être envoyé (SMTP / Gmail à vérifier sur le serveur). Utilise « Renvoyer le code » une fois corrigé, ou le code affiché dans les logs Render.'
+        : 'Compte créé. Le serveur n’a pas encore d’SMTP : le code est dans les logs serveur (ligne [Email]). Configure SMTP_USER et SMTP_PASS pour l’envoi réel.',
   };
   if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
     body.devCode = pending.code;
   }
   return res.status(201).json(body);
+}
+
+/**
+ * POST { email } — nouveau code pour compte non vérifié.
+ */
+async function resendVerification(req, res) {
+  const email = siteUserStore.normalizeEmail(req.body?.email);
+  if (!email) {
+    return res.status(400).json({ error: 'E-mail requis.' });
+  }
+  const regen = siteUserStore.regenerateVerificationForEmail(email);
+  if (!regen.ok) {
+    return res.status(400).json({ error: regen.error });
+  }
+  try {
+    const send = await emailService.sendVerificationEmail(email, regen.code);
+    if (!send.sent) {
+      return res.status(503).json({
+        error:
+          'Code régénéré mais envoi impossible (SMTP non configuré). Regarde les logs serveur pour le nouveau code ou configure SMTP.',
+        devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
+      });
+    }
+    return res.json({ ok: true, message: 'Un nouveau code a été envoyé à ton adresse.' });
+  } catch (e) {
+    console.error('[Auth] resendVerification send:', e.message || e);
+    return res.status(502).json({ error: 'Envoi de l’e-mail impossible pour le moment.' });
+  }
 }
 
 /**
@@ -620,7 +658,11 @@ async function loginSite(req, res) {
   }
   const row = await siteUserStore.checkLogin(String(login).trim(), password);
   if (row && row.error) {
-    return res.status(403).json({ error: row.error });
+    return res.status(403).json({
+      error: row.error,
+      needsVerification: Boolean(row.needsVerification),
+      email: row.email || undefined,
+    });
   }
   if (!row) {
     return res.status(401).json({ error: 'Identifiants incorrects.' });
@@ -703,6 +745,7 @@ module.exports = {
   seedFakeLikes,
   registerSite,
   verifySiteEmail,
+  resendVerification,
   loginSite,
   uploadProfileAvatar,
   MIN_LIKES,

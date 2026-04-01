@@ -142,12 +142,33 @@ function verifyEmailCode(email, codeStr) {
 async function checkLogin(login, password) {
   const row = findByEmailOrUsername(login);
   if (!row) return null;
+  const pwOk = await bcrypt.compare(String(password || ''), row.password_hash);
+  if (!pwOk) return null;
   if (!row.verified) {
-    return { error: 'Compte non vérifié — entre le code reçu par e-mail (étape « Vérifier »).' };
+    return {
+      error: 'Compte non vérifié — entre le code reçu par e-mail ci-dessous.',
+      needsVerification: true,
+      email: row.email,
+    };
   }
-  const ok = await bcrypt.compare(String(password || ''), row.password_hash);
-  if (!ok) return null;
   return row;
+}
+
+/**
+ * Nouveau code pour un compte encore non vérifié (e-mail identique à l’inscription).
+ */
+function regenerateVerificationForEmail(rawEmail) {
+  const email = normalizeEmail(rawEmail);
+  if (!email) return { ok: false, error: 'E-mail invalide.' };
+  const row = findByEmail(email);
+  if (!row) return { ok: false, error: 'Aucun compte pour cet e-mail.' };
+  if (row.verified) return { ok: false, error: 'Ce compte est déjà vérifié.' };
+  const code = generateCode();
+  const expires = Math.floor(Date.now() / 1000) + CODE_TTL_SEC;
+  getDb()
+    .prepare('UPDATE site_users SET verification_code = ?, verification_expires = ? WHERE id = ?')
+    .run(code, expires, row.id);
+  return { ok: true, code, email };
 }
 
 function updateProfilePicturePath(userId, relativePath) {
@@ -173,6 +194,7 @@ module.exports = {
   findByEmail,
   verifyEmailCode,
   checkLogin,
+  regenerateVerificationForEmail,
   updateProfilePicturePath,
   sessionUserFromRow,
 };
