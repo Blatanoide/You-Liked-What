@@ -49,7 +49,11 @@ const sessionSameSiteRaw = (process.env.SESSION_COOKIE_SAMESITE || '').toLowerCa
 let sessionSameSite = 'lax';
 if (sessionSameSiteRaw === 'none' || sessionSameSiteRaw === 'lax' || sessionSameSiteRaw === 'strict') {
   sessionSameSite = sessionSameSiteRaw;
-} else if (process.env.NODE_ENV === 'production') {
+} else if (
+  process.env.NODE_ENV === 'production' ||
+  process.env.RENDER === 'true' ||
+  process.env.RAILWAY_ENVIRONMENT === 'production'
+) {
   sessionSameSite = 'none';
 }
 const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies;
@@ -57,10 +61,31 @@ const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
 
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true,
-}));
+/** Plusieurs origines séparées par des virgules (ex. Vercel prod + preview). */
+const CORS_ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || FRONTEND_URL)
+  .split(',')
+  .map((s) => s.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+function corsDynamicOrigin(origin, callback) {
+  if (!origin) {
+    callback(null, true);
+    return;
+  }
+  if (CORS_ALLOWED_ORIGINS.includes(origin)) {
+    callback(null, true);
+    return;
+  }
+  console.warn('[CORS] Origine refusée :', origin, '— autorise-la via CORS_ORIGINS ou FRONTEND_URL.');
+  callback(null, false);
+}
+
+app.use(
+  cors({
+    origin: corsDynamicOrigin,
+    credentials: true,
+  })
+);
 
 if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', 1);
@@ -69,7 +94,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: CORS_ALLOWED_ORIGINS.length === 1 ? CORS_ALLOWED_ORIGINS[0] : CORS_ALLOWED_ORIGINS,
     credentials: true,
   },
 });
