@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Importer mes likes Instagram — You Liked What?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=Outfit:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="bg-gradient" aria-hidden="true"></div>
+
+  <header class="top-bar">
+    <a href="/" class="brand brand-link" style="text-decoration:none;color:inherit">
+      <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="ylwBrandGradientImport" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f58529"></stop>
+            <stop offset="0.6" stop-color="#dd2a7b"></stop>
+            <stop offset="1" stop-color="#8134af"></stop>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#ylwBrandGradientImport)"></rect>
+        <circle cx="12" cy="12" r="2.4" fill="white"></circle>
+        <path d="M11.5 18c0-3.2 2.6-5.8 5.8-5.8 2 0 3.7.8 4.9 2.2l-1.6 1.3c-.8-.9-2-1.5-3.3-1.5-2.1 0-3.8 1.7-3.8 3.8h4.4v2h-6.4z" fill="white"></path>
+      </svg>
+      <span class="brand-text">You Liked What?</span>
+    </a>
+    <a class="link-quiet" href="/">← Retour au jeu</a>
+  </header>
+
+  <main class="main import-page">
+    <section class="screen card import-hero">
+      <h1>Importer mes likes Instagram</h1>
+      <p class="lead">
+        Tu restes sur <strong>Instagram</strong> pour demander une copie de tes données. Ensuite, tu reviens ici et tu déposes <strong>un seul fichier</strong> (souvent un <strong>.zip</strong>) — le site extrait tout tout seul. Pas besoin d’ouvrir le JSON à la main.
+      </p>
+    </section>
+
+    <section class="screen card import-steps" aria-label="Étapes">
+      <h2 class="import-steps__title">3 étapes</h2>
+      <ol class="import-step-list">
+        <li class="import-step">
+          <span class="import-step__num" aria-hidden="true">1</span>
+          <div>
+            Va sur ce lien, puis connecte-toi : <a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener">https://accountscenter.instagram.com/info_and_permissions/dyi/</a>.
+            Clique sur <strong>« Créer une exportation »</strong>.
+            Choisis ensuite le <strong>compte</strong> avec lequel tu t’es connecté, puis sélectionne <strong>« Exporter sur mon appareil »</strong>.
+          </div>
+        </li>
+        <li class="import-step">
+          <span class="import-step__num" aria-hidden="true">2</span>
+          <div>
+            Dans l’export, fais pour que le fichier soit <strong>plus léger</strong> (donc <strong>plus rapide</strong> à télécharger) et que les autres infos restent <strong>privées</strong> (inutiles pour le jeu) :
+            <br />
+            <br />
+            1) Va sur <strong>« Qualités des contenus multimédias »</strong> → choisis <strong>« Qualité supérieure »</strong> → <strong>enregistrer</strong>.
+            <br />
+            2) Va sur <strong>« Période »</strong> → choisis <strong>« Depuis le début »</strong> → <strong>enregistrer</strong>.
+            <br />
+            3) Va sur <strong>« Personnaliser les informations »</strong> → désélectionne tout sauf <strong>« Mentions j’aime »</strong> (et éventuellement <strong>« enregistrements »</strong>) → <strong>enregistrer</strong>.
+          </div>
+        </li>
+        <li class="import-step">
+          <span class="import-step__num" aria-hidden="true">3</span>
+          <div>
+            Rafraîchis cette page régulièrement jusqu’à ce que le téléchargement soit prêt (ça peut prendre un peu de temps, parfois jusqu’à <strong>10 minutes</strong>).
+            Ensuite télécharge le fichier (souvent un <strong>.zip</strong), ou le dossier si tu as dézippé).
+            Reviens ici et <strong>dépose le fichier</strong> dans la zone ci-dessous (glisser-déposer ou bouton).
+            On enregistre tes likes pour les prochaines parties — tu n’auras pas à tout refaire.
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="screen card import-upload" id="import-upload-section">
+      <h2>Déposer ton export</h2>
+      <p class="hint import-upload__hint">
+        Tu dois être <strong>connecté</strong> (connecte-toi sur la page d’accueil du jeu, puis ouvre cette page via le bouton « Importer mes likes » pour rester sur le même domaine que l’API). Formats : <strong>.zip</strong> ou fichiers <strong>.json</strong> / <strong>.html</strong>.
+      </p>
+
+      <div
+        id="drop-zone"
+        class="drop-zone"
+        tabindex="0"
+        role="button"
+        aria-label="Zone de dépôt : glisse un fichier ou clique pour choisir"
+      >
+        <p class="drop-zone__title">Glisse-dépose ton fichier ici</p>
+        <p class="drop-zone__sub">ou clique pour parcourir</p>
+      </div>
+      <input type="file" id="file-input" class="visually-hidden" multiple accept=".zip,.json,.html,.htm,application/json,application/zip" />
+      <div class="import-upload__row">
+        <button type="button" class="btn btn-secondary" id="btn-pick-files">Choisir des fichiers</button>
+        <button type="button" class="btn btn-ghost" id="btn-pick-folder" title="Sélectionne tout un dossier dézippé (Chrome, Edge, Safari)">
+          Choisir un dossier
+        </button>
+      </div>
+      <input type="file" id="folder-input" class="visually-hidden" webkitdirectory="" directory="" multiple />
+
+      <p id="import-status" class="import-status" role="status" aria-live="polite"></p>
+      <p id="import-error" class="msg-error hidden" role="alert"></p>
+
+      <button type="button" class="btn btn-instagram btn-block" id="btn-send" disabled>
+        Enregistrer mes likes sur le site
+      </button>
+    </section>
+
+    <section class="screen card import-result hidden" id="import-result">
+      <h2>C’est bon</h2>
+      <p id="import-result-text"></p>
+      <a href="/" class="btn btn-primary btn-block">Retour au jeu</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>You Liked What? — Made by Anthony "Blatanoide"</span>
+  </footer>
+
+  <script src="/import-likes.js?v=20260401-same-origin" defer></script>
+</body>
+</html>

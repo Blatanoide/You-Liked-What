@@ -184,15 +184,28 @@ app.use(
   })
 );
 
-app.use(
-  express.static(path.join(__dirname, '..', 'frontend'), {
-    setHeaders(res, filePath) {
-      if (/\.(js|html|css)$/i.test(filePath)) {
-        res.setHeader('Cache-Control', 'no-store, max-age=0');
-      }
-    },
-  })
-);
+function staticNoCacheHeaders(res, filePath) {
+  if (/\.(js|html|css)$/i.test(filePath)) {
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
+  }
+}
+
+const repoFrontendDir = path.join(__dirname, '..', 'frontend');
+const bundledPublicDir = path.join(__dirname, 'public');
+/** Monorepo local : tout le front. Render (repo backend seul) : seulement `backend/public/`. */
+if (fs.existsSync(repoFrontendDir)) {
+  app.use(express.static(repoFrontendDir, { setHeaders: staticNoCacheHeaders }));
+}
+if (fs.existsSync(bundledPublicDir)) {
+  app.use(express.static(bundledPublicDir, { setHeaders: staticNoCacheHeaders }));
+}
+
+/** Accueil du jeu sur Vercel si ce serveur ne contient pas index.html. */
+app.get('/', (req, res, next) => {
+  const fe = (process.env.FRONTEND_URL || '').trim().replace(/\/$/, '');
+  if (!fe) return next();
+  res.redirect(302, `${fe}/`);
+});
 
 attachGameSocket(io, sessionMiddleware);
 
