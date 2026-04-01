@@ -2,6 +2,8 @@
  * Auth (scrape profil) + likes simulés.
  */
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const multer = require('multer');
 const authController = require('../controllers/authController');
@@ -14,6 +16,32 @@ const uploadExport = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: instagramExportIngest.MAX_ZIP_BYTES, files: 40 },
 });
+
+const uploadAvatar = multer({
+  storage: multer.diskStorage({
+    destination(req, file, cb) {
+      const dir = path.join(__dirname, '..', 'uploads', 'profiles');
+      fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename(req, file, cb) {
+      const uid = String(req.session?.user?.id || 'x').replace(/[^a-z0-9_-]/gi, '');
+      const map = {
+        'image/jpeg': '.jpg',
+        'image/png': '.png',
+        'image/webp': '.webp',
+        'image/gif': '.gif',
+      };
+      const ext = map[file.mimetype] || '.jpg';
+      cb(null, `${uid}${ext}`);
+    },
+  }),
+  limits: { fileSize: 3 * 1024 * 1024 },
+  fileFilter(req, file, cb) {
+    const ok = /^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype);
+    cb(ok ? null : new Error('BAD_IMAGE_TYPE'), ok);
+  },
+});
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
@@ -22,6 +50,24 @@ router.get('/login', (req, res) => res.redirect(302, '/'));
 
 router.get('/instagram/start', authController.instagramOAuthStart);
 router.get('/instagram/callback', authController.instagramOAuthCallback);
+
+router.post('/register', authController.registerSite);
+router.post('/verify-email', authController.verifySiteEmail);
+router.post('/login-site', authController.loginSite);
+router.post('/profile/avatar', (req, res, next) => {
+  uploadAvatar.single('photo')(req, res, (err) => {
+    if (err) {
+      const msg =
+        err.message === 'BAD_IMAGE_TYPE'
+          ? 'Format d’image non accepté (JPEG, PNG, WebP, GIF).'
+          : err.code === 'LIMIT_FILE_SIZE'
+            ? 'Image trop volumineuse (max 3 Mo).'
+            : err.message || 'Erreur lors de l’envoi du fichier.';
+      return res.status(400).json({ error: msg });
+    }
+    authController.uploadProfileAvatar(req, res);
+  });
+});
 
 router.post('/login', authController.loginWithScrape);
 router.post('/login-password', authController.loginWithPuppeteerCredentials);

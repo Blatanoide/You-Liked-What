@@ -10,6 +10,17 @@ const profileScrape = require('../services/profileScrapeService');
 const likesStore = require('../services/likesStore');
 const playerStatsStore = require('../services/playerStatsStore');
 const { MIN_LIKES } = require('../config/constants');
+const { expandProfilePictureUrl } = require('../utils/publicUrl');
+const siteUserStore = require('../services/siteUserStore');
+const emailService = require('../services/emailService');
+
+function displayUser(req, user) {
+  if (!user) return null;
+  return {
+    ...user,
+    profile_picture: expandProfilePictureUrl(req, user.profile_picture),
+  };
+}
 
 function saveSessionAndReply(req, res, user, extra = {}) {
   likesStore.hydrateSession(req);
@@ -32,7 +43,7 @@ function saveSessionAndReply(req, res, user, extra = {}) {
     const likes = Array.isArray(req.session.simulatedLikes) ? req.session.simulatedLikes : [];
     return res.json({
       ok: true,
-      user,
+      user: displayUser(req, user),
       simulatedLikes: likes,
       canPlay: likes.length >= MIN_LIKES,
       ...extra,
@@ -336,7 +347,7 @@ function sessionPayload(req) {
   const likes = Array.isArray(req.session.simulatedLikes) ? req.session.simulatedLikes : [];
   return {
     authenticated: true,
-    user: req.session.user,
+    user: displayUser(req, req.session.user),
     simulatedLikes: likes,
     minLikesRequired: MIN_LIKES,
     canPlay: likes.length >= MIN_LIKES,
@@ -354,7 +365,17 @@ function myProfile(req, res) {
     return res.status(401).json({ error: 'Non connecté' });
   }
   playerStatsStore.upsertIdentity(req.session.user);
-  return res.json({ ok: true, profile: playerStatsStore.getProfileSummary(req.session.user.id) });
+  const summary = playerStatsStore.getProfileSummary(req.session.user.id);
+  const ex = (u) => expandProfilePictureUrl(req, u);
+  const profile = {
+    ...summary,
+    profile_picture: ex(summary.profile_picture),
+    podium: (summary.podium || []).map((p) => ({
+      ...p,
+      profile_picture: ex(p.profile_picture),
+    })),
+  };
+  return res.json({ ok: true, profile });
 }
 
 function updateMyBio(req, res) {
@@ -506,6 +527,140 @@ async function scrapeLikesPuppeteer(req, res) {
   }
 }
 
+/**
+ * POST { username, email, password } — inscription compte site + e-mail de vérification.
+ */
+async function registerSite(req, res) {
+  const username = siteUserStore.normalizeSiteUsername(req.body?.username);
+  const email = siteUserStore.normalizeEmail(req.body?.email);
+  const password = req.body?.password;
+  const pwErr = siteUserStore.validatePassword(password);
+  if (!username) {
+    return res.status(400).json({
+      error: 'Pseudo invalide (3–30 caractères : lettres minuscules, chiffres, . et _).',
+    });
+  }
+  if (!email) {
+    return res.status(400).json({ error: 'Adresse e-mail invalide.' });
+  }
+  if (pwErr) {
+    return res.status(400).json({ error: pwErr });
+  }
+  let pending;
+  try {
+    pending = await siteUserStore.createPendingUser({
+      username,
+      email,
+      password: String(password),
+    });
+  } catch (e) {
+    if (e.message === 'USERNAME_TAKEN') {
+      return res.status(409).json({ error: 'Ce pseudo est déjà pris.' });
+    }
+    if (e.message === 'EMAIL_TAKEN') {
+      return res.status(409).json({ error: 'Cette adresse e-mail est déjà utilisée.' });
+    }
+    console.error('[Auth] registerSite:', e);
+    return res.status(500).json({ error: 'Erreur serveur lors de l’inscription.' });
+  }
+
+  let emailResult;
+  try {
+    emailResult = await emailService.sendVerificationEmail(email, pending.code);
+  } catch (mailErr) {
+    console.error('[Auth] sendVerificationEmail:', mailErr.message || mailErr);
+    return res.status(502).json({
+      error: 'Impossible d’envoyer l’e-mail pour le moment. Réessaie plus tard.',
+    });
+  }
+
+  const body = {
+    ok: true,
+    email,
+    emailSent: Boolean(emailResult.sent),
+    message: emailResult.sent
+      ? 'Compte créé. Ouvre ton e-mail : le texte contient ton code de vérification entre crochets [123456].'
+      : 'Compte créé. Le serveur n’a pas encore d’SMTP : le code est dans les logs serveur (ligne [Email]). Configure SMTP_USER et SMTP_PASS pour l’envoi réel.',
+  };
+  if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
+    body.devCode = pending.code;
+  }
+  return res.status(201).json(body);
+}
+
+/**
+ * POST { email, code } — valide l’e-mail puis ouvre la session.
+ */
+async function verifySiteEmail(req, res) {
+  const result = siteUserStore.verifyEmailCode(req.body?.email, req.body?.code);
+  if (!result.ok) {
+    return res.status(400).json({ error: result.error });
+  }
+  const row = result.user;
+  const user = siteUserStore.sessionUserFromRow(row);
+  req.session.igAccessToken = null;
+  req.session.user = user;
+  req.session.loginMethod = 'site';
+  likesStore.hydrateSession(req);
+  if (!Array.isArray(req.session.simulatedLikes)) {
+    req.session.simulatedLikes = [];
+  }
+  console.log('[Auth] Compte site vérifié:', user.username);
+  return saveSessionAndReply(req, res, user, { siteRegistration: true });
+}
+
+/**
+ * POST { emailOrUsername, password } ou { login, password }
+ */
+async function loginSite(req, res) {
+  const login = req.body?.emailOrUsername ?? req.body?.login ?? req.body?.email;
+  const password = req.body?.password;
+  if (!login || !password) {
+    return res.status(400).json({ error: 'E-mail (ou pseudo) et mot de passe requis.' });
+  }
+  const row = await siteUserStore.checkLogin(String(login).trim(), password);
+  if (row && row.error) {
+    return res.status(403).json({ error: row.error });
+  }
+  if (!row) {
+    return res.status(401).json({ error: 'Identifiants incorrects.' });
+  }
+  const user = siteUserStore.sessionUserFromRow(row);
+  req.session.igAccessToken = null;
+  req.session.user = user;
+  req.session.loginMethod = 'site';
+  likesStore.hydrateSession(req);
+  if (!Array.isArray(req.session.simulatedLikes)) {
+    req.session.simulatedLikes = [];
+  }
+  console.log('[Auth] Connexion site:', user.username);
+  return saveSessionAndReply(req, res, user);
+}
+
+/**
+ * POST multipart field « photo » — avatar (comptes site uniquement).
+ */
+function uploadProfileAvatar(req, res) {
+  if (!req.session?.user?.id || !String(req.session.user.id).startsWith('site_')) {
+    return res.status(403).json({ error: 'Réservé aux comptes créés sur le site.' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ error: 'Envoie une image (JPEG, PNG, WebP ou GIF).' });
+  }
+  const rel = `/uploads/profiles/${req.file.filename}`;
+  siteUserStore.updateProfilePicturePath(req.session.user.id, rel);
+  req.session.user.profile_picture = rel;
+  playerStatsStore.upsertIdentity(req.session.user);
+  likesStore.hydrateSession(req);
+  req.session.save((err) => {
+    if (err) {
+      console.error('[Auth] uploadProfileAvatar session:', err);
+      return res.status(500).json({ error: 'Erreur session' });
+    }
+    return res.json({ ok: true, user: displayUser(req, req.session.user) });
+  });
+}
+
 function seedFakeLikes(req, res) {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Non connecté' });
@@ -546,5 +701,9 @@ module.exports = {
   removeSimulatedLike,
   scrapeLikesPuppeteer,
   seedFakeLikes,
+  registerSite,
+  verifySiteEmail,
+  loginSite,
+  uploadProfileAvatar,
   MIN_LIKES,
 };

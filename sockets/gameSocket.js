@@ -7,6 +7,7 @@ const instagramService = require('../services/instagramService');
 const { MIN_LIKES } = require('../config/constants');
 const { hydrateLikesMiddleware } = require('../middleware/hydrateLikes');
 const playerStatsStore = require('../services/playerStatsStore');
+const { expandProfilePictureUrl } = require('../utils/publicUrl');
 
 const MAX_PLAYERS = 15;
 const MIN_PLAYERS_TO_START = 2;
@@ -44,7 +45,7 @@ function getPlayerFromSession(session) {
   return {
     instagramId: String(session.user.id),
     username: session.user.username || 'Joueur',
-    profile_picture: session.user.profile_picture || null,
+    profile_picture: expandProfilePictureUrl(null, session.user.profile_picture || null),
     likes: [...likes],
   };
 }
@@ -315,7 +316,7 @@ function attachGameSocket(io, sessionMiddleware) {
       const session = socket.request.session;
       const base = getPlayerFromSession(session);
       if (!base) {
-        const err = { error: 'Tu dois être connecté avec Instagram.' };
+        const err = { error: 'Tu dois être connecté.' };
         if (typeof ack === 'function') ack(err);
         return socket.emit('error_message', err);
       }
@@ -375,7 +376,7 @@ function attachGameSocket(io, sessionMiddleware) {
       const session = socket.request.session;
       const base = getPlayerFromSession(session);
       if (!base) {
-        const err = { error: 'Tu dois être connecté avec Instagram.' };
+        const err = { error: 'Tu dois être connecté.' };
         if (typeof ack === 'function') ack(err);
         return socket.emit('error_message', err);
       }

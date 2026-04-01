@@ -3,8 +3,10 @@
  * « You Liked What? » — jeu multijoueur avec likes Instagram simulés.
  */
 
-require('dotenv').config();
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+const fs = require('fs');
 const http = require('http');
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -14,6 +16,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const authController = require('./controllers/authController');
 const instagramOAuth = require('./services/instagramOAuthService');
+const emailService = require('./services/emailService');
 const { attachGameSocket } = require('./sockets/gameSocket');
 const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
 
@@ -119,6 +122,7 @@ function sendApiBootstrap(req, res) {
     trustProxy: process.env.TRUST_PROXY === 'true',
     usePuppeteerProfile: process.env.USE_PUPPETEER_PROFILE === 'true',
     allowPasswordScrape: process.env.ALLOW_INSTAGRAM_PASSWORD_SCRAPE === 'true',
+    emailVerificationConfigured: emailService.isConfigured(),
     importLikesPath: '/import-likes.html',
     sessionCookieSecure: useSecureCookies,
     forwardedProto: proto,
@@ -132,8 +136,17 @@ app.get('/api/meta', sendApiBootstrap);
 
 app.use('/auth', authRoutes);
 
+const uploadsRoot = path.join(__dirname, 'uploads');
+fs.mkdirSync(uploadsRoot, { recursive: true });
 app.use(
-  express.static(path.join(__dirname, '..', 'frontend', 'public'), {
+  '/uploads',
+  express.static(uploadsRoot, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+  })
+);
+
+app.use(
+  express.static(path.join(__dirname, '..', 'frontend'), {
     setHeaders(res, filePath) {
       if (/\.(js|html|css)$/i.test(filePath)) {
         res.setHeader('Cache-Control', 'no-store, max-age=0');
