@@ -7,6 +7,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "sync-import": "node scripts/copy-import-static.js",
+    "sync-public": "node scripts/copy-import-static.js",
     "postinstall": "npx puppeteer browsers install chrome"
   },
   "engines": {

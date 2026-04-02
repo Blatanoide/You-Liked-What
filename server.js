@@ -67,6 +67,19 @@ const CORS_ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || FRONTEND_URL)
   .map((s) => s.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
+for (const raw of [
+  PUBLIC_BASE_URL,
+  process.env.RENDER_EXTERNAL_URL,
+  process.env.RENDER_SERVICE_URL,
+]) {
+  const o = String(raw || '')
+    .trim()
+    .replace(/\/$/, '');
+  if (o.startsWith('http') && !CORS_ALLOWED_ORIGINS.includes(o)) {
+    CORS_ALLOWED_ORIGINS.push(o);
+  }
+}
+
 function corsDynamicOrigin(origin, callback) {
   if (!origin) {
     callback(null, true);
