@@ -603,7 +603,7 @@ function applyClientConfig(cfg) {
   const orScrape = $('login-or-scrape');
 
   if (!cfg) {
-    hint.textContent = '';
+    if (hint) hint.textContent = '';
     return;
   }
 
@@ -621,10 +621,9 @@ function applyClientConfig(cfg) {
     passBtn?.setAttribute('disabled', 'disabled');
     $('ig-username-password')?.removeAttribute('required');
     $('ig-password')?.removeAttribute('required');
-    oauthDisabled?.classList.remove('hidden');
     if (oauthDisabled) {
-      oauthDisabled.innerHTML =
-        'Active <code>ALLOW_INSTAGRAM_PASSWORD_SCRAPE=true</code> dans <code>.env</code>, redémarre <code>npm start</code>, puis recharge (Ctrl+F5).';
+      oauthDisabled.textContent = '';
+      oauthDisabled.classList.add('hidden');
     }
   }
 
@@ -636,12 +635,7 @@ function applyClientConfig(cfg) {
     orScrape?.classList.add('hidden');
   }
 
-  if (cfg.publicBaseUrl) {
-    hint.textContent = `Utilise la même URL que dans .env (navigateur + amis) : ${cfg.publicBaseUrl} — souvent un tunnel ngrok HTTPS.`;
-  } else {
-    hint.textContent =
-      'Astuce : lance ngrok (ex. ngrok http 3000), mets PUBLIC_BASE_URL dans .env, TRUST_PROXY=true, redémarre le serveur et ouvre ce site via cette URL.';
-  }
+  if (hint) hint.textContent = '';
 
   if (cfg.demoLoginEnabled) {
     demoBtn?.classList.remove('hidden');
@@ -948,7 +942,7 @@ $('site-verify-form')?.addEventListener('submit', async (ev) => {
   }
 });
 
-$('login-form').addEventListener('submit', async (ev) => {
+$('login-form')?.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   $('auth-error').classList.add('hidden');
   $('auth-warn').classList.add('hidden');
@@ -981,7 +975,7 @@ $('login-form').addEventListener('submit', async (ev) => {
   }
 });
 
-$('login-password-form').addEventListener('submit', async (ev) => {
+$('login-password-form')?.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   $('auth-error').classList.add('hidden');
   $('auth-warn').classList.add('hidden');
@@ -1033,7 +1027,7 @@ $('login-password-form').addEventListener('submit', async (ev) => {
   }
 });
 
-$('btn-demo-login').addEventListener('click', async () => {
+$('btn-demo-login')?.addEventListener('click', async () => {
   $('auth-error').classList.add('hidden');
   $('auth-warn').classList.add('hidden');
   const res = await apiFetch('/auth/login-demo', {

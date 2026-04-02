@@ -16,7 +16,7 @@
     <a href="/" class="brand brand-link" style="text-decoration:none;color:inherit">
       <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
         <defs>
-          <linearGradient id="ylwBrandGradientImport" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="ylwBrandGradientImport" x1="0" y="0" x2="1" y2="1">
             <stop offset="0" stop-color="#f58529"></stop>
             <stop offset="0.6" stop-color="#dd2a7b"></stop>
             <stop offset="1" stop-color="#8134af"></stop>
@@ -35,7 +35,7 @@
     <section class="screen card import-hero">
       <h1>Importer mes likes Instagram</h1>
       <p class="lead">
-        Tu restes sur <strong>Instagram</strong> pour demander une copie de tes données. Ensuite, tu reviens ici et tu déposes <strong>un seul fichier</strong> (souvent un <strong>.zip</strong>) — le site extrait tout tout seul. Pas besoin d’ouvrir le JSON à la main.
+        Tu restes sur <strong>Instagram</strong> pour demander une copie de tes données. Ensuite, tu reviens ici et tu déposes <strong>un seul fichier</strong> (souvent un <strong>.zip</strong>) — le site extrait tout tout seul.
       </p>
     </section>
 
@@ -44,32 +44,20 @@
       <ol class="import-step-list">
         <li class="import-step">
           <span class="import-step__num" aria-hidden="true">1</span>
-          <div>
-            Va sur ce lien, puis connecte-toi : <a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener">https://accountscenter.instagram.com/info_and_permissions/dyi/</a>.
-            Clique sur <strong>« Créer une exportation »</strong>.
-            Choisis ensuite le <strong>compte</strong> avec lequel tu t’es connecté, puis sélectionne <strong>« Exporter sur mon appareil »</strong>.
+          <div class="import-step__body">
+            Ouvre <a class="import-step__link" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Télécharger tes informations</a> sur Instagram, connecte-toi, puis <strong>Créer une exportation</strong>. Choisis ton compte et <strong>Exporter sur mon appareil</strong>.
           </div>
         </li>
         <li class="import-step">
           <span class="import-step__num" aria-hidden="true">2</span>
-          <div>
-            Dans l’export, fais pour que le fichier soit <strong>plus léger</strong> (donc <strong>plus rapide</strong> à télécharger) et que les autres infos restent <strong>privées</strong> (inutiles pour le jeu) :
-            <br />
-            <br />
-            1) Va sur <strong>« Qualités des contenus multimédias »</strong> → choisis <strong>« Qualité supérieure »</strong> → <strong>enregistrer</strong>.
-            <br />
-            2) Va sur <strong>« Période »</strong> → choisis <strong>« Depuis le début »</strong> → <strong>enregistrer</strong>.
-            <br />
-            3) Va sur <strong>« Personnaliser les informations »</strong> → désélectionne tout sauf <strong>« Mentions j’aime »</strong> (et éventuellement <strong>« enregistrements »</strong>) → <strong>enregistrer</strong>.
+          <div class="import-step__body">
+            Sur Instagram, attends que la copie soit prête (parfois plusieurs minutes). Télécharge le fichier — souvent un <strong>.zip</strong>.
           </div>
         </li>
         <li class="import-step">
           <span class="import-step__num" aria-hidden="true">3</span>
-          <div>
-            Rafraîchis cette page régulièrement jusqu’à ce que le téléchargement soit prêt (ça peut prendre un peu de temps, parfois jusqu’à <strong>10 minutes</strong>).
-            Ensuite télécharge le fichier (souvent un <strong>.zip</strong), ou le dossier si tu as dézippé).
-            Reviens ici et <strong>dépose le fichier</strong> dans la zone ci-dessous (glisser-déposer ou bouton).
-            On enregistre tes likes pour les prochaines parties — tu n’auras pas à tout refaire.
+          <div class="import-step__body">
+            Reviens ici et <strong>dépose le fichier</strong> dans la zone ci-dessous (bouton ou glisser-déposer). Tu peux aussi choisir un dossier déjà dézippé.
           </div>
         </li>
       </ol>
@@ -78,7 +66,7 @@
     <section class="screen card import-upload" id="import-upload-section">
       <h2>Déposer ton export</h2>
       <p class="hint import-upload__hint">
-        <strong>iPhone / Safari :</strong> utilise le bouton <strong>« Importer mes likes »</strong> sur le site (Safari ou Chrome iOS), pas un favori vers cette page. Les navigateurs intégrés (Instagram, etc.) bloquent souvent la connexion. <strong>Vercel + API Render :</strong> toujours passer par ce bouton sur l’accueil. Formats : <strong>.zip</strong> ou <strong>.json</strong> / <strong>.html</strong>.
+        Fichiers acceptés : <strong>.zip</strong> (export Instagram), ou <strong>.json</strong> / <strong>.html</strong>. Connecte-toi sur le jeu puis utilise le bouton <strong>Importer mes likes</strong> sur l'accueil pour arriver ici.
       </p>
 
       <div
@@ -94,7 +82,7 @@
       <input type="file" id="file-input" class="visually-hidden" multiple accept=".zip,.json,.html,.htm,application/json,application/zip" />
       <div class="import-upload__row">
         <button type="button" class="btn btn-secondary" id="btn-pick-files">Choisir des fichiers</button>
-        <button type="button" class="btn btn-ghost" id="btn-pick-folder" title="Sélectionne tout un dossier dézippé (Chrome, Edge, Safari)">
+        <button type="button" class="btn btn-ghost" id="btn-pick-folder" title="Dossier dézippé (Safari, Chrome…)">
           Choisir un dossier
         </button>
       </div>
@@ -109,7 +97,7 @@
     </section>
 
     <section class="screen card import-result hidden" id="import-result">
-      <h2>C’est bon</h2>
+      <h2>C'est bon</h2>
       <p id="import-result-text"></p>
       <a href="/" class="btn btn-primary btn-block">Retour au jeu</a>
     </section>

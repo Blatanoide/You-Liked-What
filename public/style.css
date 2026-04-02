@@ -749,6 +749,28 @@ select.input option {
   display: flex;
   gap: 0.85rem;
   align-items: flex-start;
+  min-width: 0;
+}
+
+.import-step__body {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.import-step__link {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-weight: 600;
+  color: #7ab8ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.main.import-page {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .import-step__num {

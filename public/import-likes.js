@@ -84,24 +84,43 @@
     }
   }
 
+  function isAppleTouchDevice() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  async function checkSessionOnce() {
+    const r = await apiFetch('/api/health');
+    const ct = (r.headers.get('content-type') || '').includes('application/json');
+    if (!r.ok || !ct) {
+      setError('Le serveur a répondu de façon inattendue. Réessaie dans un instant.');
+      return false;
+    }
+    const j = await r.json();
+    if (!j.session || !j.session.authenticated) {
+      return false;
+    }
+    setError('');
+    return true;
+  }
+
   async function checkSession() {
     try {
-      const r = await apiFetch('/api/health');
-      const ct = (r.headers.get('content-type') || '').includes('application/json');
-      if (!r.ok || !ct) {
-        setError('Réponse serveur inattendue. Vérifie l’URL du backend.');
-        return false;
+      let ok = await checkSessionOnce();
+      if (!ok && isAppleTouchDevice()) {
+        await new Promise((res) => setTimeout(res, 650));
+        ok = await checkSessionOnce();
       }
-      const j = await r.json();
-      if (!j.session || !j.session.authenticated) {
-        setError('Tu n’es pas connecté. Va sur la page d’accueil, connecte-toi, puis reviens ici.');
+      if (!ok) {
+        setError(
+          'Tu n’es pas reconnu comme connecté. Ouvre le jeu dans Safari, connecte-toi, puis touche « Importer mes likes » sur l’accueil (évite les navigateurs intégrés aux apps).'
+        );
         btnSend.disabled = true;
         return false;
       }
-      setError('');
       return true;
     } catch (_) {
-      setError('Impossible de joindre le serveur. Lance le site (npm start) et réessaie.');
+      setError('Connexion au serveur impossible. Vérifie le réseau et réessaie.');
+      btnSend.disabled = true;
       return false;
     }
   }
