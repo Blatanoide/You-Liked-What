@@ -62,16 +62,26 @@ async function sendVerificationEmail(to, code) {
 
   const text = `Voici ton code de vérification pour You Liked What :\n\n[${code}]\n\nSi tu n’as pas créé de compte, ignore ce message.`;
 
-  const info = await transporter.sendMail({
-    from: `"You Liked What" <${from}>`,
-    to,
-    replyTo: from,
-    subject: 'Code de vérification — You Liked What?',
-    text,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: `"You Liked What" <${from}>`,
+      to,
+      replyTo: from,
+      subject: 'Code de vérification — You Liked What?',
+      text,
+    });
 
-  console.log('[Email] Code envoyé à', to, info.messageId ? `(id ${info.messageId})` : '');
-  return { sent: true };
+    console.log('[Email] Code envoyé à', to, info.messageId ? `(id ${info.messageId})` : '');
+    return { sent: true };
+  } catch (e) {
+    const smtpMsg = e.response || e.message || String(e);
+    console.error('[Email] Échec SMTP pour', to, ':', smtpMsg);
+    if (e.responseCode) {
+      console.error('[Email] Code réponse SMTP:', e.responseCode);
+    }
+    console.warn('[Email] Code de secours (logs uniquement) pour', to, ':', `[${code}]`);
+    return { sent: false, skippedReason: 'smtp_error', smtpMessage: smtpMsg };
+  }
 }
 
 module.exports = {

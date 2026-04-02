@@ -572,15 +572,9 @@ async function registerSite(req, res) {
     return res.status(500).json({ error: 'Erreur serveur lors de l’inscription.' });
   }
 
-  let emailResult;
-  let mailThrew = false;
-  try {
-    emailResult = await emailService.sendVerificationEmail(email, pending.code);
-  } catch (mailErr) {
-    console.error('[Auth] sendVerificationEmail:', mailErr.message || mailErr);
-    mailThrew = true;
-    emailResult = { sent: false };
-  }
+  const emailResult = await emailService.sendVerificationEmail(email, pending.code);
+  const mailFailed =
+    !emailResult.sent && emailResult.skippedReason === 'smtp_error';
 
   const body = {
     ok: true,
@@ -588,8 +582,8 @@ async function registerSite(req, res) {
     emailSent: Boolean(emailResult.sent),
     message: emailResult.sent
       ? 'Compte créé. Ouvre ton e-mail : le texte contient ton code de vérification entre crochets [123456].'
-      : mailThrew
-        ? 'Compte créé, mais l’e-mail n’a pas pu être envoyé (SMTP / Gmail à vérifier sur le serveur). Utilise « Renvoyer le code » une fois corrigé, ou le code affiché dans les logs Render.'
+      : mailFailed
+        ? 'Compte créé, mais Gmail/SMTP a refusé l’envoi (mot de passe d’application invalide ou compte mal configuré). Le code est dans les logs Render (ligne [Email]). Corrige SMTP_USER + SMTP_PASS sur Render puis « Renvoyer le code ».'
         : 'Compte créé. Le serveur n’a pas encore d’SMTP : le code est dans les logs serveur (ligne [Email]). Configure SMTP_USER et SMTP_PASS pour l’envoi réel.',
   };
   if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
@@ -610,20 +604,19 @@ async function resendVerification(req, res) {
   if (!regen.ok) {
     return res.status(400).json({ error: regen.error });
   }
-  try {
-    const send = await emailService.sendVerificationEmail(email, regen.code);
-    if (!send.sent) {
-      return res.status(503).json({
-        error:
-          'Code régénéré mais envoi impossible (SMTP non configuré). Regarde les logs serveur pour le nouveau code ou configure SMTP.',
-        devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
-      });
-    }
-    return res.json({ ok: true, message: 'Un nouveau code a été envoyé à ton adresse.' });
-  } catch (e) {
-    console.error('[Auth] resendVerification send:', e.message || e);
-    return res.status(502).json({ error: 'Envoi de l’e-mail impossible pour le moment.' });
+  const send = await emailService.sendVerificationEmail(email, regen.code);
+  if (!send.sent) {
+    const isSmtpError = send.skippedReason === 'smtp_error';
+    const hint = isSmtpError
+      ? 'Gmail a refusé la connexion : utilise un mot de passe d’application (compte Google → Sécurité → Mots de passe des applications), pas le mot de passe du compte. Vérifie SMTP_USER et SMTP_PASS sur Render.'
+      : 'SMTP non configuré sur le serveur. Le nouveau code est dans les logs Render (ligne [Email]).';
+    return res.status(503).json({
+      ok: false,
+      error: hint,
+      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
+    });
   }
+  return res.json({ ok: true, message: 'Un nouveau code a été envoyé à ton adresse.' });
 }
 
 /**

@@ -331,6 +331,15 @@ h1 {
   margin-top: 0.5rem;
 }
 
+.verify-resend-status {
+  min-height: 1.25rem;
+  margin: 0.5rem 0 0;
+}
+
+.verify-resend-btn {
+  margin-top: 0.35rem;
+}
+
 .login-row {
   display: flex;
   align-items: center;
