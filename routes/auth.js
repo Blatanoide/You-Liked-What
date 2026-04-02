@@ -33,7 +33,7 @@ const uploadAvatar = multer({
         'image/gif': '.gif',
       };
       const ext = map[file.mimetype] || '.jpg';
-      cb(null, `${uid}${ext}`);
+      cb(null, `${uid}-${Date.now()}${ext}`);
     },
   }),
   limits: { fileSize: 3 * 1024 * 1024 },

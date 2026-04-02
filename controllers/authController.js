@@ -4,6 +4,8 @@
  */
 
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const instagramService = require('../services/instagramService');
 const instagramOAuth = require('../services/instagramOAuthService');
 const profileScrape = require('../services/profileScrapeService');
@@ -685,6 +687,15 @@ function uploadProfileAvatar(req, res) {
   }
   if (!req.file) {
     return res.status(400).json({ error: 'Envoie une image (JPEG, PNG, WebP ou GIF).' });
+  }
+  const prevRel = req.session.user.profile_picture;
+  if (prevRel && String(prevRel).startsWith('/uploads/profiles/')) {
+    const absPrev = path.join(__dirname, '..', String(prevRel).replace(/^\//, ''));
+    try {
+      fs.unlinkSync(absPrev);
+    } catch (_) {
+      /* fichier déjà absent */
+    }
   }
   const rel = `/uploads/profiles/${req.file.filename}`;
   siteUserStore.updateProfilePicturePath(req.session.user.id, rel);

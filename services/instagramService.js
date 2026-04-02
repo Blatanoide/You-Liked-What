@@ -22,7 +22,12 @@ function extractShortcode(url) {
 function getEmbedUrlFromPostUrl(url) {
   const code = extractShortcode(url);
   if (!code) return null;
-  return `https://www.instagram.com/p/${code}/embed`;
+  const s = String(url || '');
+  const isReel = /instagram\.com\/(?:reel|reels)\//i.test(s);
+  if (isReel) {
+    return `https://www.instagram.com/reel/${code}/embed/?autoplay=1`;
+  }
+  return `https://www.instagram.com/p/${code}/embed/?autoplay=1`;
 }
 
 /**

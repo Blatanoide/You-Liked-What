@@ -22,6 +22,8 @@ const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
 const SessionSqliteStore = require('./services/sessionSqliteStore');
 const handoffStore = require('./services/handoffStore');
 const handoffProofSvc = require('./services/handoffProof');
+const { getSqliteDatabasePath } = require('./config/sqlitePath');
+const { tursoCreds, getTursoReplicaFilePath } = require('./services/openDatabase');
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
@@ -61,9 +63,8 @@ if (sessionSameSiteRaw === 'none' || sessionSameSiteRaw === 'lax' || sessionSame
 }
 const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies;
 
-/** Même chemin que likesStore (SQLITE_PATH) — sessions survivent aux redémarrages Render. */
-const SQLITE_DB_PATH = process.env.SQLITE_PATH || path.join(__dirname, 'data', 'app.db');
-const sessionStore = new SessionSqliteStore({ dbPath: SQLITE_DB_PATH });
+/** Même connexion SQLite que likesStore (fichier local ou réplique Turso). */
+const sessionStore = new SessionSqliteStore();
 sessionStore.prune(() => {});
 handoffStore.prune();
 
@@ -255,7 +256,32 @@ server.listen(PORT, '0.0.0.0', () => {
     `  Cookie session : SameSite=${sessionSameSite}, Secure=${sessionCookieSecure}` +
       (sessionSameSite === 'none' ? ' (cross-origin front + API, ex. Vercel + Render)' : '')
   );
-  console.log(`  Sessions   SQLite → ${SQLITE_DB_PATH}`);
+  if (tursoCreds().enabled) {
+    console.log(`  SQLite (Turso)  réplique locale ${getTursoReplicaFilePath()} — sync cloud gratuit`);
+    console.log('  Persistance comptes/likes/sessions : oui (Turso, sans disque Render).');
+  } else {
+    const sqlitePath = getSqliteDatabasePath();
+    console.log(`  SQLite     ${sqlitePath}`);
+    const persistEnv = (process.env.SQLITE_PATH || '').trim() || (process.env.DATA_DIR || '').trim();
+    if (persistEnv) {
+      console.log('  Persistance comptes/likes : oui (SQLITE_PATH ou DATA_DIR défini — disque monté en prod).');
+    } else if (process.env.RENDER === 'true') {
+      console.log(
+        '  Persistance : fragile sur Render sans disque — gratuit : Turso (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN) ou disque + SQLITE_PATH'
+      );
+    }
+  }
+  if (tursoCreds().enabled) {
+    const likesStore = require('./services/likesStore');
+    setInterval(() => {
+      try {
+        const d = likesStore.getDb();
+        if (typeof d.sync === 'function') d.sync();
+      } catch (e) {
+        console.warn('[DB] Turso sync périodique :', e.message || e);
+      }
+    }, 20_000);
+  }
   console.log('═══════════════════════════════════════════');
   console.log('');
 });

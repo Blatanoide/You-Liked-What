@@ -1,12 +1,10 @@
 /**
- * Stockage des sessions express-session dans SQLite (même fichier que likes / users si SQLITE_PATH identique).
- * Évite la perte de session au redémarrage ou au réveil Render (MemoryStore = RAM uniquement).
+ * Stockage des sessions express-session dans SQLite (même connexion que likes / users).
  */
 
-const fs = require('fs');
-const path = require('path');
 const Store = require('express-session').Store;
-const Database = require('better-sqlite3');
+const likesStore = require('./likesStore');
+const { scheduleTursoPush } = require('./openDatabase');
 
 function sessionExpiryMs(sess) {
   if (!sess || !sess.cookie) {
@@ -26,42 +24,33 @@ function sessionExpiryMs(sess) {
 }
 
 class SessionSqliteStore extends Store {
-  /**
-   * @param {{ dbPath?: string }} [options]
-   */
-  constructor(options = {}) {
+  constructor() {
     super();
-    this.dbPath =
-      options.dbPath ||
-      process.env.SQLITE_PATH ||
-      path.join(__dirname, '..', 'data', 'app.db');
-    fs.mkdirSync(path.dirname(this.dbPath), { recursive: true });
-    this.db = new Database(this.dbPath);
-    this.db.pragma('journal_mode = WAL');
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS express_session (
-        sid TEXT PRIMARY KEY,
-        sess TEXT NOT NULL,
-        expired INTEGER NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_express_session_expired ON express_session(expired);
-    `);
-    this._get = this.db.prepare(
+    this._get = null;
+    this._set = null;
+    this._destroy = null;
+    this._touch = null;
+    this._prune = null;
+  }
+
+  _ensurePrepared() {
+    if (this._get) return;
+    const db = likesStore.getDb();
+    this._get = db.prepare(
       'SELECT sess FROM express_session WHERE sid = ? AND expired > ?'
     );
-    this._set = this.db.prepare(
+    this._set = db.prepare(
       'INSERT OR REPLACE INTO express_session (sid, sess, expired) VALUES (?, ?, ?)'
     );
-    this._destroy = this.db.prepare('DELETE FROM express_session WHERE sid = ?');
-    this._touch = this.db.prepare(
-      'UPDATE express_session SET expired = ? WHERE sid = ?'
-    );
-    this._prune = this.db.prepare('DELETE FROM express_session WHERE expired < ?');
+    this._destroy = db.prepare('DELETE FROM express_session WHERE sid = ?');
+    this._touch = db.prepare('UPDATE express_session SET expired = ? WHERE sid = ?');
+    this._prune = db.prepare('DELETE FROM express_session WHERE expired < ?');
   }
 
   get(sid, callback) {
     if (!callback) return;
     try {
+      this._ensurePrepared();
       const row = this._get.get(sid, Date.now());
       if (!row) {
         callback(null, null);
@@ -76,8 +65,11 @@ class SessionSqliteStore extends Store {
   set(sid, sess, callback) {
     if (!callback) return;
     try {
+      this._ensurePrepared();
+      const db = likesStore.getDb();
       const expired = sessionExpiryMs(sess);
       this._set.run(sid, JSON.stringify(sess), expired);
+      scheduleTursoPush(db);
       callback(null);
     } catch (err) {
       callback(err);
@@ -86,7 +78,10 @@ class SessionSqliteStore extends Store {
 
   destroy(sid, callback) {
     try {
+      this._ensurePrepared();
+      const db = likesStore.getDb();
       this._destroy.run(sid);
+      scheduleTursoPush(db);
       if (callback) callback(null);
     } catch (err) {
       if (callback) callback(err);
@@ -96,12 +91,15 @@ class SessionSqliteStore extends Store {
   touch(sid, sess, callback) {
     if (!callback) return;
     try {
+      this._ensurePrepared();
+      const db = likesStore.getDb();
       const expired = sessionExpiryMs(sess);
       const info = this._touch.run(expired, sid);
       if (info.changes === 0) {
         this.set(sid, sess, callback);
         return;
       }
+      scheduleTursoPush(db);
       callback(null);
     } catch (err) {
       callback(err);
@@ -110,6 +108,7 @@ class SessionSqliteStore extends Store {
 
   prune(callback) {
     try {
+      this._ensurePrepared();
       this._prune.run(Date.now());
       if (callback) callback(null);
     } catch (err) {

@@ -5,6 +5,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const likesStore = require('./likesStore');
+const { scheduleTursoPush } = require('./openDatabase');
 
 const SALT_ROUNDS = 10;
 const CODE_TTL_SEC = 60 * 60;
@@ -69,6 +70,7 @@ async function createPendingUser(p) {
          VALUES (?, ?, ?, ?, 0, ?, ?, NULL)`
       )
       .run(id, p.username, p.email, hash, code, expires);
+    scheduleTursoPush(getDb());
   } catch (e) {
     const msg = String(e.message || '');
     if (msg.includes('UNIQUE constraint failed')) {
@@ -104,11 +106,11 @@ function getUserRowById(id) {
 }
 
 function setVerified(userId) {
-  getDb()
-    .prepare(
-      `UPDATE site_users SET verified = 1, verification_code = NULL, verification_expires = 0 WHERE id = ?`
-    )
-    .run(userId);
+  const d = getDb();
+  d.prepare(
+    `UPDATE site_users SET verified = 1, verification_code = NULL, verification_expires = 0 WHERE id = ?`
+  ).run(userId);
+  scheduleTursoPush(d);
 }
 
 /**
@@ -142,7 +144,7 @@ function verifyEmailCode(email, codeStr) {
 /**
  * @param {string} login
  * @param {string} password
- * @returns {Promise<import('better-sqlite3').Row | { error: string } | null>}
+ * @returns {Promise<object | { error: string } | null>}
  */
 async function checkLogin(login, password) {
   const row = findByEmailOrUsername(login);
@@ -170,14 +172,20 @@ function regenerateVerificationForEmail(rawEmail) {
   if (row.verified) return { ok: false, error: 'Ce compte est déjà vérifié.' };
   const code = generateCode();
   const expires = Math.floor(Date.now() / 1000) + CODE_TTL_SEC;
-  getDb()
-    .prepare('UPDATE site_users SET verification_code = ?, verification_expires = ? WHERE id = ?')
-    .run(code, expires, row.id);
+  const d = getDb();
+  d.prepare('UPDATE site_users SET verification_code = ?, verification_expires = ? WHERE id = ?').run(
+    code,
+    expires,
+    row.id
+  );
+  scheduleTursoPush(d);
   return { ok: true, code, email };
 }
 
 function updateProfilePicturePath(userId, relativePath) {
-  getDb().prepare('UPDATE site_users SET profile_picture = ? WHERE id = ?').run(relativePath, userId);
+  const d = getDb();
+  d.prepare('UPDATE site_users SET profile_picture = ? WHERE id = ?').run(relativePath, userId);
+  scheduleTursoPush(d);
 }
 
 function sessionUserFromRow(row) {

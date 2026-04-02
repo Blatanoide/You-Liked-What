@@ -107,7 +107,6 @@ function finalizeRound(io, room, reason) {
 
   const gained = {};
   for (const p of room.players.values()) {
-    if (String(p.instagramId) === String(answererInstagramId)) continue;
     const ans = answers.get(p.instagramId);
     if (!ans) continue;
     if (String(ans.guessInstagramId) !== String(answererInstagramId)) continue;
@@ -508,12 +507,6 @@ function attachGameSocket(io, sessionMiddleware) {
         return socket.emit('error_message', err);
       }
 
-      if (String(me.instagramId) === String(room.roundState.answererInstagramId)) {
-        const err = { error: 'C’est ton propre post simulé — pas de réponse ce round.' };
-        if (typeof ack === 'function') ack(err);
-        return socket.emit('error_message', err);
-      }
-
       if (room.roundState.answers.has(me.instagramId)) {
         const err = { error: 'Tu as déjà répondu pour ce round.' };
         if (typeof ack === 'function') ack(err);
@@ -534,10 +527,7 @@ function attachGameSocket(io, sessionMiddleware) {
 
       if (typeof ack === 'function') ack({ ok: true });
 
-      const answererId = String(room.roundState.answererInstagramId);
-      const mustGuess = [...room.players.values()].filter(
-        (p) => String(p.instagramId) !== answererId
-      );
+      const mustGuess = [...room.players.values()];
       const allGuessed = mustGuess.every((p) => room.roundState.answers.has(p.instagramId));
       if (allGuessed) {
         finalizeRound(io, room, 'all_answered');

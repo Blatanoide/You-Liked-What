@@ -26,7 +26,7 @@ html {
 }
 
 .backend-banner {
-  max-width: 960px;
+  max-width: 640px;
   margin: 0 auto;
   padding: 0.75rem 1.25rem;
   background: rgba(180, 60, 60, 0.35);
@@ -67,7 +67,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  max-width: 960px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
@@ -604,6 +604,41 @@ select.input option {
   object-fit: cover;
 }
 
+/* Cadre 9:16 — recadre l’embed Instagram (barre du haut / marges) */
+.post-embed-frame {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 430px);
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  max-height: min(82vh, 820px);
+  min-height: 320px;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.post-embed-frame .post-embed {
+  position: absolute;
+  left: 50%;
+  top: -52px;
+  width: 104%;
+  height: calc(100% + 140px);
+  min-height: 560px;
+  transform: translateX(-50%);
+  border: none;
+  max-width: none;
+}
+
+@media (max-width: 480px) {
+  .post-embed-frame {
+    max-height: min(70vh, 640px);
+  }
+  .post-embed-frame .post-embed {
+    top: -48px;
+    min-height: 480px;
+  }
+}
+
 .post-embed {
   width: 100%;
   min-height: 380px;
@@ -770,7 +805,7 @@ select.input option {
 
 .main.import-page {
   overflow-x: hidden;
-  max-width: 100%;
+  /* même largeur que le reste du site (.main = 640px) — ne pas forcer 100% */
 }
 
 .import-step__num {

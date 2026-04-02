@@ -102,8 +102,6 @@ let me = null;
 let currentRoom = null;
 let timerInterval = null;
 let roundDeadline = 0;
-/** true si le post du round venait de nos likes simulés (on ne répond pas) */
-let lastRoundWasOwnPost = false;
 
 function sessionToMe(session) {
   if (!session || !session.authenticated) {
@@ -360,7 +358,6 @@ function connectSocket() {
     showScreen('game');
     $('scores-panel').classList.remove('hidden');
     $('answer-feedback').classList.add('hidden');
-    lastRoundWasOwnPost = !!payload.isYourSimulatedLike;
     $('round-label').textContent = `Round ${payload.round} / ${payload.totalRounds}`;
 
     const post = payload.post || {};
@@ -368,6 +365,7 @@ function connectSocket() {
     const thumbWrap = $('post-thumb-wrap');
     const thumb = $('post-thumb');
     const iframe = $('post-embed');
+    const embedFrame = $('post-embed-frame');
     if (post.thumbnailUrl) {
       thumb.src = post.thumbnailUrl;
       thumbWrap.classList.remove('hidden');
@@ -376,39 +374,38 @@ function connectSocket() {
       thumb.removeAttribute('src');
     }
     if (post.embedUrl) {
-      iframe.src = post.embedUrl;
+      let u = post.embedUrl;
+      if (!/[?&]autoplay=1(?:&|$)/.test(u)) {
+        u += (u.includes('?') ? '&' : '?') + 'autoplay=1';
+      }
+      iframe.src = u;
       iframe.classList.remove('hidden');
+      embedFrame?.classList.remove('hidden');
+      embedFrame?.setAttribute('aria-hidden', 'false');
     } else {
       iframe.classList.add('hidden');
       iframe.removeAttribute('src');
+      embedFrame?.classList.add('hidden');
+      embedFrame?.setAttribute('aria-hidden', 'true');
     }
 
     const choices = $('choices');
     choices.innerHTML = '';
-    if (payload.isYourSimulatedLike) {
-      const note = document.createElement('p');
-      note.className = 'hint';
-      note.style.textAlign = 'center';
-      note.textContent =
-        'Ce post vient de tes likes simulés. Les autres devinent — tu n’as pas à répondre ce round.';
-      choices.appendChild(note);
-    } else {
-      (payload.choices || []).forEach((c) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'choice-btn';
-        btn.dataset.id = c.instagramId;
-        const img = document.createElement('img');
-        setAvatar(img, c.profile_picture || null, c.username);
-        img.alt = '';
-        const span = document.createElement('span');
-        span.textContent = c.username;
-        btn.appendChild(img);
-        btn.appendChild(span);
-        btn.addEventListener('click', () => submitAnswer(c.instagramId, btn));
-        choices.appendChild(btn);
-      });
-    }
+    (payload.choices || []).forEach((c) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice-btn';
+      btn.dataset.id = c.instagramId;
+      const img = document.createElement('img');
+      setAvatar(img, c.profile_picture || null, c.username);
+      img.alt = '';
+      const span = document.createElement('span');
+      span.textContent = c.username;
+      btn.appendChild(img);
+      btn.appendChild(span);
+      btn.addEventListener('click', () => submitAnswer(c.instagramId, btn));
+      choices.appendChild(btn);
+    });
 
     roundDeadline = Date.now() + (payload.timeLimitSec || 20) * 1000;
     if (timerInterval) clearInterval(timerInterval);
@@ -428,10 +425,7 @@ function connectSocket() {
     const gained = payload.pointsThisRound?.[mine];
     const fb = $('answer-feedback');
     fb.classList.remove('hidden');
-    if (lastRoundWasOwnPost) {
-      fb.textContent = 'Ce round utilisait ton post simulé — les autres devinaient à ta place.';
-      fb.style.color = '#a898b5';
-    } else if (gained?.correct) {
+    if (gained?.correct) {
       fb.textContent = `Bonne réponse ! +${gained.total} pts (bonus vitesse : +${gained.bonus})`;
       fb.style.color = '#7dffb3';
     } else {

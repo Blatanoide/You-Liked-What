@@ -3,6 +3,7 @@
  */
 
 const likesStore = require('./likesStore');
+const { scheduleTursoPush } = require('./openDatabase');
 
 function getDb() {
   const db = likesStore.getDb();
@@ -52,15 +53,15 @@ function upsertIdentity(user) {
 
 function setBio(userId, bio) {
   const clean = String(bio || '').trim().slice(0, 500);
-  getDb()
-    .prepare(
-      `INSERT INTO user_profiles (user_id, bio, updated_at)
+  const d = getDb();
+  d.prepare(
+    `INSERT INTO user_profiles (user_id, bio, updated_at)
        VALUES (?, ?, strftime('%s','now'))
        ON CONFLICT(user_id) DO UPDATE SET
          bio = excluded.bio,
          updated_at = excluded.updated_at`
-    )
-    .run(String(userId), clean);
+  ).run(String(userId), clean);
+  scheduleTursoPush(d);
   return clean;
 }
 
@@ -164,6 +165,7 @@ function recordCompletedGame(players, scoresMap, reactionStatsMap) {
     }
   });
   tx();
+  scheduleTursoPush(db);
 }
 
 module.exports = {

@@ -3,21 +3,16 @@
  * Le jeu utilise les `limit` derniers (par défaut 100), triés par date de like si connue.
  */
 
-const fs = require('fs');
-const path = require('path');
-const Database = require('better-sqlite3');
 const instagramService = require('./instagramService');
+const { openPrimaryDatabase, scheduleTursoPush } = require('./openDatabase');
 
-const dbPath = process.env.SQLITE_PATH || path.join(__dirname, '..', 'data', 'app.db');
 const GAME_POOL_LIMIT = Math.min(500, Math.max(50, Number(process.env.LIKES_GAME_POOL_LIMIT) || 100));
 
 let db;
 
 function getDb() {
   if (db) return db;
-  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
+  db = openPrimaryDatabase();
   db.exec(`
     CREATE TABLE IF NOT EXISTS user_liked_posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +26,17 @@ function getDb() {
     );
     CREATE INDEX IF NOT EXISTS idx_user_liked_posts_user ON user_liked_posts(user_id);
     CREATE INDEX IF NOT EXISTS idx_user_liked_posts_user_liked ON user_liked_posts(user_id, liked_at);
+    CREATE TABLE IF NOT EXISTS express_session (
+      sid TEXT PRIMARY KEY,
+      sess TEXT NOT NULL,
+      expired INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_express_session_expired ON express_session(expired);
+    CREATE TABLE IF NOT EXISTS auth_handoff (
+      token TEXT PRIMARY KEY,
+      sess_json TEXT NOT NULL,
+      expires INTEGER NOT NULL
+    );
   `);
   return db;
 }
@@ -146,6 +152,7 @@ function upsertMany(userId, entries) {
     }
   });
   txn(entries);
+  scheduleTursoPush(db);
   return { processed, skippedInvalid };
 }
 
@@ -165,16 +172,20 @@ function addOne(userId, postUrl, sourceLabel = 'manual') {
 
 function removeOne(userId, postUrl) {
   if (!userId || !postUrl) return { ok: false };
+  const d = getDb();
   const normalized = normalizePostUrl(postUrl) || postUrl.split('?')[0];
-  const info = getDb()
+  const info = d
     .prepare('DELETE FROM user_liked_posts WHERE user_id = ? AND post_url = ?')
     .run(String(userId), normalized);
   if (info.changes === 0) {
-    const info2 = getDb()
+    const info2 = d
       .prepare('DELETE FROM user_liked_posts WHERE user_id = ? AND post_url LIKE ?')
       .run(String(userId), `${normalized}%`);
-    return { ok: info2.changes > 0 };
+    const ok = info2.changes > 0;
+    if (ok) scheduleTursoPush(d);
+    return { ok };
   }
+  scheduleTursoPush(d);
   return { ok: true };
 }
 

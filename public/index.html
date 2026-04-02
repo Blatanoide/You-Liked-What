@@ -205,7 +205,16 @@
         <div id="post-thumb-wrap" class="post-thumb-wrap hidden">
           <img id="post-thumb" alt="Aperçu du post" />
         </div>
-        <iframe id="post-embed" class="post-embed hidden" title="Post Instagram" loading="lazy"></iframe>
+        <div id="post-embed-frame" class="post-embed-frame hidden" aria-hidden="true">
+          <iframe
+            id="post-embed"
+            class="post-embed"
+            title="Post ou reel Instagram"
+            loading="eager"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write"
+            allowfullscreen=""
+          ></iframe>
+        </div>
         <a id="post-link" class="post-link" href="#" target="_blank" rel="noopener">Ouvrir sur Instagram</a>
       </div>
       <div id="choices" class="choices"></div>
