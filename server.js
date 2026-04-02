@@ -20,6 +20,7 @@ const emailService = require('./services/emailService');
 const { attachGameSocket } = require('./sockets/gameSocket');
 const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
 const SessionSqliteStore = require('./services/sessionSqliteStore');
+const handoffStore = require('./services/handoffStore');
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
@@ -63,6 +64,7 @@ const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies
 const SQLITE_DB_PATH = process.env.SQLITE_PATH || path.join(__dirname, 'data', 'app.db');
 const sessionStore = new SessionSqliteStore({ dbPath: SQLITE_DB_PATH });
 sessionStore.prune(() => {});
+handoffStore.prune();
 
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';

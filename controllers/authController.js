@@ -13,6 +13,7 @@ const { MIN_LIKES } = require('../config/constants');
 const { expandProfilePictureUrl } = require('../utils/publicUrl');
 const siteUserStore = require('../services/siteUserStore');
 const emailService = require('../services/emailService');
+const handoffStore = require('../services/handoffStore');
 
 function displayUser(req, user) {
   if (!user) return null;
@@ -721,6 +722,61 @@ function seedFakeLikes(req, res) {
   });
 }
 
+/**
+ * POST — connecté (cookie valable depuis l’origine appelante, ex. Vercel) : crée un jeton pour ouvrir l’import sur Render.
+ */
+function createHandoff(req, res) {
+  if (!req.session?.user?.id) {
+    return res.status(401).json({ error: 'Non connecté' });
+  }
+  const token = crypto.randomBytes(32).toString('hex');
+  const payload = {
+    user: req.session.user,
+    loginMethod: req.session.loginMethod || null,
+  };
+  try {
+    handoffStore.createToken(token, payload);
+  } catch (e) {
+    console.error('[Auth] handoff create:', e);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+  return res.json({ ok: true, token });
+}
+
+/**
+ * POST { token } — page import sur l’API (1er niveau) : établit une session cookie sur ce domaine.
+ */
+function consumeHandoff(req, res) {
+  const token = String(req.body?.token || '').trim();
+  const payload = handoffStore.takeToken(token);
+  if (!payload || !payload.user) {
+    return res.status(400).json({
+      error:
+        'Lien invalide ou expiré (5 min max). Retourne sur le site, reconnecte-toi, puis reclique sur « Importer mes likes ».',
+    });
+  }
+  req.session.regenerate((regenErr) => {
+    if (regenErr) {
+      console.error('[Auth] handoff regenerate:', regenErr);
+      return res.status(500).json({ error: 'Erreur session' });
+    }
+    req.session.user = payload.user;
+    req.session.loginMethod = payload.loginMethod || 'handoff';
+    req.session.igAccessToken = null;
+    likesStore.hydrateSession(req);
+    if (!Array.isArray(req.session.simulatedLikes)) {
+      req.session.simulatedLikes = [];
+    }
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error('[Auth] handoff save:', saveErr);
+        return res.status(500).json({ error: 'Erreur session' });
+      }
+      return res.json({ ok: true });
+    });
+  });
+}
+
 module.exports = {
   loginWithScrape,
   loginWithPuppeteerCredentials,
@@ -741,5 +797,7 @@ module.exports = {
   resendVerification,
   loginSite,
   uploadProfileAvatar,
+  createHandoff,
+  consumeHandoff,
   MIN_LIKES,
 };

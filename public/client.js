@@ -691,8 +691,51 @@ function wireApiAnchors() {
   if (importLikes) importLikes.href = apiUrl('/import-likes.html');
 }
 
+/**
+ * Vercel → Render : le cookie de session est partitionné ; on échange un jeton à la volée pour créer une session sur le domaine de l’API.
+ */
+function wireImportLikesHandoff() {
+  const importLikes = $('link-import-likes');
+  if (!importLikes || importLikes.dataset.handoffWired === '1') return;
+  importLikes.dataset.handoffWired = '1';
+  importLikes.addEventListener('click', async (e) => {
+    const targetHref = apiUrl('/import-likes.html');
+    let crossSite = true;
+    try {
+      crossSite = new URL(targetHref).origin !== window.location.origin;
+    } catch (_) {
+      crossSite = true;
+    }
+    if (!crossSite) return;
+    e.preventDefault();
+    try {
+      const res = await apiFetch('/auth/handoff/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.ok || !j.token) {
+        const msg =
+          j.error ||
+          (res.status === 401
+            ? 'Connecte-toi sur cette page, puis réessaie.'
+            : 'Impossible d’ouvrir l’import. Réessaie dans un instant.');
+        window.alert(msg);
+        return;
+      }
+      const u = new URL(targetHref);
+      u.searchParams.set('h', j.token);
+      window.location.href = u.toString();
+    } catch (_) {
+      window.alert('Erreur réseau. Vérifie ta connexion et réessaie.');
+    }
+  });
+}
+
 async function bootstrap() {
   wireApiAnchors();
+  wireImportLikesHandoff();
   readQueryError();
   initLobbySelects();
   await checkBackend();

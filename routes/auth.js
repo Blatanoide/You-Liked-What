@@ -55,6 +55,8 @@ router.post('/register', authController.registerSite);
 router.post('/verify-email', authController.verifySiteEmail);
 router.post('/resend-verification', authController.resendVerification);
 router.post('/login-site', authController.loginSite);
+router.post('/handoff/create', authController.createHandoff);
+router.post('/handoff/consume', authController.consumeHandoff);
 router.post('/profile/avatar', (req, res, next) => {
   uploadAvatar.single('photo')(req, res, (err) => {
     if (err) {

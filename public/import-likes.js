@@ -62,6 +62,44 @@
     });
   }
 
+  function stripHandoffParamFromUrl() {
+    try {
+      const u = new URL(window.location.href);
+      if (!u.searchParams.has('h')) return;
+      u.searchParams.delete('h');
+      const qs = u.searchParams.toString();
+      history.replaceState({}, '', u.pathname + (qs ? `?${qs}` : '') + u.hash);
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
+  async function tryConsumeHandoff() {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('h');
+    if (!raw || !String(raw).trim()) return;
+    const token = String(raw).trim();
+    try {
+      const r = await apiFetch('/auth/handoff/consume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const j = await r.json().catch(() => ({}));
+      stripHandoffParamFromUrl();
+      if (!r.ok || !j.ok) {
+        setError(j.error || 'Lien de transfert invalide ou expiré.');
+        return;
+      }
+      setError('');
+    } catch (_) {
+      stripHandoffParamFromUrl();
+      setError(
+        'Impossible de valider le transfert. Retourne sur le site et utilise à nouveau « Importer mes likes ».'
+      );
+    }
+  }
+
   async function checkSession() {
     try {
       const r = await apiFetch('/api/health');
@@ -174,5 +212,8 @@
     }
   });
 
-  checkSession();
+  (async function initImportPage() {
+    await tryConsumeHandoff();
+    await checkSession();
+  })();
 })();
