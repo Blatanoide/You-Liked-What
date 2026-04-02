@@ -19,6 +19,7 @@ const instagramOAuth = require('./services/instagramOAuthService');
 const emailService = require('./services/emailService');
 const { attachGameSocket } = require('./sockets/gameSocket');
 const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
+const SessionSqliteStore = require('./services/sessionSqliteStore');
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
@@ -57,6 +58,11 @@ if (sessionSameSiteRaw === 'none' || sessionSameSiteRaw === 'lax' || sessionSame
   sessionSameSite = 'none';
 }
 const sessionCookieSecure = sessionSameSite === 'none' ? true : useSecureCookies;
+
+/** Même chemin que likesStore (SQLITE_PATH) — sessions survivent aux redémarrages Render. */
+const SQLITE_DB_PATH = process.env.SQLITE_PATH || path.join(__dirname, 'data', 'app.db');
+const sessionStore = new SessionSqliteStore({ dbPath: SQLITE_DB_PATH });
+sessionStore.prune(() => {});
 
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
@@ -100,7 +106,7 @@ app.use(
   })
 );
 
-if (process.env.TRUST_PROXY === 'true') {
+if (process.env.TRUST_PROXY === 'true' || process.env.RENDER === 'true') {
   app.set('trust proxy', 1);
 }
 const server = http.createServer(app);
@@ -114,6 +120,7 @@ const io = new Server(server, {
 
 const sessionMiddleware = session({
   secret: SESSION_SECRET,
+  store: sessionStore,
   resave: false,
   saveUninitialized: false,
   name: 'ylw.sid',
@@ -241,6 +248,7 @@ server.listen(PORT, '0.0.0.0', () => {
     `  Cookie session : SameSite=${sessionSameSite}, Secure=${sessionCookieSecure}` +
       (sessionSameSite === 'none' ? ' (cross-origin front + API, ex. Vercel + Render)' : '')
   );
+  console.log(`  Sessions   SQLite → ${SQLITE_DB_PATH}`);
   console.log('═══════════════════════════════════════════');
   console.log('');
 });
