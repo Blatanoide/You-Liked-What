@@ -32,6 +32,28 @@ function apiUrl(path) {
   return new URL(path, API_BASE_URL).href;
 }
 
+const HANDOFF_PROOF_KEY = 'ylw_handoff_proof';
+
+function persistHandoffProofFromPayload(payload) {
+  if (!payload || typeof payload !== 'object') return;
+  const p = payload.handoffProof;
+  if (typeof p === 'string' && p.length > 20) {
+    try {
+      sessionStorage.setItem(HANDOFF_PROOF_KEY, p);
+    } catch (_) {
+      /* quota / private mode */
+    }
+  }
+}
+
+function readHandoffProofForRequest() {
+  try {
+    return sessionStorage.getItem(HANDOFF_PROOF_KEY) || '';
+  } catch (_) {
+    return '';
+  }
+}
+
 /**
  * API + en-tête ngrok. Paramètre _nc sur les GET pour éviter un vieux 404/401 mis en cache par ngrok.
  */
@@ -112,6 +134,7 @@ async function fetchMe(opts = {}) {
     return null;
   }
   lastBootstrap = data;
+  persistHandoffProofFromPayload(data);
   return sessionToMe(data.session);
 }
 
@@ -581,6 +604,7 @@ async function checkBackend() {
       throw new Error('JSON bootstrap invalide ou cache — redémarre le serveur (npm start) puis Ctrl+F5');
     }
     lastBootstrap = j;
+    persistHandoffProofFromPayload(j);
     console.log('[App] Backend OK — port', j.port, j.v ? `(v${j.v})` : '');
     b.classList.add('hidden');
     return true;
@@ -658,6 +682,7 @@ async function loadUiConfig() {
     const cfg = await res.json();
     if (!cfg || !cfg.ok || typeof cfg.port !== 'number' || cfg.v < 3 || cfg.session === undefined) return;
     lastBootstrap = cfg;
+    persistHandoffProofFromPayload(cfg);
     applyClientConfig(lastBootstrap);
   } catch (_) {
     $('ngrok-hint').textContent = '';
@@ -678,7 +703,17 @@ function openVerificationPanel(email) {
 
 function wireApiAnchors() {
   const lo = $('logout-btn');
-  if (lo) lo.href = apiUrl('/auth/logout');
+  if (lo) {
+    lo.href = apiUrl('/auth/logout');
+    if (lo.dataset.handoffClear !== '1') {
+      lo.dataset.handoffClear = '1';
+      lo.addEventListener('click', () => {
+        try {
+          sessionStorage.removeItem(HANDOFF_PROOF_KEY);
+        } catch (_) {}
+      });
+    }
+  }
   const oauth = $('btn-instagram-oauth');
   if (oauth) oauth.href = apiUrl('/auth/instagram/start');
   const importLikes = $('link-import-likes');
@@ -706,7 +741,7 @@ function wireImportLikesHandoff() {
       const res = await apiFetch('/auth/handoff/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}',
+        body: JSON.stringify({ handoffProof: readHandoffProofForRequest() }),
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j.ok || !j.token) {
@@ -776,6 +811,7 @@ $('site-login-form')?.addEventListener('submit', async (ev) => {
       $('auth-error').classList.remove('hidden');
       return;
     }
+    persistHandoffProofFromPayload(body);
     $('site-login-password').value = '';
     invalidateBootstrap();
     const meData = await fetchMe({ force: true });
@@ -929,6 +965,7 @@ $('site-verify-form')?.addEventListener('submit', async (ev) => {
       $('auth-error').classList.remove('hidden');
       return;
     }
+    persistHandoffProofFromPayload(body);
     invalidateBootstrap();
     const meData = await fetchMe({ force: true });
     if (meData) syncMe(meData);
@@ -961,6 +998,7 @@ $('login-form')?.addEventListener('submit', async (ev) => {
       $('auth-error').classList.remove('hidden');
       return;
     }
+    persistHandoffProofFromPayload(body);
     if (body.scrapeWarning) {
       $('auth-warn').textContent = body.scrapeWarning;
       $('auth-warn').classList.remove('hidden');
@@ -1008,6 +1046,7 @@ $('login-password-form')?.addEventListener('submit', async (ev) => {
       $('auth-error').classList.remove('hidden');
       return;
     }
+    persistHandoffProofFromPayload(body);
     $('ig-password').value = '';
     invalidateBootstrap();
     const meData = await fetchMe({ force: true });
@@ -1039,6 +1078,7 @@ $('btn-demo-login')?.addEventListener('click', async () => {
     $('auth-error').classList.remove('hidden');
     return;
   }
+  persistHandoffProofFromPayload(body);
   invalidateBootstrap();
   const meData = await fetchMe();
   if (meData) syncMe(meData);

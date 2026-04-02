@@ -98,6 +98,11 @@ function findByEmailOrUsername(login) {
   return findByUsername(lower);
 }
 
+function getUserRowById(id) {
+  if (!id) return null;
+  return getDb().prepare('SELECT * FROM site_users WHERE id = ?').get(String(id));
+}
+
 function setVerified(userId) {
   getDb()
     .prepare(
@@ -192,6 +197,7 @@ module.exports = {
   validatePassword,
   createPendingUser,
   findByEmail,
+  getUserRowById,
   verifyEmailCode,
   checkLogin,
   regenerateVerificationForEmail,

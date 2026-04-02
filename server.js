@@ -21,6 +21,7 @@ const { attachGameSocket } = require('./sockets/gameSocket');
 const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
 const SessionSqliteStore = require('./services/sessionSqliteStore');
 const handoffStore = require('./services/handoffStore');
+const handoffProofSvc = require('./services/handoffProof');
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
@@ -177,6 +178,10 @@ function sendApiBootstrap(req, res) {
     listenPort,
     /** État session : plus besoin de /api/session ni /auth/me au chargement (souvent 404/401 via ngrok). */
     session: authController.sessionPayload(req),
+    handoffProof:
+      req.session?.user?.id
+        ? handoffProofSvc.issueProofForHandoff(req.session.user, req.session.loginMethod)
+        : null,
     publicBaseUrl: PUBLIC_BASE_URL || null,
     demoLoginEnabled: process.env.DEV_FAKE_AUTH === 'true',
     instagramOAuthEnabled: instagramOAuth.isConfigured(),

@@ -14,6 +14,7 @@ const { expandProfilePictureUrl } = require('../utils/publicUrl');
 const siteUserStore = require('../services/siteUserStore');
 const emailService = require('../services/emailService');
 const handoffStore = require('../services/handoffStore');
+const handoffProof = require('../services/handoffProof');
 
 function displayUser(req, user) {
   if (!user) return null;
@@ -42,12 +43,14 @@ function saveSessionAndReply(req, res, user, extra = {}) {
       return res.redirect(302, '/');
     }
     const likes = Array.isArray(req.session.simulatedLikes) ? req.session.simulatedLikes : [];
+    const proof = handoffProof.issueProofForHandoff(user, req.session.loginMethod);
     return res.json({
       ok: true,
       user: displayUser(req, user),
       simulatedLikes: likes,
       canPlay: likes.length >= MIN_LIKES,
       ...extra,
+      ...(proof ? { handoffProof: proof } : {}),
     });
   });
 }
@@ -723,16 +726,34 @@ function seedFakeLikes(req, res) {
 }
 
 /**
- * POST — connecté (cookie valable depuis l’origine appelante, ex. Vercel) : crée un jeton pour ouvrir l’import sur Render.
+ * POST — session cookie et/ou handoffProof (sessionStorage iOS / WebKit cross-site).
  */
 function createHandoff(req, res) {
-  if (!req.session?.user?.id) {
-    return res.status(401).json({ error: 'Non connecté' });
+  let user = null;
+  let loginMethod = null;
+  if (req.session?.user?.id) {
+    user = req.session.user;
+    loginMethod = req.session.loginMethod || null;
+  } else {
+    const raw = String(req.body?.handoffProof || req.headers['x-handoff-proof'] || '').trim();
+    const snap = handoffProof.verifyProofForHandoff(raw);
+    if (!snap) {
+      return res.status(401).json({ error: 'Non connecté' });
+    }
+    user = snap.user;
+    loginMethod = snap.loginMethod;
+    if (String(user.id).startsWith('site_')) {
+      const row = siteUserStore.getUserRowById(user.id);
+      if (!row || !row.verified) {
+        return res.status(401).json({ error: 'Non connecté' });
+      }
+      user = siteUserStore.sessionUserFromRow(row);
+    }
   }
   const token = crypto.randomBytes(32).toString('hex');
   const payload = {
-    user: req.session.user,
-    loginMethod: req.session.loginMethod || null,
+    user,
+    loginMethod,
   };
   try {
     handoffStore.createToken(token, payload);
