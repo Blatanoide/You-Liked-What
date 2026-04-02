@@ -31,7 +31,14 @@ function openPrimaryDatabase() {
   const { url, token, enabled } = tursoCreds();
   if (enabled) {
     const file = getTursoReplicaFilePath();
-    const db = new Database(file, { syncUrl: url, authToken: token });
+    /** @see https://github.com/tursodatabase/libsql-js — false = écritures locales plus rapides (gros import), puis sync() explicite. */
+    const readYourWrites =
+      String(process.env.TURSO_READ_YOUR_WRITES || 'true').toLowerCase() !== 'false';
+    const db = new Database(file, {
+      syncUrl: url,
+      authToken: token,
+      readYourWrites,
+    });
     try {
       db.sync();
     } catch (e) {
@@ -66,9 +73,25 @@ function scheduleTursoPush(db) {
   }, 400);
 }
 
+/**
+ * Sync immédiate vers Turso (après gros import, ou si TURSO_READ_YOUR_WRITES=false).
+ * @param {import('libsql').Database} db
+ */
+function flushTursoSyncNow(db) {
+  if (!tursoCreds().enabled || !db || typeof db.sync !== 'function') return;
+  clearTimeout(syncTimer);
+  syncTimer = null;
+  try {
+    db.sync();
+  } catch (e) {
+    console.warn('[DB] Turso sync immédiat :', e.message || e);
+  }
+}
+
 module.exports = {
   tursoCreds,
   openPrimaryDatabase,
   scheduleTursoPush,
+  flushTursoSyncNow,
   getTursoReplicaFilePath,
 };

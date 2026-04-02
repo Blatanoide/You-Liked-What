@@ -109,8 +109,9 @@ function migrateFromSessionIfEmpty(userId, sessionLikes) {
 /**
  * @param {string} userId
  * @param {{ postUrl: string, shortcode?: string|null, likedAt?: number|null, sourceLabel?: string }[]} entries
+ * @param {{ skipScheduleTurso?: boolean }} [options]
  */
-function upsertMany(userId, entries) {
+function upsertMany(userId, entries, options = {}) {
   if (!userId || !Array.isArray(entries) || entries.length === 0) {
     return { processed: 0, skippedInvalid: 0 };
   }
@@ -152,7 +153,9 @@ function upsertMany(userId, entries) {
     }
   });
   txn(entries);
-  scheduleTursoPush(db);
+  if (!options.skipScheduleTurso) {
+    scheduleTursoPush(d);
+  }
   return { processed, skippedInvalid };
 }
 

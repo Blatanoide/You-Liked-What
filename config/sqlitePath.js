@@ -10,6 +10,8 @@
  *
  * Alternative gratuite (sans disque Render) : Turso + variables TURSO_DATABASE_URL et TURSO_AUTH_TOKEN.
  * Le backend utilise alors une réplique locale (turso-replica.db à côté du chemin logique app.db).
+ * Import massif lent ? Même région Turso que Render si possible ; option TURSO_READ_YOUR_WRITES=false
+ * (les gros imports appellent quand même sync() à la fin pour pousser vers le cloud).
  */
 
 const fs = require('fs');
