@@ -724,8 +724,9 @@ function wireImportLikesHandoff() {
         window.alert(msg);
         return;
       }
-      const u = new URL(targetHref);
+      const u = new URL('/auth/handoff/apply', API_BASE_URL);
       u.searchParams.set('h', j.token);
+      u.searchParams.set('next', '/import-likes.html');
       window.location.href = u.toString();
     } catch (_) {
       window.alert('Erreur réseau. Vérifie ta connexion et réessaie.');

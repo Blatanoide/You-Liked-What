@@ -743,6 +743,44 @@ function createHandoff(req, res) {
   return res.json({ ok: true, token });
 }
 
+function safeHandoffNext(raw) {
+  const p = String(raw || '/import-likes.html').split('?')[0];
+  if (p !== '/import-likes.html') return '/import-likes.html';
+  return p;
+}
+
+/**
+ * GET ?h=&next= — Safari iOS applique mal Set-Cookie après fetch JSON ; une redirection HTTP fixe la session.
+ */
+function applyHandoffGet(req, res) {
+  const token = String(req.query.h || '').trim();
+  const nextPath = safeHandoffNext(req.query.next);
+  const payload = handoffStore.takeToken(token);
+  if (!payload || !payload.user) {
+    return res.redirect(302, `${nextPath}?handoff_err=1`);
+  }
+  req.session.regenerate((regenErr) => {
+    if (regenErr) {
+      console.error('[Auth] handoff apply regenerate:', regenErr);
+      return res.redirect(302, `${nextPath}?handoff_err=1`);
+    }
+    req.session.user = payload.user;
+    req.session.loginMethod = payload.loginMethod || 'handoff';
+    req.session.igAccessToken = null;
+    likesStore.hydrateSession(req);
+    if (!Array.isArray(req.session.simulatedLikes)) {
+      req.session.simulatedLikes = [];
+    }
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error('[Auth] handoff apply save:', saveErr);
+        return res.redirect(302, `${nextPath}?handoff_err=1`);
+      }
+      return res.redirect(302, nextPath);
+    });
+  });
+}
+
 /**
  * POST { token } — page import sur l’API (1er niveau) : établit une session cookie sur ce domaine.
  */
@@ -799,5 +837,6 @@ module.exports = {
   uploadProfileAvatar,
   createHandoff,
   consumeHandoff,
+  applyHandoffGet,
   MIN_LIKES,
 };

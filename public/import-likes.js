@@ -4,6 +4,16 @@
   const API_BASE_URL = onApiHost
     ? `${window.location.protocol}//${window.location.host}`
     : 'https://you-liked-what-backend.onrender.com';
+
+  const legacyH = new URLSearchParams(window.location.search).get('h');
+  if (legacyH && String(legacyH).trim()) {
+    const jump = new URL('/auth/handoff/apply', API_BASE_URL);
+    jump.searchParams.set('h', String(legacyH).trim());
+    jump.searchParams.set('next', '/import-likes.html');
+    window.location.replace(jump.href);
+    return;
+  }
+
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
   const folderInput = document.getElementById('folder-input');
@@ -62,41 +72,15 @@
     });
   }
 
-  function stripHandoffParamFromUrl() {
+  function stripQueryParam(name) {
     try {
       const u = new URL(window.location.href);
-      if (!u.searchParams.has('h')) return;
-      u.searchParams.delete('h');
+      if (!u.searchParams.has(name)) return;
+      u.searchParams.delete(name);
       const qs = u.searchParams.toString();
       history.replaceState({}, '', u.pathname + (qs ? `?${qs}` : '') + u.hash);
     } catch (_) {
       /* ignore */
-    }
-  }
-
-  async function tryConsumeHandoff() {
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get('h');
-    if (!raw || !String(raw).trim()) return;
-    const token = String(raw).trim();
-    try {
-      const r = await apiFetch('/auth/handoff/consume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      const j = await r.json().catch(() => ({}));
-      stripHandoffParamFromUrl();
-      if (!r.ok || !j.ok) {
-        setError(j.error || 'Lien de transfert invalide ou expiré.');
-        return;
-      }
-      setError('');
-    } catch (_) {
-      stripHandoffParamFromUrl();
-      setError(
-        'Impossible de valider le transfert. Retourne sur le site et utilise à nouveau « Importer mes likes ».'
-      );
     }
   }
 
@@ -213,7 +197,13 @@
   });
 
   (async function initImportPage() {
-    await tryConsumeHandoff();
-    await checkSession();
+    const hadHandoffErr = new URLSearchParams(window.location.search).get('handoff_err') === '1';
+    stripQueryParam('handoff_err');
+    const ok = await checkSession();
+    if (hadHandoffErr && !ok) {
+      setError(
+        'Lien expiré ou déjà utilisé. Sur iPhone : ouvre le site dans Safari (pas le navigateur intégré d’une app), reconnecte-toi, puis touche à nouveau « Importer mes likes ».'
+      );
+    }
   })();
 })();
