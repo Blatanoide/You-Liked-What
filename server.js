@@ -23,7 +23,7 @@ const SessionSqliteStore = require('./services/sessionSqliteStore');
 const handoffStore = require('./services/handoffStore');
 const handoffProofSvc = require('./services/handoffProof');
 const { getSqliteDatabasePath } = require('./config/sqlitePath');
-const { tursoCreds, getTursoReplicaFilePath } = require('./services/openDatabase');
+const { tursoCreds, getTursoReplicaFilePath, syncTursoReplica } = require('./services/openDatabase');
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
@@ -275,8 +275,7 @@ server.listen(PORT, '0.0.0.0', () => {
     const likesStore = require('./services/likesStore');
     setInterval(() => {
       try {
-        const d = likesStore.getDb();
-        if (typeof d.sync === 'function') d.sync();
+        syncTursoReplica(likesStore.getDb());
       } catch (e) {
         console.warn('[DB] Turso sync périodique :', e.message || e);
       }

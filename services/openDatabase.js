@@ -9,6 +9,33 @@ const { ensureSqliteDirectory } = require('../config/sqlitePath');
 
 let syncTimer = null;
 
+/** Évite deux `db.sync()` en parallèle (Timers + import + écritures) → erreur libsql `InvalidParserState`. */
+let tursoSyncBusy = false;
+let tursoSyncPending = false;
+
+/**
+ * Un seul sync à la fois sur la connexion (requis par libsql / réplication).
+ * @param {import('libsql').Database} db
+ */
+function runTursoSyncSerial(db) {
+  if (!tursoCreds().enabled || !db || typeof db.sync !== 'function') return;
+  if (tursoSyncBusy) {
+    tursoSyncPending = true;
+    return;
+  }
+  tursoSyncBusy = true;
+  try {
+    do {
+      tursoSyncPending = false;
+      db.sync();
+    } while (tursoSyncPending);
+  } catch (e) {
+    console.warn('[DB] Turso sync :', e.message || e);
+  } finally {
+    tursoSyncBusy = false;
+  }
+}
+
 function tursoCreds() {
   const url = (
     process.env.TURSO_DATABASE_URL ||
@@ -40,7 +67,7 @@ function openPrimaryDatabase() {
       readYourWrites,
     });
     try {
-      db.sync();
+      runTursoSyncSerial(db);
     } catch (e) {
       console.error('[DB] Turso sync() au démarrage :', e.message || e);
     }
@@ -65,11 +92,8 @@ function scheduleTursoPush(db) {
   if (!tursoCreds().enabled || !db || typeof db.sync !== 'function') return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
-    try {
-      db.sync();
-    } catch (e) {
-      console.warn('[DB] Turso sync :', e.message || e);
-    }
+    syncTimer = null;
+    runTursoSyncSerial(db);
   }, 400);
 }
 
@@ -81,11 +105,7 @@ function flushTursoSyncNow(db) {
   if (!tursoCreds().enabled || !db || typeof db.sync !== 'function') return;
   clearTimeout(syncTimer);
   syncTimer = null;
-  try {
-    db.sync();
-  } catch (e) {
-    console.warn('[DB] Turso sync immédiat :', e.message || e);
-  }
+  runTursoSyncSerial(db);
 }
 
 module.exports = {
@@ -93,5 +113,6 @@ module.exports = {
   openPrimaryDatabase,
   scheduleTursoPush,
   flushTursoSyncNow,
+  syncTursoReplica: runTursoSyncSerial,
   getTursoReplicaFilePath,
 };

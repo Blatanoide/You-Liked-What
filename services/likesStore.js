@@ -4,7 +4,7 @@
  */
 
 const instagramService = require('./instagramService');
-const { openPrimaryDatabase, scheduleTursoPush } = require('./openDatabase');
+const { openPrimaryDatabase, scheduleTursoPush, tursoCreds } = require('./openDatabase');
 
 const GAME_POOL_LIMIT = Math.min(500, Math.max(50, Number(process.env.LIKES_GAME_POOL_LIMIT) || 100));
 
@@ -152,7 +152,13 @@ function upsertMany(userId, entries, options = {}) {
       processed += 1;
     }
   });
-  txn(entries);
+  /** Gros lot + Turso : plusieurs petites transactions (évite InvalidParserState / limites sync WAL). */
+  const chunk = tursoCreds().enabled
+    ? Math.min(400, Math.max(40, Number(process.env.TURSO_UPSERT_CHUNK) || 100))
+    : entries.length;
+  for (let i = 0; i < entries.length; i += chunk) {
+    txn(entries.slice(i, i + chunk));
+  }
   if (!options.skipScheduleTurso) {
     scheduleTursoPush(d);
   }
