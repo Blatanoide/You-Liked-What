@@ -206,14 +206,7 @@
           <img id="post-thumb" alt="Aperçu du post" />
         </div>
         <div id="post-embed-frame" class="post-embed-frame hidden" aria-hidden="true">
-          <iframe
-            id="post-embed"
-            class="post-embed"
-            title="Post ou reel Instagram"
-            loading="eager"
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write"
-            allowfullscreen=""
-          ></iframe>
+          <div id="post-embed-host" class="post-embed-host"></div>
         </div>
         <a id="post-link" class="post-link" href="#" target="_blank" rel="noopener">Ouvrir sur Instagram</a>
       </div>
@@ -287,6 +280,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-<script src="/client.js?v=20260401-resend-btn" defer></script>
+<script src="/client.js?v=20260401-ig-embed" defer></script>
 </body>
 </html>

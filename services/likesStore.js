@@ -154,7 +154,7 @@ function upsertMany(userId, entries, options = {}) {
   });
   /** Turso : petites transactions (évite InvalidParserState / WAL). Défaut 50 — mobile / retry : TURSO_UPSERT_CHUNK=30 si besoin. */
   const chunk = tursoCreds().enabled
-    ? Math.min(300, Math.max(20, Number(process.env.TURSO_UPSERT_CHUNK) || 50))
+    ? Math.min(200, Math.max(15, Number(process.env.TURSO_UPSERT_CHUNK) || 35))
     : entries.length;
   for (let i = 0; i < entries.length; i += chunk) {
     txn(entries.slice(i, i + chunk));

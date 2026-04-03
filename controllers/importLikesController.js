@@ -5,6 +5,7 @@
 const likesStore = require('../services/likesStore');
 const { tursoCreds, flushTursoSyncNow, queueTursoDb } = require('../services/openDatabase');
 const ingest = require('../services/instagramExportIngest');
+const instagramService = require('../services/instagramService');
 const { MIN_LIKES } = require('../config/constants');
 
 async function importFromInstagramExport(req, res) {
@@ -20,12 +21,31 @@ async function importFromInstagramExport(req, res) {
   }
 
   try {
-    const { entries, diagnostics } = await ingest.ingestMulterFiles(files);
+    let { entries, diagnostics } = await ingest.ingestMulterFiles(files);
     if (entries.length === 0) {
       return res.status(422).json({
         ok: false,
         error:
           'Aucun « J’aime » Instagram détecté dans ces fichiers. Vérifie que tu as bien demandé l’export avec les likes, puis réessaie avec le .zip ou les fichiers du dossier.',
+        diagnostics,
+      });
+    }
+
+    const maxEmbedCheck = Number(process.env.IMPORT_EMBED_VERIFY_MAX);
+    const embedCheckLimit = Number.isFinite(maxEmbedCheck) && maxEmbedCheck >= 0 ? maxEmbedCheck : 150;
+    let embedRemoved = 0;
+    if (embedCheckLimit > 0) {
+      const before = entries.length;
+      entries = await instagramService.filterEntriesByReachable(entries, embedCheckLimit);
+      embedRemoved = before - entries.length;
+      diagnostics = { ...diagnostics, embedUnreachableRemoved: embedRemoved, embedVerifyCap: embedCheckLimit };
+    }
+
+    if (entries.length === 0) {
+      return res.status(422).json({
+        ok: false,
+        error:
+          'Après vérification, aucun lien Instagram valide reste (posts supprimés ou indisponibles). Réessaie avec un export à jour, ou augmente IMPORT_EMBED_VERIFY_MAX.',
         diagnostics,
       });
     }

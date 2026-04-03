@@ -24,10 +24,12 @@ function getEmbedUrlFromPostUrl(url) {
   if (!code) return null;
   const s = String(url || '');
   const isReel = /instagram\.com\/(?:reel|reels)\//i.test(s);
+  /** muted + playsinline : requis par la plupart des navigateurs pour tenter l’autoplay dans un iframe tiers. */
+  const q = 'autoplay=1&muted=1&playsinline=1';
   if (isReel) {
-    return `https://www.instagram.com/reel/${code}/embed/?autoplay=1`;
+    return `https://www.instagram.com/reel/${code}/embed/?${q}`;
   }
-  return `https://www.instagram.com/p/${code}/embed/?autoplay=1`;
+  return `https://www.instagram.com/p/${code}/embed/?${q}`;
 }
 
 /**
@@ -56,8 +58,83 @@ async function tryFetchOembedThumbnail(postUrl) {
   return null;
 }
 
+/**
+ * Heuristique : page embed Instagram (vidéo supprimée / indisponible).
+ * Ne vérifie pas les URLs non vérifiées si tu limites IMPORT_EMBED_VERIFY_MAX.
+ */
+async function isPostEmbedLikelyAvailable(postUrl) {
+  const embedUrl = getEmbedUrlFromPostUrl(postUrl);
+  if (!embedUrl) return false;
+  try {
+    const { status, data } = await axios.get(embedUrl, {
+      timeout: 12000,
+      maxRedirects: 5,
+      validateStatus: () => true,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+    });
+    if (status === 404 || status === 410) return false;
+    const html = typeof data === 'string' ? data : '';
+    if (
+      /sorry, this page isn.?t available|content isn.?t available|video unavailable|no longer available|page introuvable|n.+est pas disponible/i.test(
+        html
+      )
+    ) {
+      return false;
+    }
+    return status >= 200 && status < 400;
+  } catch {
+    return true;
+  }
+}
+
+function canonicalPostUrlForDedupe(url) {
+  const code = extractShortcode(String(url || ''));
+  if (!code) return null;
+  const s = String(url || '');
+  if (/instagram\.com\/(?:reel|reels)\//i.test(s)) return `https://www.instagram.com/reel/${code}/`;
+  if (/instagram\.com\/tv\//i.test(s)) return `https://www.instagram.com/tv/${code}/`;
+  return `https://www.instagram.com/p/${code}/`;
+}
+
+/**
+ * Vérifie jusqu’à `maxChecks` URLs canoniques distinctes ; retire toutes les entrées dont l’URL est « morte ».
+ * @param {{ postUrl: string }[]} entries
+ */
+async function filterEntriesByReachable(entries, maxChecks) {
+  if (!maxChecks || maxChecks < 1 || !Array.isArray(entries) || entries.length === 0) return entries;
+  const byCanon = new Map();
+  for (const e of entries) {
+    const c = canonicalPostUrlForDedupe(e.postUrl);
+    if (!c) continue;
+    if (!byCanon.has(c)) byCanon.set(c, []);
+    byCanon.get(c).push(e);
+  }
+  const uniq = [...byCanon.keys()];
+  const toCheck = uniq.slice(0, maxChecks);
+  const dead = new Set();
+  const CONC = 6;
+  for (let i = 0; i < toCheck.length; i += CONC) {
+    const slice = toCheck.slice(i, i + CONC);
+    const results = await Promise.all(
+      slice.map(async (c) => ({ c, ok: await isPostEmbedLikelyAvailable(c) }))
+    );
+    for (const { c, ok } of results) {
+      if (!ok) dead.add(c);
+    }
+  }
+  if (dead.size === 0) return entries;
+  return entries.filter((e) => !dead.has(canonicalPostUrlForDedupe(e.postUrl)));
+}
+
 module.exports = {
   extractShortcode,
   getEmbedUrlFromPostUrl,
   tryFetchOembedThumbnail,
+  isPostEmbedLikelyAvailable,
+  filterEntriesByReachable,
 };
+

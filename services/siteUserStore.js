@@ -10,8 +10,10 @@ const { scheduleTursoPush } = require('./openDatabase');
 const SALT_ROUNDS = 10;
 const CODE_TTL_SEC = 60 * 60;
 
-function getDb() {
-  const db = likesStore.getDb();
+let siteSchemaReady = false;
+
+function ensureSiteSchema(db) {
+  if (siteSchemaReady) return;
   db.exec(`
     CREATE TABLE IF NOT EXISTS site_users (
       id TEXT PRIMARY KEY,
@@ -26,6 +28,12 @@ function getDb() {
     );
     CREATE INDEX IF NOT EXISTS idx_site_users_email ON site_users(email);
   `);
+  siteSchemaReady = true;
+}
+
+function getDb() {
+  const db = likesStore.getDb();
+  ensureSiteSchema(db);
   return db;
 }
 

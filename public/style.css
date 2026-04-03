@@ -617,24 +617,44 @@ select.input option {
   background: #0a0a0a;
 }
 
-.post-embed-frame .post-embed {
+/* Conteneur : embed.js injecte iframe / wrappers — tout remplit la zone recadrée */
+.post-embed-frame .post-embed-host {
   position: absolute;
   left: 50%;
-  top: -52px;
+  top: -44px;
   width: 104%;
-  height: calc(100% + 140px);
+  height: calc(100% + 128px);
   min-height: 560px;
   transform: translateX(-50%);
+  max-width: none;
+  overflow: hidden;
+}
+
+.post-embed-frame .post-embed-host iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100%;
   border: none;
   max-width: none;
+}
+
+.post-embed-frame .post-embed-host .instagram-media {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
 
 @media (max-width: 480px) {
   .post-embed-frame {
     max-height: min(70vh, 640px);
   }
-  .post-embed-frame .post-embed {
-    top: -48px;
+  .post-embed-frame .post-embed-host {
+    top: -40px;
     min-height: 480px;
   }
 }
@@ -1011,4 +1031,10 @@ select.input option {
 .podium-place p {
   margin: 0.35rem 0 0;
   font-size: 0.84rem;
+}
+
+.podium-place-single {
+  grid-column: 1 / -1;
+  max-width: 220px;
+  margin: 0 auto;
 }

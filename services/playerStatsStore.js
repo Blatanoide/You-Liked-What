@@ -3,10 +3,12 @@
  */
 
 const likesStore = require('./likesStore');
-const { scheduleTursoPush } = require('./openDatabase');
+const { scheduleTursoPush, tursoCreds } = require('./openDatabase');
 
-function getDb() {
-  const db = likesStore.getDb();
+let statsSchemaReady = false;
+
+function ensureStatsSchema(db) {
+  if (statsSchemaReady) return;
   db.exec(`
     CREATE TABLE IF NOT EXISTS user_profiles (
       user_id TEXT PRIMARY KEY,
@@ -34,21 +36,31 @@ function getDb() {
       PRIMARY KEY (user_id, other_user_id)
     );
   `);
+  statsSchemaReady = true;
+}
+
+function getDb() {
+  const db = likesStore.getDb();
+  ensureStatsSchema(db);
   return db;
 }
 
-function upsertIdentity(user) {
+/**
+ * @param {{ id: string, username?: string, profile_picture?: string|null }} user
+ * @param {{ skipTursoPush?: boolean }} [opts]
+ */
+function upsertIdentity(user, opts = {}) {
   if (!user?.id) return;
-  getDb()
-    .prepare(
-      `INSERT INTO user_identity (user_id, username, profile_picture, updated_at)
+  const d = getDb();
+  d.prepare(
+    `INSERT INTO user_identity (user_id, username, profile_picture, updated_at)
        VALUES (?, ?, ?, strftime('%s','now'))
        ON CONFLICT(user_id) DO UPDATE SET
          username = excluded.username,
          profile_picture = excluded.profile_picture,
          updated_at = excluded.updated_at`
-    )
-    .run(String(user.id), String(user.username || 'Joueur'), user.profile_picture || null);
+  ).run(String(user.id), String(user.username || 'Joueur'), user.profile_picture || null);
+  if (tursoCreds().enabled && !opts.skipTursoPush) scheduleTursoPush(d);
 }
 
 function setBio(userId, bio) {
@@ -126,6 +138,18 @@ function recordCompletedGame(players, scoresMap, reactionStatsMap) {
   const maxScore = Math.max(...playerIds.map((id) => Number(scoresMap.get(id) || 0)));
   const winners = new Set(playerIds.filter((id) => Number(scoresMap.get(id) || 0) === maxScore));
 
+  /** Hors transaction : évite tout `exec`/schéma imbriqué + libsql InvalidParserState. */
+  for (const p of players) {
+    upsertIdentity(
+      {
+        id: p.instagramId,
+        username: p.username,
+        profile_picture: p.profile_picture || null,
+      },
+      { skipTursoPush: true }
+    );
+  }
+
   const upsertStatsStmt = db.prepare(
     `INSERT INTO user_game_stats (user_id, games_played, wins, reaction_sum_ms, reaction_count, updated_at)
      VALUES (?, ?, ?, ?, ?, strftime('%s','now'))
@@ -143,28 +167,35 @@ function recordCompletedGame(players, scoresMap, reactionStatsMap) {
        games_together = user_played_with.games_together + 1`
   );
 
-  const tx = db.transaction(() => {
-    for (const p of players) {
-      upsertIdentity({
-        id: p.instagramId,
-        username: p.username,
-        profile_picture: p.profile_picture || null,
-      });
+  const pairs = [];
+  for (let i = 0; i < playerIds.length; i += 1) {
+    for (let j = 0; j < playerIds.length; j += 1) {
+      if (i === j) continue;
+      pairs.push([playerIds[i], playerIds[j]]);
     }
+  }
 
+  const CHUNK = tursoCreds().enabled
+    ? Math.min(80, Math.max(20, Number(process.env.TURSO_STATS_PAIR_CHUNK) || 40))
+    : pairs.length;
+
+  const txStats = db.transaction(() => {
     for (const uid of playerIds) {
       const react = reactionStatsMap.get(uid) || { sumMs: 0, count: 0 };
       upsertStatsStmt.run(uid, 1, winners.has(uid) ? 1 : 0, react.sumMs || 0, react.count || 0);
     }
-
-    for (let i = 0; i < playerIds.length; i += 1) {
-      for (let j = 0; j < playerIds.length; j += 1) {
-        if (i === j) continue;
-        upsertPairStmt.run(playerIds[i], playerIds[j]);
-      }
-    }
   });
-  tx();
+  txStats();
+  for (let k = 0; k < pairs.length; k += CHUNK) {
+    const slice = pairs.slice(k, k + CHUNK);
+    const txPairs = db.transaction(() => {
+      for (const [a, b] of slice) {
+        upsertPairStmt.run(a, b);
+      }
+    });
+    txPairs();
+  }
+
   scheduleTursoPush(db);
 }
 

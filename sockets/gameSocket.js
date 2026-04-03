@@ -4,9 +4,11 @@
  */
 
 const instagramService = require('../services/instagramService');
+const likesStore = require('../services/likesStore');
 const { MIN_LIKES } = require('../config/constants');
 const { hydrateLikesMiddleware } = require('../middleware/hydrateLikes');
 const playerStatsStore = require('../services/playerStatsStore');
+const { queueTursoDb } = require('../services/openDatabase');
 const { expandProfilePictureUrl } = require('../utils/publicUrl');
 
 const MAX_PLAYERS = 15;
@@ -83,9 +85,37 @@ function pickRandomAnswerer(room) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
-function pickRandomPost(likes) {
+/**
+ * Posts likés par au moins 2 joueurs différents → exclus du tirage (ambiguïté « qui a liké »).
+ */
+function collectAmbiguousNormalizedUrls(room) {
+  const counts = new Map();
+  for (const pl of room.players.values()) {
+    const seenLocal = new Set();
+    for (const raw of pl.likes || []) {
+      const key = likesStore.normalizePostUrl(raw) || String(raw).trim().split('?')[0];
+      if (!key || seenLocal.has(key)) continue;
+      seenLocal.add(key);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  const ambiguous = new Set();
+  for (const [url, n] of counts) {
+    if (n >= 2) ambiguous.add(url);
+  }
+  return ambiguous;
+}
+
+function pickRandomPostForRound(room, answerer) {
+  const likes = answerer.likes || [];
   if (!likes.length) return null;
-  return likes[Math.floor(Math.random() * likes.length)];
+  const ambiguous = collectAmbiguousNormalizedUrls(room);
+  const filtered = likes.filter((raw) => {
+    const key = likesStore.normalizePostUrl(raw) || String(raw).trim().split('?')[0];
+    return !ambiguous.has(key);
+  });
+  const pool = filtered.length > 0 ? filtered : likes;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function clearRoundTimer(room) {
@@ -149,19 +179,20 @@ function finalizeRound(io, room, reason) {
   if (room.currentRound >= room.settings.rounds) {
     room.phase = 'ended';
     log('Partie terminée room', room.code);
-    try {
-      playerStatsStore.recordCompletedGame(
-        [...room.players.values()].map((p) => ({
-          instagramId: p.instagramId,
-          username: p.username,
-          profile_picture: p.profile_picture || null,
-        })),
-        room.scores,
-        room.reactionStats
-      );
-    } catch (e) {
-      log('stats save error', e.message || e);
-    }
+    const playersSnap = [...room.players.values()].map((p) => ({
+      instagramId: p.instagramId,
+      username: p.username,
+      profile_picture: p.profile_picture || null,
+    }));
+    const scoresSnap = new Map(room.scores);
+    const reactionSnap = new Map(room.reactionStats);
+    void queueTursoDb(() => {
+      try {
+        playerStatsStore.recordCompletedGame(playersSnap, scoresSnap, reactionSnap);
+      } catch (e) {
+        log('stats save error', e.message || e);
+      }
+    }).catch((e) => log('stats save error', e.message || e));
     broadcastToRoom(io, room.code, 'end_game', {
       finalScores: Object.fromEntries(room.scores),
       leaderboard: [...room.scores.entries()]
@@ -198,7 +229,7 @@ async function startNextRound(io, room) {
     return;
   }
 
-  const postUrl = pickRandomPost(answerer.likes);
+  const postUrl = pickRandomPostForRound(room, answerer);
   const embedUrl = instagramService.getEmbedUrlFromPostUrl(postUrl);
   let thumbnailUrl = null;
   try {

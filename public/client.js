@@ -32,6 +32,117 @@ function apiUrl(path) {
   return new URL(path, API_BASE_URL).href;
 }
 
+const IG_EMBED_SCRIPT = 'https://www.instagram.com/embed.js';
+let igEmbedScriptPromise = null;
+
+function waitForInstgrmProcess(resolve, reject) {
+  const t0 = Date.now();
+  const tick = () => {
+    if (typeof window.instgrm?.Embeds?.process === 'function') resolve();
+    else if (Date.now() - t0 > 10000) reject(new Error('instgrm timeout'));
+    else setTimeout(tick, 40);
+  };
+  tick();
+}
+
+function loadInstagramEmbedJs() {
+  if (typeof window.instgrm?.Embeds?.process === 'function') {
+    return Promise.resolve();
+  }
+  if (igEmbedScriptPromise) return igEmbedScriptPromise;
+  igEmbedScriptPromise = new Promise((resolve, reject) => {
+    const id = 'instagram-embed-js';
+    const existing = document.getElementById(id);
+    if (existing) {
+      waitForInstgrmProcess(resolve, reject);
+      return;
+    }
+    const s = document.createElement('script');
+    s.id = id;
+    s.async = true;
+    s.src = IG_EMBED_SCRIPT;
+    s.onload = () => waitForInstgrmProcess(resolve, reject);
+    s.onerror = () => reject(new Error('embed.js load'));
+    document.body.appendChild(s);
+  });
+  return igEmbedScriptPromise;
+}
+
+function normalizeInstagramPermalink(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  let u = raw.trim().split('?')[0].split('#')[0];
+  if (!/^https?:\/\/(www\.)?instagram\.com\//i.test(u)) return null;
+  u = u.replace(/^http:\/\//i, 'https://');
+  u = u.replace(/^https:\/\/instagram\.com\//i, 'https://www.instagram.com/');
+  return u;
+}
+
+/** URL iframe fallback (autoplay navigateur = souvent muted + playsinline). */
+function buildInstagramIframeSrc(embedUrl, permalink) {
+  let base = embedUrl;
+  if (!base && permalink) {
+    base = `${permalink.replace(/\/$/, '')}/embed/`;
+  }
+  if (!base) return null;
+  const [pathOnly, query = ''] = base.split('?');
+  const merged = new URLSearchParams(query);
+  if (!merged.has('autoplay')) merged.set('autoplay', '1');
+  if (!merged.has('muted')) merged.set('muted', '1');
+  if (!merged.has('playsinline')) merged.set('playsinline', '1');
+  return `${pathOnly}?${merged.toString()}`;
+}
+
+function mountInstagramIframeFallback(hostEl, post) {
+  hostEl.innerHTML = '';
+  const permalink = normalizeInstagramPermalink(post.url);
+  const src = buildInstagramIframeSrc(post.embedUrl || null, permalink);
+  if (!src) return false;
+  const iframe = document.createElement('iframe');
+  iframe.className = 'ig-embed-iframe';
+  iframe.title = 'Post ou reel Instagram';
+  iframe.loading = 'eager';
+  iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.allow =
+    'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+  iframe.src = src;
+  iframe.tabIndex = 0;
+  hostEl.appendChild(iframe);
+  return true;
+}
+
+async function mountInstagramEmbed(hostEl, embedFrameEl, post) {
+  hostEl.innerHTML = '';
+  embedFrameEl.classList.remove('hidden');
+  embedFrameEl.setAttribute('aria-hidden', 'false');
+  const permalink = normalizeInstagramPermalink(post.url);
+
+  if (permalink) {
+    try {
+      await loadInstagramEmbedJs();
+      const bq = document.createElement('blockquote');
+      bq.className = 'instagram-media';
+      bq.setAttribute('data-instgrm-permalink', permalink);
+      bq.setAttribute('data-instgrm-version', '14');
+      bq.setAttribute(
+        'style',
+        'margin:0!important;padding:0!important;background:transparent!important;width:100%!important;max-width:100%!important;min-width:0!important;'
+      );
+      hostEl.appendChild(bq);
+      window.instgrm.Embeds.process();
+      return;
+    } catch (e) {
+      console.warn('[IG embed] embed.js indisponible, iframe direct :', e?.message || e);
+    }
+  }
+
+  if (!mountInstagramIframeFallback(hostEl, post)) {
+    embedFrameEl.classList.add('hidden');
+    embedFrameEl.setAttribute('aria-hidden', 'true');
+    hostEl.innerHTML = '';
+  }
+}
+
 const HANDOFF_PROOF_KEY = 'ylw_handoff_proof';
 
 function persistHandoffProofFromPayload(payload) {
@@ -185,13 +296,11 @@ function renderPodium(list) {
     podium.innerHTML = '<p class="hint">Pas assez de parties pour afficher un podium.</p>';
     return;
   }
-  const order = [1, 0, 2];
-  order.forEach((idx, visualPos) => {
-    const p = list[idx];
+  function card(rank, p) {
     const div = document.createElement('div');
     div.className = 'podium-place';
     if (!p) {
-      div.innerHTML = `<p>#${visualPos + 1}</p><p class="hint">—</p>`;
+      div.innerHTML = `<p>#${rank}</p><p class="hint">—</p>`;
       podium.appendChild(div);
       return;
     }
@@ -199,7 +308,7 @@ function renderPodium(list) {
     setAvatar(img, p.profile_picture || null, p.username);
     img.alt = p.username;
     const title = document.createElement('p');
-    title.innerHTML = `<strong>#${visualPos + 1}</strong> ${p.username}`;
+    title.innerHTML = `<strong>#${rank}</strong> ${p.username}`;
     const sub = document.createElement('p');
     sub.className = 'hint';
     sub.textContent = `${p.gamesTogether} partie(s)`;
@@ -207,7 +316,35 @@ function renderPodium(list) {
     div.appendChild(title);
     div.appendChild(sub);
     podium.appendChild(div);
-  });
+  }
+  /** Grille 3 colonnes : gauche = #2, centre = #1, droite = #3 (ordre classement API). */
+  if (list.length === 1) {
+    const div = document.createElement('div');
+    div.className = 'podium-place podium-place-single';
+    const p = list[0];
+    const img = document.createElement('img');
+    setAvatar(img, p.profile_picture || null, p.username);
+    img.alt = p.username;
+    const title = document.createElement('p');
+    title.innerHTML = `<strong>#1</strong> ${p.username}`;
+    const sub = document.createElement('p');
+    sub.className = 'hint';
+    sub.textContent = `${p.gamesTogether} partie(s)`;
+    div.appendChild(img);
+    div.appendChild(title);
+    div.appendChild(sub);
+    podium.appendChild(div);
+    return;
+  }
+  if (list.length === 2) {
+    card(2, list[1]);
+    card(1, list[0]);
+    card(3, null);
+    return;
+  }
+  card(2, list[1]);
+  card(1, list[0]);
+  card(3, list[2]);
 }
 
 function renderProfileModal(profile) {
@@ -364,7 +501,7 @@ function connectSocket() {
     $('post-link').href = post.url || '#';
     const thumbWrap = $('post-thumb-wrap');
     const thumb = $('post-thumb');
-    const iframe = $('post-embed');
+    const embedHost = $('post-embed-host');
     const embedFrame = $('post-embed-frame');
     if (post.thumbnailUrl) {
       thumb.src = post.thumbnailUrl;
@@ -373,18 +510,10 @@ function connectSocket() {
       thumbWrap.classList.add('hidden');
       thumb.removeAttribute('src');
     }
-    if (post.embedUrl) {
-      let u = post.embedUrl;
-      if (!/[?&]autoplay=1(?:&|$)/.test(u)) {
-        u += (u.includes('?') ? '&' : '?') + 'autoplay=1';
-      }
-      iframe.src = u;
-      iframe.classList.remove('hidden');
-      embedFrame?.classList.remove('hidden');
-      embedFrame?.setAttribute('aria-hidden', 'false');
+    if (post.embedUrl || normalizeInstagramPermalink(post.url)) {
+      void mountInstagramEmbed(embedHost, embedFrame, post);
     } else {
-      iframe.classList.add('hidden');
-      iframe.removeAttribute('src');
+      embedHost.innerHTML = '';
       embedFrame?.classList.add('hidden');
       embedFrame?.setAttribute('aria-hidden', 'true');
     }
