@@ -3,7 +3,7 @@
  */
 
 const likesStore = require('../services/likesStore');
-const { tursoCreds, flushTursoSyncNow } = require('../services/openDatabase');
+const { tursoCreds, flushTursoSyncNow, queueTursoDb } = require('../services/openDatabase');
 const ingest = require('../services/instagramExportIngest');
 const { MIN_LIKES } = require('../config/constants');
 
@@ -31,15 +31,19 @@ async function importFromInstagramExport(req, res) {
     }
 
     const userId = String(req.session.user.id);
-    const bulk = entries.length >= 200;
-    const dbResult = likesStore.upsertMany(userId, entries, {
-      skipScheduleTurso: bulk && tursoCreds().enabled,
-    });
-    if (bulk && tursoCreds().enabled) {
-      flushTursoSyncNow(likesStore.getDb());
-    }
-    likesStore.hydrateSession(req);
+    const turso = tursoCreds().enabled;
 
+    const dbResult = await queueTursoDb(() => {
+      const r = likesStore.upsertMany(userId, entries, {
+        skipScheduleTurso: turso,
+      });
+      if (turso) {
+        flushTursoSyncNow(likesStore.getDb());
+      }
+      return r;
+    });
+
+    likesStore.hydrateSession(req);
     req.session.save((err) => {
       if (err) {
         console.error('[ImportLikes] session.save:', err);

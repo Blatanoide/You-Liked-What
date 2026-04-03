@@ -108,11 +108,28 @@ function flushTursoSyncNow(db) {
   runTursoSyncSerial(db);
 }
 
+/**
+ * File d’attente (Promise) : un import à la fois côté Turso — double tap / retry mobile ne chevauchent pas upsert+sync.
+ * @param {() => *} work — synchrone
+ * @returns {Promise<*>}
+ */
+let tursoDbTail = Promise.resolve();
+
+function queueTursoDb(work) {
+  if (!tursoCreds().enabled) {
+    return Promise.resolve(work());
+  }
+  const next = tursoDbTail.then(work, work);
+  tursoDbTail = next.catch(() => {});
+  return next;
+}
+
 module.exports = {
   tursoCreds,
   openPrimaryDatabase,
   scheduleTursoPush,
   flushTursoSyncNow,
   syncTursoReplica: runTursoSyncSerial,
+  queueTursoDb,
   getTursoReplicaFilePath,
 };

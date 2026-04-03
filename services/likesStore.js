@@ -152,9 +152,9 @@ function upsertMany(userId, entries, options = {}) {
       processed += 1;
     }
   });
-  /** Gros lot + Turso : plusieurs petites transactions (évite InvalidParserState / limites sync WAL). */
+  /** Turso : petites transactions (évite InvalidParserState / WAL). Défaut 50 — mobile / retry : TURSO_UPSERT_CHUNK=30 si besoin. */
   const chunk = tursoCreds().enabled
-    ? Math.min(400, Math.max(40, Number(process.env.TURSO_UPSERT_CHUNK) || 100))
+    ? Math.min(300, Math.max(20, Number(process.env.TURSO_UPSERT_CHUNK) || 50))
     : entries.length;
   for (let i = 0; i < entries.length; i += chunk) {
     txn(entries.slice(i, i + chunk));
