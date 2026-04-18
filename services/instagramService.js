@@ -67,8 +67,9 @@ async function isPostEmbedLikelyAvailable(postUrl) {
   if (!embedUrl) return false;
   try {
     const { status, data } = await axios.get(embedUrl, {
-      timeout: 12000,
-      maxRedirects: 5,
+      timeout: Number(process.env.IMPORT_EMBED_HTTP_MS) || 4500,
+      maxRedirects: 4,
+      maxContentLength: 150_000,
       validateStatus: () => true,
       headers: {
         'User-Agent':
@@ -116,7 +117,7 @@ async function filterEntriesByReachable(entries, maxChecks) {
   const uniq = [...byCanon.keys()];
   const toCheck = uniq.slice(0, maxChecks);
   const dead = new Set();
-  const CONC = 6;
+  const CONC = Math.min(20, Math.max(4, Number(process.env.IMPORT_EMBED_CONCURRENCY) || 12));
   for (let i = 0; i < toCheck.length; i += CONC) {
     const slice = toCheck.slice(i, i + CONC);
     const results = await Promise.all(

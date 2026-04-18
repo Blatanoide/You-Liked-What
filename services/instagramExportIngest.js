@@ -31,6 +31,7 @@ async function extractLikesFromZip(zipBuffer) {
   }
 
   let count = 0;
+  let processedFiles = 0;
   for (const file of directory.files) {
     if (count >= MAX_FILES_IN_ZIP) {
       skipped.push('limite de fichiers dans l’archive atteinte');
@@ -56,6 +57,10 @@ async function extractLikesFromZip(zipBuffer) {
     }
 
     count += 1;
+    processedFiles += 1;
+    if (processedFiles % 12 === 0) {
+      await new Promise((r) => setImmediate(r));
+    }
     const { entries: parsed } = exportParser.parseBuffer(buf, name);
     if (parsed.length > 0) filesRead.push(name);
     for (const e of parsed) {

@@ -31,8 +31,11 @@ async function importFromInstagramExport(req, res) {
       });
     }
 
-    const maxEmbedCheck = Number(process.env.IMPORT_EMBED_VERIFY_MAX);
-    const embedCheckLimit = Number.isFinite(maxEmbedCheck) && maxEmbedCheck >= 0 ? maxEmbedCheck : 150;
+    /** 0 par défaut : la vérif HTTP Instagram bloque le thread longtemps et fait échouer les health checks Render. */
+    const embedCheckLimit = Math.max(
+      0,
+      Number.parseInt(String(process.env.IMPORT_EMBED_VERIFY_MAX ?? '0'), 10) || 0
+    );
     let embedRemoved = 0;
     if (embedCheckLimit > 0) {
       const before = entries.length;
@@ -45,7 +48,7 @@ async function importFromInstagramExport(req, res) {
       return res.status(422).json({
         ok: false,
         error:
-          'Après vérification, aucun lien Instagram valide reste (posts supprimés ou indisponibles). Réessaie avec un export à jour, ou augmente IMPORT_EMBED_VERIFY_MAX.',
+          'Après vérification, aucun lien Instagram valide reste. Réessaie avec un export à jour (ou désactive la vérif : IMPORT_EMBED_VERIFY_MAX=0).',
         diagnostics,
       });
     }
@@ -53,15 +56,30 @@ async function importFromInstagramExport(req, res) {
     const userId = String(req.session.user.id);
     const turso = tursoCreds().enabled;
 
-    const dbResult = await queueTursoDb(() => {
-      const r = likesStore.upsertMany(userId, entries, {
-        skipScheduleTurso: turso,
+    /** Découpe l’écriture DB + laisse respirer l’event loop (health check Render ~5 s). */
+    const sliceSize = Math.min(1200, Math.max(150, Number(process.env.IMPORT_DB_SLICE) || 400));
+    let dbResult = { processed: 0, skippedInvalid: 0 };
+    for (let off = 0; off < entries.length; off += sliceSize) {
+      const slice = entries.slice(off, off + sliceSize);
+      const part = await queueTursoDb(() =>
+        likesStore.upsertMany(userId, slice, {
+          skipScheduleTurso: turso,
+        })
+      );
+      dbResult.processed += part.processed;
+      dbResult.skippedInvalid += part.skippedInvalid;
+      await new Promise((r) => setImmediate(r));
+    }
+
+    if (turso) {
+      setImmediate(() => {
+        try {
+          flushTursoSyncNow(likesStore.getDb());
+        } catch (e) {
+          console.warn('[ImportLikes] flush Turso différé :', e.message || e);
+        }
       });
-      if (turso) {
-        flushTursoSyncNow(likesStore.getDb());
-      }
-      return r;
-    });
+    }
 
     likesStore.hydrateSession(req);
     req.session.save((err) => {

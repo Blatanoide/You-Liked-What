@@ -12,7 +12,7 @@
  * Le backend utilise alors une réplique locale (turso-replica.db à côté du chemin logique app.db).
  * Import massif lent ? Même région Turso que Render si possible ; option TURSO_READ_YOUR_WRITES=false
  * (les gros imports appellent quand même sync() à la fin pour pousser vers le cloud).
- * Import : IMPORT_EMBED_VERIFY_MAX (défaut 150) vérifie les embeds Instagram ; 0 = désactiver la vérif.
+ * Import : IMPORT_EMBED_VERIFY_MAX (défaut 0) — >0 vérifie les embeds (lent, risque timeout Render). IMPORT_DB_SLICE taille des lots DB (défaut 400).
  */
 
 const fs = require('fs');

@@ -110,16 +110,16 @@ function flushTursoSyncNow(db) {
 
 /**
  * File d’attente (Promise) : un import à la fois côté Turso — double tap / retry mobile ne chevauchent pas upsert+sync.
- * @param {() => *} work — synchrone
+ * @param {() => * | Promise<*>} work — synchrone ou async
  * @returns {Promise<*>}
  */
 let tursoDbTail = Promise.resolve();
 
 function queueTursoDb(work) {
   if (!tursoCreds().enabled) {
-    return Promise.resolve(work());
+    return Promise.resolve().then(() => work());
   }
-  const next = tursoDbTail.then(work, work);
+  const next = tursoDbTail.then(() => Promise.resolve(work()));
   tursoDbTail = next.catch(() => {});
   return next;
 }
