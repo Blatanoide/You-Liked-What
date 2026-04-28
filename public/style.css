@@ -649,6 +649,45 @@ select.input option {
   min-width: 0 !important;
 }
 
+.post-embed-frame .post-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  background: #000;
+  z-index: 4;
+}
+
+.video-volume-ui {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(8, 8, 12, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 7;
+  backdrop-filter: blur(6px);
+}
+
+.video-vol-btn {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.video-vol-range {
+  width: 95px;
+}
+
 @media (max-width: 480px) {
   .post-embed-frame {
     max-height: min(70vh, 640px);

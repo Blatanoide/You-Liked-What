@@ -232,8 +232,12 @@ async function startNextRound(io, room) {
   const postUrl = pickRandomPostForRound(room, answerer);
   const embedUrl = instagramService.getEmbedUrlFromPostUrl(postUrl);
   let thumbnailUrl = null;
+  let videoUrl = null;
   try {
-    thumbnailUrl = await instagramService.tryFetchOembedThumbnail(postUrl);
+    [thumbnailUrl, videoUrl] = await Promise.all([
+      instagramService.tryFetchOembedThumbnail(postUrl),
+      instagramService.tryFetchDirectVideoUrl(postUrl),
+    ]);
   } catch (_) {
     /* ignore */
   }
@@ -247,6 +251,7 @@ async function startNextRound(io, room) {
     postUrl,
     embedUrl,
     thumbnailUrl,
+    videoUrl,
     timeLimitMs,
     startedAt,
     answers: new Map(),
@@ -262,7 +267,7 @@ async function startNextRound(io, room) {
     round: room.currentRound,
     totalRounds: room.settings.rounds,
     timeLimitSec: room.settings.timePerRoundSec,
-    post: { url: postUrl, embedUrl, thumbnailUrl },
+    post: { url: postUrl, embedUrl, thumbnailUrl, videoUrl },
     choices,
   };
 

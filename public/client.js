@@ -34,6 +34,8 @@ function apiUrl(path) {
 
 const IG_EMBED_SCRIPT = 'https://www.instagram.com/embed.js';
 let igEmbedScriptPromise = null;
+let gameVolume = 0.7;
+let gameMuted = false;
 
 function waitForInstgrmProcess(resolve, reject) {
   const t0 = Date.now();
@@ -140,6 +142,79 @@ async function mountInstagramEmbed(hostEl, embedFrameEl, post) {
     embedFrameEl.classList.add('hidden');
     embedFrameEl.setAttribute('aria-hidden', 'true');
     hostEl.innerHTML = '';
+  }
+}
+
+function hideVideoVolumeUi() {
+  const box = $('video-volume-ui');
+  if (!box) return;
+  box.classList.add('hidden');
+  box.setAttribute('aria-hidden', 'true');
+}
+
+function setupVideoVolumeUi(videoEl) {
+  const box = $('video-volume-ui');
+  const btn = $('video-mute-btn');
+  const range = $('video-volume-range');
+  if (!box || !btn || !range || !videoEl) return;
+
+  const refresh = () => {
+    btn.textContent = gameMuted || gameVolume <= 0 ? '🔇' : '🔊';
+    range.value = String(Math.round(gameVolume * 100));
+    videoEl.muted = gameMuted || gameVolume <= 0;
+    videoEl.volume = Math.max(0, Math.min(1, gameVolume));
+  };
+
+  if (!box.dataset.bound) {
+    btn.addEventListener('click', () => {
+      gameMuted = !gameMuted;
+      refresh();
+    });
+    range.addEventListener('input', () => {
+      gameVolume = Math.max(0, Math.min(1, Number(range.value) / 100));
+      if (gameVolume > 0) gameMuted = false;
+      refresh();
+    });
+    box.dataset.bound = '1';
+  }
+  refresh();
+  box.classList.remove('hidden');
+  box.setAttribute('aria-hidden', 'false');
+}
+
+async function mountPlayableVideo(post, embedHost, embedFrame) {
+  const video = $('post-video');
+  if (!video || !post?.videoUrl) return false;
+  embedHost.innerHTML = '';
+  embedFrame.classList.remove('hidden');
+  embedFrame.setAttribute('aria-hidden', 'false');
+  video.classList.remove('hidden');
+  video.pause();
+  video.src = post.videoUrl;
+  video.loop = true;
+  video.autoplay = true;
+  video.playsInline = true;
+  setupVideoVolumeUi(video);
+
+  video.muted = true;
+  try {
+    await video.play();
+    video.muted = gameMuted || gameVolume <= 0;
+    video.volume = Math.max(0, Math.min(1, gameVolume));
+    return true;
+  } catch {
+    video.muted = gameMuted || gameVolume <= 0;
+    video.volume = Math.max(0, Math.min(1, gameVolume));
+    try {
+      await video.play();
+      return true;
+    } catch {
+      video.pause();
+      video.removeAttribute('src');
+      video.classList.add('hidden');
+      hideVideoVolumeUi();
+      return false;
+    }
   }
 }
 
@@ -503,6 +578,7 @@ function connectSocket() {
     const thumb = $('post-thumb');
     const embedHost = $('post-embed-host');
     const embedFrame = $('post-embed-frame');
+    const videoEl = $('post-video');
     if (post.thumbnailUrl) {
       thumb.src = post.thumbnailUrl;
       thumbWrap.classList.remove('hidden');
@@ -510,7 +586,19 @@ function connectSocket() {
       thumbWrap.classList.add('hidden');
       thumb.removeAttribute('src');
     }
-    if (post.embedUrl || normalizeInstagramPermalink(post.url)) {
+    if (videoEl) {
+      videoEl.pause();
+      videoEl.removeAttribute('src');
+      videoEl.classList.add('hidden');
+    }
+    hideVideoVolumeUi();
+    if (post.videoUrl) {
+      void mountPlayableVideo(post, embedHost, embedFrame).then((ok) => {
+        if (!ok && (post.embedUrl || normalizeInstagramPermalink(post.url))) {
+          void mountInstagramEmbed(embedHost, embedFrame, post);
+        }
+      });
+    } else if (post.embedUrl || normalizeInstagramPermalink(post.url)) {
       void mountInstagramEmbed(embedHost, embedFrame, post);
     } else {
       embedHost.innerHTML = '';

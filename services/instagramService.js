@@ -4,6 +4,8 @@
 
 const axios = require('axios');
 
+const videoUrlCache = new Map();
+
 /**
  * Extrait un shortcode Instagram depuis une URL de post/reel.
  */
@@ -101,6 +103,60 @@ function canonicalPostUrlForDedupe(url) {
   return `https://www.instagram.com/p/${code}/`;
 }
 
+function parseMetaVideoFromHtml(html) {
+  if (!html || typeof html !== 'string') return null;
+  const patterns = [
+    /<meta[^>]+property=["']og:video:secure_url["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+property=["']og:video["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+name=["']twitter:player:stream["'][^>]+content=["']([^"']+)["']/i,
+    /"video_url"\s*:\s*"(https:[^"\\]+)"/i,
+  ];
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (!m || !m[1]) continue;
+    const v = String(m[1]).replace(/\\u0026/g, '&').replace(/\\\//g, '/');
+    try {
+      return decodeURIComponent(v);
+    } catch {
+      return v;
+    }
+  }
+  return null;
+}
+
+/**
+ * Essaie d'extraire un flux vidéo direct (mp4) depuis la page publique.
+ * Retourne null si indisponible ; le front restera sur l'embed Instagram.
+ */
+async function tryFetchDirectVideoUrl(postUrl) {
+  const canon = canonicalPostUrlForDedupe(postUrl);
+  if (!canon) return null;
+  if (videoUrlCache.has(canon)) return videoUrlCache.get(canon) || null;
+  try {
+    const { data, status } = await axios.get(canon, {
+      timeout: Number(process.env.IG_VIDEO_FETCH_MS) || 4500,
+      maxRedirects: 5,
+      maxContentLength: 400000,
+      validateStatus: () => true,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+    });
+    if (status >= 400) {
+      videoUrlCache.set(canon, null);
+      return null;
+    }
+    const video = parseMetaVideoFromHtml(typeof data === 'string' ? data : '');
+    videoUrlCache.set(canon, video || null);
+    return video || null;
+  } catch {
+    videoUrlCache.set(canon, null);
+    return null;
+  }
+}
+
 /**
  * Vérifie jusqu’à `maxChecks` URLs canoniques distinctes ; retire toutes les entrées dont l’URL est « morte ».
  * @param {{ postUrl: string }[]} entries
@@ -135,6 +191,7 @@ module.exports = {
   extractShortcode,
   getEmbedUrlFromPostUrl,
   tryFetchOembedThumbnail,
+  tryFetchDirectVideoUrl,
   isPostEmbedLikelyAvailable,
   filterEntriesByReachable,
 };

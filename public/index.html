@@ -206,7 +206,19 @@
           <img id="post-thumb" alt="Aperçu du post" />
         </div>
         <div id="post-embed-frame" class="post-embed-frame hidden" aria-hidden="true">
+          <video
+            id="post-video"
+            class="post-video hidden"
+            playsinline
+            webkit-playsinline
+            preload="metadata"
+            crossOrigin="anonymous"
+          ></video>
           <div id="post-embed-host" class="post-embed-host"></div>
+          <div id="video-volume-ui" class="video-volume-ui hidden" aria-hidden="true">
+            <button id="video-mute-btn" type="button" class="video-vol-btn" aria-label="Couper le son">🔊</button>
+            <input id="video-volume-range" class="video-vol-range" type="range" min="0" max="100" step="1" value="70" />
+          </div>
         </div>
         <a id="post-link" class="post-link" href="#" target="_blank" rel="noopener">Ouvrir sur Instagram</a>
       </div>
@@ -280,6 +292,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-<script src="/client.js?v=20260401-ig-embed" defer></script>
+<script src="/client.js?v=20260401-ig-video-volume" defer></script>
 </body>
 </html>
