@@ -149,12 +149,29 @@ async function tryFetchDirectVideoUrl(postUrl) {
       return null;
     }
     const video = parseMetaVideoFromHtml(typeof data === 'string' ? data : '');
-    videoUrlCache.set(canon, video || null);
-    return video || null;
+    if (video) {
+      videoUrlCache.set(canon, video);
+      return video;
+    }
   } catch {
-    videoUrlCache.set(canon, null);
-    return null;
+    // ignore and fallback below
   }
+
+  const usePuppeteerFallback = String(process.env.USE_PUPPETEER_VIDEO || 'true').toLowerCase() !== 'false';
+  if (usePuppeteerFallback) {
+    try {
+      const { fetchDirectVideoUrlFromPost } = require('./puppeteerInstagram');
+      const video2 = await fetchDirectVideoUrlFromPost(canon);
+      if (video2) {
+        videoUrlCache.set(canon, video2);
+        return video2;
+      }
+    } catch (_) {
+      // ignore
+    }
+  }
+  videoUrlCache.set(canon, null);
+  return null;
 }
 
 /**

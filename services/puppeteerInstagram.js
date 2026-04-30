@@ -687,9 +687,88 @@ async function scrapeLikesWithCredentials({ username, password, collectLikes = t
   }
 }
 
+/**
+ * Ouvre un post/reel Instagram et intercepte le premier flux vidéo direct (.mp4 / octet-stream).
+ * @param {string} postUrl
+ * @returns {Promise<string|null>}
+ */
+async function fetchDirectVideoUrlFromPost(postUrl) {
+  if (!postUrl || typeof postUrl !== 'string') return null;
+
+  const target = String(postUrl).trim();
+  const timeoutMs = Math.max(2500, Number(process.env.PUPPETEER_VIDEO_FETCH_MS) || 7000);
+
+  let browser = null;
+  let context = null;
+  let done = false;
+
+  try {
+    browser = await puppeteer.launch(getLaunchOptions());
+    context =
+      typeof browser.createIncognitoBrowserContext === 'function'
+        ? await browser.createIncognitoBrowserContext()
+        : await browser.createBrowserContext();
+    const page = await context.newPage();
+    await page.setUserAgent(UA);
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+    });
+    await page.setViewport({ width: 1280, height: 800 });
+
+    let found = null;
+    const looksLikeVideoUrl = (u) => {
+      const s = String(u || '');
+      return (
+        /\.mp4(?:\?|$)/i.test(s) ||
+        /mime_type=video/i.test(s) ||
+        /\/v\/t\d+\.\d+-\d+\//i.test(s) ||
+        /instagram.*cdn.*video/i.test(s)
+      );
+    };
+
+    page.on('response', async (res) => {
+      if (done || found) return;
+      try {
+        const u = res.url();
+        const ct = String(res.headers()['content-type'] || '').toLowerCase();
+        if (looksLikeVideoUrl(u) || ct.startsWith('video/') || ct.includes('octet-stream')) {
+          found = u;
+          done = true;
+        }
+      } catch (_) {
+        // ignore
+      }
+    });
+
+    await page.goto(target, {
+      waitUntil: 'domcontentloaded',
+      timeout: Math.max(NAV_TIMEOUT, timeoutMs),
+    });
+
+    const deadline = Date.now() + timeoutMs;
+    while (!done && Date.now() < deadline) {
+      await delay(120);
+    }
+
+    if (found) return found;
+
+    // Fallback léger : parfois l'URL est dans le HTML même si pas passée en réponse vidéo directe.
+    const html = await page.content().catch(() => '');
+    const m = html.match(/<meta[^>]+property=["']og:video:secure_url["'][^>]+content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]+property=["']og:video["'][^>]+content=["']([^"']+)["']/i);
+    return m && m[1] ? m[1] : null;
+  } catch (_) {
+    return null;
+  } finally {
+    if (context) await context.close().catch(() => {});
+    if (browser) await browser.close().catch(() => {});
+  }
+}
+
 module.exports = {
   getLaunchOptions,
   fetchPublicProfileHtml,
   scrapeLikesWithCredentials,
+  fetchDirectVideoUrlFromPost,
   NAV_TIMEOUT,
 };
