@@ -152,6 +152,33 @@ function hideVideoVolumeUi() {
   box.setAttribute('aria-hidden', 'true');
 }
 
+function setPlaybackIndicator(text) {
+  const el = $('playback-indicator');
+  if (!el) return;
+  if (!text) {
+    el.classList.add('hidden');
+    el.textContent = '';
+    return;
+  }
+  el.textContent = text;
+  el.classList.remove('hidden');
+}
+
+function setVolumeUiState(enabled) {
+  const box = $('video-volume-ui');
+  const btn = $('video-mute-btn');
+  const range = $('video-volume-range');
+  if (!box || !btn || !range) return;
+  box.classList.remove('hidden');
+  box.setAttribute('aria-hidden', 'false');
+  box.classList.toggle('is-disabled', !enabled);
+  btn.disabled = !enabled;
+  range.disabled = !enabled;
+  if (!enabled) {
+    btn.textContent = '🔈';
+  }
+}
+
 function setupVideoVolumeUi(videoEl) {
   const box = $('video-volume-ui');
   const btn = $('video-mute-btn');
@@ -178,8 +205,7 @@ function setupVideoVolumeUi(videoEl) {
     box.dataset.bound = '1';
   }
   refresh();
-  box.classList.remove('hidden');
-  box.setAttribute('aria-hidden', 'false');
+  setVolumeUiState(true);
 }
 
 async function mountPlayableVideo(post, embedHost, embedFrame) {
@@ -195,6 +221,7 @@ async function mountPlayableVideo(post, embedHost, embedFrame) {
   video.autoplay = true;
   video.playsInline = true;
   setupVideoVolumeUi(video);
+  setPlaybackIndicator('Video direct');
 
   video.muted = true;
   try {
@@ -212,7 +239,6 @@ async function mountPlayableVideo(post, embedHost, embedFrame) {
       video.pause();
       video.removeAttribute('src');
       video.classList.add('hidden');
-      hideVideoVolumeUi();
       return false;
     }
   }
@@ -592,18 +618,28 @@ function connectSocket() {
       videoEl.classList.add('hidden');
     }
     hideVideoVolumeUi();
+    setPlaybackIndicator('');
     if (post.videoUrl) {
       void mountPlayableVideo(post, embedHost, embedFrame).then((ok) => {
         if (!ok && (post.embedUrl || normalizeInstagramPermalink(post.url))) {
+          setPlaybackIndicator('Embed Instagram');
+          setVolumeUiState(false);
           void mountInstagramEmbed(embedHost, embedFrame, post);
+        } else if (!ok) {
+          setPlaybackIndicator('Aucune lecture video');
+          setVolumeUiState(false);
         }
       });
     } else if (post.embedUrl || normalizeInstagramPermalink(post.url)) {
+      setPlaybackIndicator('Embed Instagram');
+      setVolumeUiState(false);
       void mountInstagramEmbed(embedHost, embedFrame, post);
     } else {
       embedHost.innerHTML = '';
       embedFrame?.classList.add('hidden');
       embedFrame?.setAttribute('aria-hidden', 'true');
+      setPlaybackIndicator('Aucune lecture video');
+      setVolumeUiState(false);
     }
 
     const choices = $('choices');

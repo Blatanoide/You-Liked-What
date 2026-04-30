@@ -215,6 +215,7 @@
             crossOrigin="anonymous"
           ></video>
           <div id="post-embed-host" class="post-embed-host"></div>
+          <div id="playback-indicator" class="playback-indicator hidden" aria-live="polite"></div>
           <div id="video-volume-ui" class="video-volume-ui hidden" aria-hidden="true">
             <button id="video-mute-btn" type="button" class="video-vol-btn" aria-label="Couper le son">🔊</button>
             <input id="video-volume-range" class="video-vol-range" type="range" min="0" max="100" step="1" value="70" />
@@ -292,6 +293,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-<script src="/client.js?v=20260401-ig-video-volume" defer></script>
+<script src="/client.js?v=20260430-playback-indicator" defer></script>
 </body>
 </html>
