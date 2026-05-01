@@ -103,23 +103,56 @@ function canonicalPostUrlForDedupe(url) {
   return `https://www.instagram.com/p/${code}/`;
 }
 
+function decodeIgEscapedUrl(raw) {
+  const v = String(raw || '')
+    .replace(/\\u0026/g, '&')
+    .replace(/\\\//g, '/')
+    .replace(/\\"/g, '"');
+  try {
+    return decodeURIComponent(v);
+  } catch {
+    return v;
+  }
+}
+
 function parseMetaVideoFromHtml(html) {
+  const picked = pickInstagramDirectVideoUrl(html);
+  return picked;
+}
+
+/**
+ * Meta tags + champs JSON courants dans les pages / embed Instagram (Reels souvent absents des meta seules).
+ */
+function pickInstagramDirectVideoUrl(html) {
   if (!html || typeof html !== 'string') return null;
   const patterns = [
     /<meta[^>]+property=["']og:video:secure_url["'][^>]+content=["']([^"']+)["']/i,
     /<meta[^>]+property=["']og:video["'][^>]+content=["']([^"']+)["']/i,
     /<meta[^>]+name=["']twitter:player:stream["'][^>]+content=["']([^"']+)["']/i,
     /"video_url"\s*:\s*"(https:[^"\\]+)"/i,
+    /"playback_url"\s*:\s*"(https:[^"\\]+)"/i,
+    /"progressive_url"\s*:\s*"(https:[^"\\]+)"/i,
+    /"url"\s*:\s*"(https:[^"\\]*fbcdn\.net[^"\\]*\.mp4[^"\\]*)"/i,
   ];
   for (const re of patterns) {
     const m = html.match(re);
     if (!m || !m[1]) continue;
-    const v = String(m[1]).replace(/\\u0026/g, '&').replace(/\\\//g, '/');
-    try {
-      return decodeURIComponent(v);
-    } catch {
-      return v;
-    }
+    const u = decodeIgEscapedUrl(m[1]);
+    if (u && /^https?:\/\//i.test(u) && /\.(mp4|m4v)(\?|$)/i.test(u)) return u;
+  }
+  const allMp4 = html.match(/https:\/\/[^"'\\\s<>]+\.mp4[^"'\\\s<>]*/gi) || [];
+  const candidates = allMp4.map((raw) => decodeIgEscapedUrl(raw.split(/["'<>]/)[0])).filter(Boolean);
+  const prefer = (u) =>
+    /^https?:\/\//i.test(u) && (u.includes('fbcdn.net') || u.includes('cdninstagram.com'));
+  const scored = candidates.filter(prefer).sort((a, b) => {
+    const score = (u) => (/fbcdn\.net\/v\//i.test(u) ? 2 : 0) + (/\/v\/t/i.test(u) ? 1 : 0);
+    return score(b) - score(a);
+  });
+  if (scored[0]) return scored[0];
+  const looseNoExt = html.match(/https:\/\/[^"'\\\s<>]*fbcdn\.net\/v\/[^"'\\\s<>]+/i);
+  if (looseNoExt && looseNoExt[0]) {
+    const u = decodeIgEscapedUrl(looseNoExt[0].split(/["'<>]/)[0]);
+    if (prefer(u)) return u;
   }
   return null;
 }
@@ -128,40 +161,55 @@ function parseMetaVideoFromHtml(html) {
  * Essaie d'extraire un flux vidéo direct (mp4) depuis la page publique.
  * Retourne null si indisponible ; le front restera sur l'embed Instagram.
  */
+const IG_HTML_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  Accept: 'text/html,application/xhtml+xml',
+  'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+};
+
+async function axiosPickVideo(url) {
+  if (!url) return null;
+  try {
+    const { data, status } = await axios.get(url, {
+      timeout: Number(process.env.IG_VIDEO_FETCH_MS) || 4500,
+      maxRedirects: 5,
+      maxContentLength: Number(process.env.IG_VIDEO_HTML_MAX) || 900_000,
+      validateStatus: () => true,
+      headers: IG_HTML_HEADERS,
+    });
+    if (status >= 400) return null;
+    return pickInstagramDirectVideoUrl(typeof data === 'string' ? data : '');
+  } catch {
+    return null;
+  }
+}
+
 async function tryFetchDirectVideoUrl(postUrl) {
   const canon = canonicalPostUrlForDedupe(postUrl);
   if (!canon) return null;
   if (videoUrlCache.has(canon)) return videoUrlCache.get(canon) || null;
-  try {
-    const { data, status } = await axios.get(canon, {
-      timeout: Number(process.env.IG_VIDEO_FETCH_MS) || 4500,
-      maxRedirects: 5,
-      maxContentLength: 400000,
-      validateStatus: () => true,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        Accept: 'text/html,application/xhtml+xml',
-      },
-    });
-    if (status >= 400) {
-      videoUrlCache.set(canon, null);
-      return null;
-    }
-    const video = parseMetaVideoFromHtml(typeof data === 'string' ? data : '');
+
+  let video = await axiosPickVideo(canon);
+  if (video) {
+    videoUrlCache.set(canon, video);
+    return video;
+  }
+
+  const embedPageUrl = getEmbedUrlFromPostUrl(postUrl);
+  if (embedPageUrl && embedPageUrl !== canon) {
+    video = await axiosPickVideo(embedPageUrl);
     if (video) {
       videoUrlCache.set(canon, video);
       return video;
     }
-  } catch {
-    // ignore and fallback below
   }
 
   const usePuppeteerFallback = String(process.env.USE_PUPPETEER_VIDEO || 'true').toLowerCase() !== 'false';
   if (usePuppeteerFallback) {
     try {
       const { fetchDirectVideoUrlFromPost } = require('./puppeteerInstagram');
-      const video2 = await fetchDirectVideoUrlFromPost(canon);
+      const video2 = await fetchDirectVideoUrlFromPost(canon, embedPageUrl);
       if (video2) {
         videoUrlCache.set(canon, video2);
         return video2;
@@ -209,6 +257,7 @@ module.exports = {
   getEmbedUrlFromPostUrl,
   tryFetchOembedThumbnail,
   tryFetchDirectVideoUrl,
+  pickInstagramDirectVideoUrl,
   isPostEmbedLikelyAvailable,
   filterEntriesByReachable,
 };

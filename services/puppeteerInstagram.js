@@ -688,19 +688,22 @@ async function scrapeLikesWithCredentials({ username, password, collectLikes = t
 }
 
 /**
- * Ouvre un post/reel Instagram et intercepte le premier flux vidéo direct (.mp4 / octet-stream).
- * @param {string} postUrl
+ * Ouvre un post/reel Instagram et intercepte un flux vidéo direct (souvent .mp4 sur fbcdn).
+ * Pour les Reels, la page /embed contient parfois les métadonnées là où la page canonique est vide.
+ *
+ * @param {string} postUrl URL canonique (ex. https://www.instagram.com/reel/CODE/)
+ * @param {string} [embedPageUrl] ex. https://www.instagram.com/reel/CODE/embed/?…
  * @returns {Promise<string|null>}
  */
-async function fetchDirectVideoUrlFromPost(postUrl) {
+async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
   if (!postUrl || typeof postUrl !== 'string') return null;
 
   const target = String(postUrl).trim();
+  const embed = embedPageUrl && String(embedPageUrl).trim();
   const timeoutMs = Math.max(2500, Number(process.env.PUPPETEER_VIDEO_FETCH_MS) || 7000);
 
   let browser = null;
   let context = null;
-  let done = false;
 
   try {
     browser = await puppeteer.launch(getLaunchOptions());
@@ -718,45 +721,63 @@ async function fetchDirectVideoUrlFromPost(postUrl) {
     let found = null;
     const looksLikeVideoUrl = (u) => {
       const s = String(u || '');
+      if (!s.includes('fbcdn.net') && !s.includes('cdninstagram.com')) {
+        if (!/\.mp4/i.test(s) && !/mime_type=video/i.test(s)) return false;
+      }
       return (
         /\.mp4(?:\?|$)/i.test(s) ||
         /mime_type=video/i.test(s) ||
-        /\/v\/t\d+\.\d+-\d+\//i.test(s) ||
-        /instagram.*cdn.*video/i.test(s)
+        /\/v\/t[\d.]+-[\d]+\//i.test(s) ||
+        /fbcdn\.net\/v\//i.test(s)
       );
     };
 
-    page.on('response', async (res) => {
-      if (done || found) return;
+    page.on('response', (res) => {
+      if (found) return;
       try {
         const u = res.url();
         const ct = String(res.headers()['content-type'] || '').toLowerCase();
-        if (looksLikeVideoUrl(u) || ct.startsWith('video/') || ct.includes('octet-stream')) {
-          found = u;
-          done = true;
-        }
+        const looks =
+          looksLikeVideoUrl(u) ||
+          (ct.startsWith('video/') && /\.mp4/i.test(u)) ||
+          (ct.includes('octet-stream') && /fbcdn\.net/i.test(u) && /\/v\//i.test(u));
+        if (looks) found = u;
       } catch (_) {
         // ignore
       }
     });
 
-    await page.goto(target, {
-      waitUntil: 'domcontentloaded',
-      timeout: Math.max(NAV_TIMEOUT, timeoutMs),
-    });
+    const navTargets = [target];
+    if (embed && embed !== target) navTargets.push(embed);
 
-    const deadline = Date.now() + timeoutMs;
-    while (!done && Date.now() < deadline) {
-      await delay(120);
+    const perNavMs = Math.max(2000, Math.floor(timeoutMs / Math.max(1, navTargets.length)));
+
+    for (const navUrl of navTargets) {
+      found = null;
+      await page
+        .goto(navUrl, {
+          waitUntil: 'domcontentloaded',
+          timeout: Math.max(NAV_TIMEOUT, timeoutMs + 5000),
+        })
+        .catch(() => {});
+
+      const deadline = Date.now() + perNavMs;
+      while (!found && Date.now() < deadline) {
+        await delay(120);
+      }
+      if (found) return found;
+
+      const html = await page.content().catch(() => '');
+      try {
+        const { pickInstagramDirectVideoUrl } = require('./instagramService');
+        const picked = pickInstagramDirectVideoUrl(html);
+        if (picked) return picked;
+      } catch (_) {
+        // ignore
+      }
     }
 
-    if (found) return found;
-
-    // Fallback léger : parfois l'URL est dans le HTML même si pas passée en réponse vidéo directe.
-    const html = await page.content().catch(() => '');
-    const m = html.match(/<meta[^>]+property=["']og:video:secure_url["'][^>]+content=["']([^"']+)["']/i)
-      || html.match(/<meta[^>]+property=["']og:video["'][^>]+content=["']([^"']+)["']/i);
-    return m && m[1] ? m[1] : null;
+    return null;
   } catch (_) {
     return null;
   } finally {
