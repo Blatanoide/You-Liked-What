@@ -216,6 +216,7 @@ async function mountPlayableVideo(post, embedHost, embedFrame) {
   embedFrame.setAttribute('aria-hidden', 'false');
   video.classList.remove('hidden');
   video.pause();
+  video.removeAttribute('crossorigin');
   video.src = post.videoUrl;
   video.loop = true;
   video.autoplay = true;
@@ -487,8 +488,13 @@ async function openProfileModal() {
 }
 
 function closeProfileModal() {
-  $('profile-modal').classList.add('hidden');
-  $('profile-modal').setAttribute('aria-hidden', 'true');
+  const modal = $('profile-modal');
+  if (!modal) return;
+  if (document.activeElement && modal.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
 }
 
 function renderLikesList(urls) {
