@@ -90,16 +90,45 @@ for (const raw of [
   }
 }
 
+/**
+ * Suffixes de hostname (ex. blatanoide.vercel.app), séparés par des virgules.
+ * Utile pour les URLs de preview Vercel qui changent à chaque déploiement sans tout lister dans CORS_ORIGINS.
+ */
+const CORS_ORIGIN_SUFFIXES = (process.env.CORS_ORIGIN_SUFFIXES || '')
+  .split(',')
+  .map((s) => s.trim().replace(/\/$/, '').toLowerCase())
+  .filter(Boolean);
+
+function isCorsOriginAllowed(origin) {
+  const normalized = String(origin || '')
+    .trim()
+    .replace(/\/$/, '');
+  if (!normalized) return false;
+  if (CORS_ALLOWED_ORIGINS.includes(normalized)) return true;
+  if (!CORS_ORIGIN_SUFFIXES.length) return false;
+  let host;
+  try {
+    host = new URL(normalized).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return CORS_ORIGIN_SUFFIXES.some((suffix) => host.endsWith(suffix));
+}
+
 function corsDynamicOrigin(origin, callback) {
   if (!origin) {
     callback(null, true);
     return;
   }
-  if (CORS_ALLOWED_ORIGINS.includes(origin)) {
+  if (isCorsOriginAllowed(origin)) {
     callback(null, true);
     return;
   }
-  console.warn('[CORS] Origine refusée :', origin, '— autorise-la via CORS_ORIGINS ou FRONTEND_URL.');
+  console.warn(
+    '[CORS] Origine refusée :',
+    origin,
+    '— CORS_ORIGINS, FRONTEND_URL ou CORS_ORIGIN_SUFFIXES (ex. blatanoide.vercel.app).'
+  );
   callback(null, false);
 }
 
@@ -117,7 +146,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: CORS_ALLOWED_ORIGINS.length === 1 ? CORS_ALLOWED_ORIGINS[0] : CORS_ALLOWED_ORIGINS,
+    origin: corsDynamicOrigin,
     credentials: true,
   },
 });
