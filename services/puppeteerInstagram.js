@@ -688,8 +688,68 @@ async function scrapeLikesWithCredentials({ username, password, collectLikes = t
 }
 
 /**
+ * Parcourt les réponses API Instagram (GraphQL, etc.) pour trouver video_versions → mp4.
+ */
+function collectVideoVersionEntries(obj, acc, depth = 0) {
+  if (!obj || depth > 35) return;
+  if (Array.isArray(obj)) {
+    for (const x of obj) collectVideoVersionEntries(x, acc, depth + 1);
+    return;
+  }
+  if (typeof obj !== 'object') return;
+  if (Array.isArray(obj.video_versions)) {
+    for (const vv of obj.video_versions) {
+      if (vv && typeof vv.url === 'string' && /fbcdn\.net|cdninstagram\.com/i.test(vv.url)) {
+        acc.push({
+          url: vv.url,
+          w: Number(vv.width) || 0,
+          h: Number(vv.height) || 0,
+        });
+      }
+    }
+  }
+  for (const k of Object.keys(obj)) {
+    collectVideoVersionEntries(obj[k], acc, depth + 1);
+  }
+}
+
+function firstMp4StringInJson(val, depth = 0) {
+  if (!val || depth > 35) return null;
+  if (typeof val === 'string') {
+    const s = val;
+    if (!/^https:\/\//i.test(s) || !/\.mp4/i.test(s)) return null;
+    if (!/fbcdn\.net|cdninstagram\.com/i.test(s)) return null;
+    return s;
+  }
+  if (Array.isArray(val)) {
+    for (const x of val) {
+      const r = firstMp4StringInJson(x, depth + 1);
+      if (r) return r;
+    }
+    return null;
+  }
+  if (typeof val === 'object') {
+    for (const k of Object.keys(val)) {
+      const r = firstMp4StringInJson(val[k], depth + 1);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+
+function pickVideoUrlFromIgJson(json) {
+  const acc = [];
+  collectVideoVersionEntries(json, acc);
+  if (acc.length) {
+    acc.sort((a, b) => b.w - a.w);
+    return acc[0].url;
+  }
+  return firstMp4StringInJson(json);
+}
+
+/**
  * Ouvre un post/reel Instagram et intercepte un flux vidéo direct (souvent .mp4 sur fbcdn).
- * Pour les Reels, la page /embed contient parfois les métadonnées là où la page canonique est vide.
+ * Les Reels chargent surtout les URLs dans des réponses JSON (GraphQL), pas dans le HTML.
  *
  * @param {string} postUrl URL canonique (ex. https://www.instagram.com/reel/CODE/)
  * @param {string} [embedPageUrl] ex. https://www.instagram.com/reel/CODE/embed/?…
@@ -700,7 +760,9 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
 
   const target = String(postUrl).trim();
   const embed = embedPageUrl && String(embedPageUrl).trim();
-  const timeoutMs = Math.max(2500, Number(process.env.PUPPETEER_VIDEO_FETCH_MS) || 7000);
+  const timeoutMs = Math.max(4000, Number(process.env.PUPPETEER_VIDEO_FETCH_MS) || 14000);
+  const extraWaitMs = Math.min(15000, Math.max(0, Number(process.env.PUPPETEER_VIDEO_EXTRA_WAIT_MS) || 5500));
+  const debugIg = String(process.env.DEBUG_IG_VIDEO || '').toLowerCase() === 'true';
 
   let browser = null;
   let context = null;
@@ -712,6 +774,13 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
         ? await browser.createIncognitoBrowserContext()
         : await browser.createBrowserContext();
     const page = await context.newPage();
+    await page.evaluateOnNewDocument(() => {
+      try {
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+      } catch (_) {
+        // ignore
+      }
+    });
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({
       'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -719,7 +788,7 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
     await page.setViewport({ width: 1280, height: 800 });
 
     let found = null;
-    const looksLikeVideoUrl = (u) => {
+    const looksLikeVideoRequestUrl = (u) => {
       const s = String(u || '');
       if (!s.includes('fbcdn.net') && !s.includes('cdninstagram.com')) {
         if (!/\.mp4/i.test(s) && !/mime_type=video/i.test(s)) return false;
@@ -732,16 +801,43 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
       );
     };
 
-    page.on('response', (res) => {
+    page.on('response', async (res) => {
       if (found) return;
       try {
-        const u = res.url();
+        const reqUrl = res.url();
+        const st = res.status();
         const ct = String(res.headers()['content-type'] || '').toLowerCase();
-        const looks =
-          looksLikeVideoUrl(u) ||
-          (ct.startsWith('video/') && /\.mp4/i.test(u)) ||
-          (ct.includes('octet-stream') && /fbcdn\.net/i.test(u) && /\/v\//i.test(u));
-        if (looks) found = u;
+
+        if (st === 200 || st === 206) {
+          if (looksLikeVideoRequestUrl(reqUrl)) {
+            found = reqUrl;
+            return;
+          }
+          const looksStream =
+            (ct.startsWith('video/') && /\.mp4/i.test(reqUrl)) ||
+            (ct.includes('octet-stream') && /fbcdn\.net/i.test(reqUrl));
+          if (looksStream) {
+            found = reqUrl;
+            return;
+          }
+        }
+
+        if (st !== 200) return;
+
+        if (!ct.includes('json') && !ct.includes('javascript')) return;
+        if (!/instagram\.com/i.test(reqUrl)) return;
+
+        const buf = await res.text();
+        if (!buf || buf.length < 2 || buf.length > 2_500_000) return;
+        const t = buf.trim();
+        if (t[0] !== '{' && t[0] !== '[') return;
+
+        const json = JSON.parse(t);
+        const picked = pickVideoUrlFromIgJson(json);
+        if (picked) {
+          found = picked;
+          if (debugIg) console.warn('[IG video] JSON', reqUrl.slice(0, 120), '→', picked.slice(0, 80));
+        }
       } catch (_) {
         // ignore
       }
@@ -750,20 +846,19 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
     const navTargets = [target];
     if (embed && embed !== target) navTargets.push(embed);
 
-    const perNavMs = Math.max(2000, Math.floor(timeoutMs / Math.max(1, navTargets.length)));
+    const perNavMs = Math.max(3500, Math.floor((timeoutMs + extraWaitMs) / Math.max(1, navTargets.length)));
 
     for (const navUrl of navTargets) {
-      found = null;
       await page
         .goto(navUrl, {
           waitUntil: 'domcontentloaded',
-          timeout: Math.max(NAV_TIMEOUT, timeoutMs + 5000),
+          timeout: Math.max(NAV_TIMEOUT, timeoutMs + 8000),
         })
         .catch(() => {});
 
       const deadline = Date.now() + perNavMs;
       while (!found && Date.now() < deadline) {
-        await delay(120);
+        await delay(100);
       }
       if (found) return found;
 
@@ -777,8 +872,15 @@ async function fetchDirectVideoUrlFromPost(postUrl, embedPageUrl) {
       }
     }
 
-    return null;
-  } catch (_) {
+    const graceUntil = Date.now() + Math.min(9000, extraWaitMs + 2000);
+    while (!found && Date.now() < graceUntil) {
+      await delay(100);
+    }
+    return found || null;
+  } catch (e) {
+    if (String(process.env.DEBUG_IG_VIDEO || '').toLowerCase() === 'true') {
+      console.warn('[IG video] fetchDirectVideoUrlFromPost error:', e && e.message);
+    }
     return null;
   } finally {
     if (context) await context.close().catch(() => {});

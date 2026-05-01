@@ -188,7 +188,9 @@ async function axiosPickVideo(url) {
 async function tryFetchDirectVideoUrl(postUrl) {
   const canon = canonicalPostUrlForDedupe(postUrl);
   if (!canon) return null;
-  if (videoUrlCache.has(canon)) return videoUrlCache.get(canon) || null;
+  if (videoUrlCache.has(canon) && videoUrlCache.get(canon)) {
+    return videoUrlCache.get(canon);
+  }
 
   let video = await axiosPickVideo(canon);
   if (video) {
@@ -218,7 +220,6 @@ async function tryFetchDirectVideoUrl(postUrl) {
       // ignore
     }
   }
-  videoUrlCache.set(canon, null);
   return null;
 }
 
