@@ -812,7 +812,8 @@ function wireEvents() {
       const res = await apiFetch('/auth/profile/avatar', { method: 'POST', body: fd });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        $('auth-error').textContent = body.error || 'Impossible de mettre à jour la photo.';
+        const msg = [body.error, body.detail].filter(Boolean).join(' — ');
+        $('auth-error').textContent = msg || 'Impossible de mettre à jour la photo.';
         $('auth-error').classList.remove('hidden');
         return;
       }

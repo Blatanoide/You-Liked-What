@@ -296,6 +296,16 @@ server.listen(PORT, '0.0.0.0', () => {
   }
   if (avatarStorage.isCloudinaryEnabled()) {
     console.log('  Avatars     Cloudinary (stockage durable)');
+    avatarStorage.verifyCloudinaryPing().then((v) => {
+      if (v.ok) {
+        console.log('  Cloudinary  ping OK');
+      } else {
+        console.error('  Cloudinary  ping ÉCHEC —', v.error);
+        console.error(
+          '              → Sur Render, utilise CLOUDINARY_CLOUD_NAME + CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET'
+        );
+      }
+    });
   } else {
     console.log('  Avatars     disque local uploads/ — définir CLOUDINARY_URL sur Render pour persister');
   }
