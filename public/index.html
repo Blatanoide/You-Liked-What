@@ -142,11 +142,6 @@
           <p id="round-reveal-points" class="round-reveal__points hidden"></p>
           <p id="round-reveal-next" class="round-reveal__next hidden">Morceau suivant…</p>
         </div>
-        <div class="audio-volume-ui" title="Volume">
-          <span class="audio-volume-ui__icon" aria-hidden="true">♪</span>
-          <input id="volume-slider" class="audio-volume-ui__range" type="range" min="0" max="100" value="75" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" />
-          <span id="volume-value" class="audio-volume-ui__value">75</span>
-        </div>
         <audio id="round-audio" class="round-audio" crossorigin="anonymous" preload="auto"></audio>
       </div>
 
@@ -159,6 +154,13 @@
         <ul id="guess-suggestions" class="guess-suggestions hidden" role="listbox"></ul>
       </form>
       <p id="answer-feedback" class="feedback hidden" role="status"></p>
+
+      <div class="audio-volume-ui" title="Volume">
+        <span class="audio-volume-ui__icon" aria-hidden="true">♪</span>
+        <span class="audio-volume-ui__label">Volume</span>
+        <input id="volume-slider" class="audio-volume-ui__range" type="range" min="0" max="100" value="75" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" />
+        <span id="volume-value" class="audio-volume-ui__value">75</span>
+      </div>
 
       <div id="scores-panel" class="scores-panel hidden">
         <h3>Scores</h3>
@@ -222,6 +224,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-  <script src="/client.js?v=soundguess-5" defer></script>
+  <script src="/client.js?v=soundguess-6" defer></script>
 </body>
 </html>

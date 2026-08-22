@@ -630,13 +630,23 @@ function showRoomUI(room) {
   ul.innerHTML = '';
   (room.players || []).forEach((p) => {
     const li = document.createElement('li');
+    const isHost = p.playerId === room.hostPlayerId;
+    if (isHost) li.classList.add('is-host');
     const img = document.createElement('img');
+    img.className = 'player-chip__avatar';
     setAvatar(img, p.profile_picture, p.username);
     img.alt = '';
     const span = document.createElement('span');
-    span.textContent = p.username + (p.playerId === room.hostPlayerId ? ' (hôte)' : '');
+    span.className = 'player-chip__name';
+    span.textContent = p.username;
     li.appendChild(img);
     li.appendChild(span);
+    if (isHost) {
+      const badge = document.createElement('span');
+      badge.className = 'player-chip__badge';
+      badge.textContent = 'Hôte';
+      li.appendChild(badge);
+    }
     ul.appendChild(li);
   });
   const isHost = me?.user?.id === room.hostPlayerId;
