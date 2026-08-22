@@ -8,10 +8,14 @@ const API_BASE_URL = (() => {
   const params = new URLSearchParams(window.location.search);
   const q = params.get('api');
   if (q) return q.replace(/\/$/, '');
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
     return 'http://127.0.0.1:3000';
   }
-  return '';
+  if (/\.onrender\.com$/i.test(host)) {
+    return '';
+  }
+  return 'https://you-liked-what-backend.onrender.com';
 })();
 
 function apiUrl(path) {
@@ -348,11 +352,11 @@ async function fetchSuggestions(q) {
   } catch (_) {}
 }
 
-function connectSocket() {
-  if (socket) return;
-  socket = io(apiUrl(''), { withCredentials: true, transports: ['websocket', 'polling'] });
-  socket.on('connect', () => console.log('[Socket] connecté'));
-  socket.on('error_message', (msg) => {
+function wireSocketEvents(sock) {
+  sock.on('connect', () => console.log('[Socket] connecté', sock.id));
+  sock.on('disconnect', (reason) => console.log('[Socket] déconnecté', reason));
+
+  sock.on('error_message', (msg) => {
     const t = msg?.error || 'Erreur';
     if (!$('screen-room').classList.contains('hidden')) {
       $('room-msg').textContent = t;
@@ -364,18 +368,25 @@ function connectSocket() {
     }
   });
 
-  socket.on('room_joined', (room) => {
+  sock.on('game_preparing', () => {
+    if ($('start-hint')) $('start-hint').textContent = 'Chargement du morceau…';
+    $('room-msg')?.classList.add('hidden');
+    const btn = $('btn-start');
+    if (btn) btn.disabled = true;
+  });
+
+  sock.on('room_joined', (room) => {
     currentRoom = room;
     $('room-msg')?.classList.add('hidden');
     showRoomUI(room);
   });
 
-  socket.on('room_update', (room) => {
+  sock.on('room_update', (room) => {
     currentRoom = room;
     if (!$('screen-room').classList.contains('hidden')) showRoomUI(room);
   });
 
-  socket.on('new_round', (payload) => {
+  sock.on('new_round', (payload) => {
     showScreen('game');
     $('scores-panel')?.classList.remove('hidden');
     resetGuessUi();
@@ -400,12 +411,12 @@ function connectSocket() {
     renderScores(currentRoom?.scores || {}, currentRoom?.players || []);
   });
 
-  socket.on('score_update', (p) => {
+  sock.on('score_update', (p) => {
     if (currentRoom) currentRoom.scores = p.scores;
     renderScores(p.scores, currentRoom?.players || []);
   });
 
-  socket.on('round_end', (p) => {
+  sock.on('round_end', (p) => {
     stopVisualizer();
     $('round-audio')?.pause();
     const fb = $('answer-feedback');
@@ -420,7 +431,7 @@ function connectSocket() {
     }
   });
 
-  socket.on('end_game', (p) => {
+  sock.on('end_game', (p) => {
     stopVisualizer();
     $('round-audio')?.pause();
     if (timerInterval) clearInterval(timerInterval);
@@ -443,6 +454,52 @@ function connectSocket() {
   });
 }
 
+function reconnectSocket() {
+  if (socket) {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
+  }
+  socket = io(apiUrl(''), { withCredentials: true, transports: ['websocket', 'polling'] });
+  wireSocketEvents(socket);
+}
+
+function connectSocket() {
+  if (!socket) reconnectSocket();
+}
+
+async function refreshSessionFromServer() {
+  try {
+    const res = await apiFetch('/auth/me');
+    const session = await res.json().catch(() => ({ authenticated: false }));
+    me = session;
+    if (session.authenticated) {
+      setUserPill(session.user);
+    } else {
+      setUserPill(null);
+    }
+    if (lastBootstrap) lastBootstrap.session = session;
+    return session;
+  } catch (_) {
+    me = { authenticated: false };
+    setUserPill(null);
+    return me;
+  }
+}
+
+async function afterAuthSuccess(body) {
+  persistHandoffProofFromPayload(body);
+  await refreshSessionFromServer();
+  if (!me?.authenticated && body?.user) {
+    me = { authenticated: true, user: body.user };
+    setUserPill(body.user);
+  }
+  reconnectSocket();
+  showScreen('lobby');
+  $('auth-error')?.classList.add('hidden');
+  $('auth-warn')?.classList.add('hidden');
+}
+
 function showRoomUI(room) {
   showScreen('room');
   $('room-code-display').textContent = room.code;
@@ -463,6 +520,8 @@ function showRoomUI(room) {
   });
   const isHost = me?.user?.id === room.hostPlayerId;
   $('host-actions').classList.toggle('hidden', !isHost || room.phase !== 'lobby');
+  const btnStart = $('btn-start');
+  if (btnStart && isHost && room.phase === 'lobby') btnStart.disabled = false;
   $('start-hint').textContent =
     room.players.length < 2 ? 'Il faut au moins 2 joueurs.' : 'Prêt à lancer le blind test.';
   renderScores(room.scores, room.players);
@@ -508,17 +567,14 @@ async function checkBackend() {
   }
 }
 
-function applySessionFromBootstrap(session) {
+async function applySessionFromBootstrap() {
+  const session = await refreshSessionFromServer();
   if (!session?.authenticated) {
-    me = { authenticated: false };
-    setUserPill(null);
     showScreen('login');
     return;
   }
-  me = session;
-  setUserPill(session.user);
   showScreen('lobby');
-  connectSocket();
+  reconnectSocket();
 }
 
 async function bootstrap() {
@@ -527,7 +583,7 @@ async function bootstrap() {
   readQueryError();
   const ok = await checkBackend();
   if (!ok) return;
-  applySessionFromBootstrap(lastBootstrap.session);
+  await applySessionFromBootstrap();
 }
 
 function readQueryError() {
@@ -620,11 +676,7 @@ function wireEvents() {
       if (body.needsVerification) openVerificationPanel(body.email);
       return;
     }
-    persistHandoffProofFromPayload(body);
-    me = { authenticated: true, user: body.user };
-    setUserPill(body.user);
-    showScreen('lobby');
-    connectSocket();
+    await afterAuthSuccess(body);
   });
 
   $('site-register-form')?.addEventListener('submit', async (ev) => {
@@ -665,11 +717,7 @@ function wireEvents() {
       $('auth-error').classList.remove('hidden');
       return;
     }
-    persistHandoffProofFromPayload(body);
-    me = { authenticated: true, user: body.user };
-    setUserPill(body.user);
-    showScreen('lobby');
-    connectSocket();
+    await afterAuthSuccess(body);
   });
 
   $('btn-resend-code')?.addEventListener('click', async () => {
@@ -710,8 +758,13 @@ function wireEvents() {
   });
 
   $('btn-start')?.addEventListener('click', () => {
+    const btn = $('btn-start');
+    if (btn) btn.disabled = true;
+    if ($('start-hint')) $('start-hint').textContent = 'Lancement…';
     socket.emit('start_game', (ack) => {
       if (ack?.error) {
+        if (btn) btn.disabled = false;
+        if ($('start-hint')) $('start-hint').textContent = 'Prêt à lancer le blind test.';
         $('room-msg').textContent = ack.error;
         $('room-msg').classList.remove('hidden');
       }

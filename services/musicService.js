@@ -50,7 +50,7 @@ async function resolvePreviewUrl(artist, title) {
     const term = encodeURIComponent(`${artist} ${title}`);
     const { data } = await axios.get(
       `https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=5`,
-      { timeout: Number(process.env.ITUNES_SEARCH_MS) || 6000, validateStatus: () => true }
+      { timeout: Number(process.env.ITUNES_SEARCH_MS) || 4000, validateStatus: () => true }
     );
     const results = Array.isArray(data?.results) ? data.results : [];
     const normTitle = normalizeGuess(title);

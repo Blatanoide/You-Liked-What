@@ -16,7 +16,6 @@ const ALLOWED_TIMES_SEC = new Set([10, 20, 30, 45, 60]);
 const BASE_POINTS = 100;
 const MAX_SPEED_BONUS = 100;
 const BETWEEN_ROUNDS_MS = 2800;
-const MAX_TRACK_PICK_ATTEMPTS = 12;
 
 /** @type {Map<string, object>} */
 const rooms = new Map();
@@ -155,25 +154,43 @@ function finalizeRound(io, room, reason) {
 }
 
 async function resolveTrackWithPreview(excludeIds) {
-  for (let i = 0; i < MAX_TRACK_PICK_ATTEMPTS; i += 1) {
-    const track = tracksStore.pickRandomTrack(excludeIds);
-    if (!track) return null;
-    excludeIds.add(track.id);
-    let preview = track.preview_url;
-    if (!preview) {
-      preview = await musicService.resolvePreviewUrl(track.artist, track.title);
-      if (preview) tracksStore.setPreviewUrl(track.id, preview);
-    }
-    if (preview) return { ...track, preview_url: preview };
+  const tryIds = new Set(excludeIds);
+  const candidates = [];
+  for (let i = 0; i < 8 && candidates.length < 6; i += 1) {
+    const track = tracksStore.pickRandomTrack(tryIds);
+    if (!track) break;
+    tryIds.add(track.id);
+    candidates.push(track);
   }
-  return null;
+  if (!candidates.length) return null;
+
+  const cached = candidates.find((t) => t.preview_url);
+  if (cached) return { ...cached, preview_url: cached.preview_url };
+
+  const settled = await Promise.all(
+    candidates.map(async (track) => {
+      const preview = await musicService.resolvePreviewUrl(track.artist, track.title);
+      if (!preview) return null;
+      tracksStore.setPreviewUrl(track.id, preview);
+      return { ...track, preview_url: preview };
+    })
+  );
+  return settled.find(Boolean) || null;
 }
 
 async function startNextRound(io, room) {
   if (room.phase === 'ended') return;
 
   room.currentRound += 1;
-  const track = await resolveTrackWithPreview(room.usedTrackIds);
+  broadcastToRoom(io, room.code, 'game_preparing', { round: room.currentRound });
+
+  let track;
+  try {
+    track = await resolveTrackWithPreview(room.usedTrackIds);
+  } catch (e) {
+    log('resolveTrackWithPreview error', e.message || e);
+    track = null;
+  }
   if (!track) {
     log('Plus de morceaux avec preview room', room.code);
     room.phase = 'ended';
@@ -422,7 +439,15 @@ function attachGameSocket(io, sessionMiddleware) {
 
       if (typeof ack === 'function') ack({ ok: true });
       broadcastToRoom(io, code, 'room_update', roomPayloadForClient(room));
-      startNextRound(io, room);
+      broadcastToRoom(io, code, 'game_preparing', { round: 1 });
+      void startNextRound(io, room).catch((e) => {
+        log('startNextRound failed', code, e.message || e);
+        room.phase = 'lobby';
+        broadcastToRoom(io, code, 'error_message', {
+          error: 'Impossible de démarrer la manche. Réessaie.',
+        });
+        broadcastToRoom(io, code, 'room_update', roomPayloadForClient(room));
+      });
     });
 
     socket.on('player_answer', (data, ack) => {

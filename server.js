@@ -69,7 +69,7 @@ sessionStore.prune(() => {});
 handoffStore.prune();
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://soundguess-frontend.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
 
 /** Plusieurs origines séparées par des virgules (ex. Vercel prod + preview). */
 const CORS_ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || FRONTEND_URL)
