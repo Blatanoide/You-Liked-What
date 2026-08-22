@@ -40,7 +40,12 @@ router.post('/profile/avatar', (req, res, next) => {
             : err.message || 'Erreur lors de l’envoi du fichier.';
       return res.status(400).json({ error: msg });
     }
-    authController.uploadProfileAvatar(req, res);
+    authController.uploadProfileAvatar(req, res).catch((e) => {
+      console.error('[Auth] avatar async:', e.message || e);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Erreur serveur lors de l’envoi de la photo.' });
+      }
+    });
   });
 });
 

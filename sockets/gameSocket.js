@@ -7,6 +7,7 @@ const musicService = require('../services/musicService');
 const playerStatsStore = require('../services/playerStatsStore');
 const { queueTursoDb } = require('../services/openDatabase');
 const { expandProfilePictureUrl } = require('../utils/publicUrl');
+const avatarStorage = require('../services/avatarStorage');
 
 const MAX_PLAYERS = 15;
 const MIN_PLAYERS_TO_START = 2;
@@ -40,10 +41,12 @@ function ensureUniqueRoomCode() {
 
 function getPlayerFromSession(session) {
   if (!session?.user?.id) return null;
+  let pic = session.user.profile_picture || null;
+  if (avatarStorage.isObsoleteLocalAvatar(pic)) pic = null;
   return {
     playerId: String(session.user.id),
     username: session.user.username || 'Joueur',
-    profile_picture: expandProfilePictureUrl(null, session.user.profile_picture || null),
+    profile_picture: expandProfilePictureUrl(null, pic),
   };
 }
 

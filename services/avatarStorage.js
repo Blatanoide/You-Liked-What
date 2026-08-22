@@ -22,16 +22,18 @@ function isCloudinaryEnabled() {
 
 function ensureCloudinary() {
   if (cloudinaryReady) return;
-  if ((process.env.CLOUDINARY_URL || '').trim()) {
-    cloudinary.config({ secure: true });
-  } else {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-      secure: true,
-    });
+  const url = (process.env.CLOUDINARY_URL || '').trim();
+  if (url) {
+    // CLOUDINARY_URL suffit — ne pas appeler config() vide qui efface les credentials.
+    cloudinaryReady = true;
+    return;
   }
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
   cloudinaryReady = true;
 }
 
@@ -88,11 +90,27 @@ function saveLocal(buffer, userId, mimetype) {
 
 async function uploadAvatar(buffer, userId, mimetype) {
   if (isCloudinaryEnabled()) {
-    const url = await uploadToCloudinary(buffer, userId, mimetype);
-    return { url, storage: 'cloudinary' };
+    try {
+      const url = await uploadToCloudinary(buffer, userId, mimetype);
+      return { url, storage: 'cloudinary' };
+    } catch (e) {
+      console.error('[Avatar] Cloudinary upload:', e.message || e);
+      const err = new Error('CLOUDINARY_UPLOAD_FAILED');
+      err.cause = e;
+      throw err;
+    }
   }
   const url = saveLocal(buffer, userId, mimetype);
   return { url, storage: 'local' };
+}
+
+/** Chemins locaux obsolètes une fois Cloudinary actif (fichiers perdus sur Render). */
+function isObsoleteLocalAvatar(storedUrl) {
+  return (
+    isCloudinaryEnabled() &&
+    typeof storedUrl === 'string' &&
+    storedUrl.startsWith('/uploads/profiles/')
+  );
 }
 
 async function deletePreviousAvatar(storedUrl) {
@@ -117,6 +135,7 @@ async function deletePreviousAvatar(storedUrl) {
 
 module.exports = {
   isCloudinaryEnabled,
+  isObsoleteLocalAvatar,
   uploadAvatar,
   deletePreviousAvatar,
 };

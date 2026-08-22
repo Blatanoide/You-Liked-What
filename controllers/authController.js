@@ -21,9 +21,11 @@ const avatarStorage = require('../services/avatarStorage');
 
 function displayUser(req, user) {
   if (!user) return null;
+  let pic = user.profile_picture;
+  if (avatarStorage.isObsoleteLocalAvatar(pic)) pic = null;
   return {
     ...user,
-    profile_picture: expandProfilePictureUrl(req, user.profile_picture),
+    profile_picture: expandProfilePictureUrl(req, pic),
   };
 }
 
@@ -360,7 +362,10 @@ function myProfile(req, res) {
   }
   playerStatsStore.upsertIdentity(req.session.user);
   const summary = playerStatsStore.getProfileSummary(req.session.user.id);
-  const ex = (u) => expandProfilePictureUrl(req, u);
+  const ex = (u) => {
+    const pic = avatarStorage.isObsoleteLocalAvatar(u) ? null : u;
+    return expandProfilePictureUrl(req, pic);
+  };
   const profile = {
     ...summary,
     profile_picture: ex(summary.profile_picture),
@@ -684,7 +689,12 @@ async function uploadProfileAvatar(req, res) {
       return res.json({ ok: true, user: displayUser(req, req.session.user) });
     });
   } catch (e) {
-    console.error('[Auth] uploadProfileAvatar:', e.message || e);
+    console.error('[Auth] uploadProfileAvatar:', e.message || e, e.cause?.message || '');
+    if (e.message === 'CLOUDINARY_UPLOAD_FAILED') {
+      return res.status(502).json({
+        error: 'Stockage photo indisponible. Vérifie la configuration Cloudinary sur le serveur.',
+      });
+    }
     return res.status(500).json({ error: 'Impossible d’enregistrer la photo.' });
   }
 }
