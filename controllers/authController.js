@@ -27,12 +27,6 @@ function displayUser(req, user) {
 }
 
 function saveSessionAndReply(req, res, user, extra = {}) {
-  likesStore.hydrateSession(req);
-  if (!Array.isArray(req.session.simulatedLikes)) {
-    req.session.simulatedLikes = [];
-  }
-  req.session.igAccessToken = null;
-
   req.session.save((err) => {
     if (err) {
       console.error('[Auth] session.save:', err);
@@ -44,13 +38,10 @@ function saveSessionAndReply(req, res, user, extra = {}) {
     if (wantsHtmlRedirect(req)) {
       return res.redirect(302, '/');
     }
-    const likes = Array.isArray(req.session.simulatedLikes) ? req.session.simulatedLikes : [];
     const proof = handoffProof.issueProofForHandoff(user, req.session.loginMethod);
     return res.json({
       ok: true,
       user: displayUser(req, user),
-      simulatedLikes: likes,
-      canPlay: likes.length >= MIN_LIKES,
       ...extra,
       ...(proof ? { handoffProof: proof } : {}),
     });
@@ -350,13 +341,9 @@ function sessionPayload(req) {
   if (!req.session || !req.session.user) {
     return { authenticated: false };
   }
-  const likes = Array.isArray(req.session.simulatedLikes) ? req.session.simulatedLikes : [];
   return {
     authenticated: true,
     user: displayUser(req, req.session.user),
-    simulatedLikes: likes,
-    minLikesRequired: MIN_LIKES,
-    canPlay: likes.length >= MIN_LIKES,
   };
 }
 
@@ -635,13 +622,8 @@ async function verifySiteEmail(req, res) {
   }
   const row = result.user;
   const user = siteUserStore.sessionUserFromRow(row);
-  req.session.igAccessToken = null;
   req.session.user = user;
   req.session.loginMethod = 'site';
-  likesStore.hydrateSession(req);
-  if (!Array.isArray(req.session.simulatedLikes)) {
-    req.session.simulatedLikes = [];
-  }
   console.log('[Auth] Compte site vérifié:', user.username);
   return saveSessionAndReply(req, res, user, { siteRegistration: true });
 }
@@ -667,13 +649,8 @@ async function loginSite(req, res) {
     return res.status(401).json({ error: 'Identifiants incorrects.' });
   }
   const user = siteUserStore.sessionUserFromRow(row);
-  req.session.igAccessToken = null;
   req.session.user = user;
   req.session.loginMethod = 'site';
-  likesStore.hydrateSession(req);
-  if (!Array.isArray(req.session.simulatedLikes)) {
-    req.session.simulatedLikes = [];
-  }
   console.log('[Auth] Connexion site:', user.username);
   return saveSessionAndReply(req, res, user);
 }
@@ -701,7 +678,6 @@ function uploadProfileAvatar(req, res) {
   siteUserStore.updateProfilePicturePath(req.session.user.id, rel);
   req.session.user.profile_picture = rel;
   playerStatsStore.upsertIdentity(req.session.user);
-  likesStore.hydrateSession(req);
   req.session.save((err) => {
     if (err) {
       console.error('[Auth] uploadProfileAvatar session:', err);
@@ -798,11 +774,6 @@ function applyHandoffGet(req, res) {
     }
     req.session.user = payload.user;
     req.session.loginMethod = payload.loginMethod || 'handoff';
-    req.session.igAccessToken = null;
-    likesStore.hydrateSession(req);
-    if (!Array.isArray(req.session.simulatedLikes)) {
-      req.session.simulatedLikes = [];
-    }
     req.session.save((saveErr) => {
       if (saveErr) {
         console.error('[Auth] handoff apply save:', saveErr);
@@ -832,11 +803,6 @@ function consumeHandoff(req, res) {
     }
     req.session.user = payload.user;
     req.session.loginMethod = payload.loginMethod || 'handoff';
-    req.session.igAccessToken = null;
-    likesStore.hydrateSession(req);
-    if (!Array.isArray(req.session.simulatedLikes)) {
-      req.session.simulatedLikes = [];
-    }
     req.session.save((saveErr) => {
       if (saveErr) {
         console.error('[Auth] handoff save:', saveErr);
@@ -848,20 +814,11 @@ function consumeHandoff(req, res) {
 }
 
 module.exports = {
-  loginWithScrape,
-  loginWithPuppeteerCredentials,
-  instagramOAuthStart,
-  instagramOAuthCallback,
-  loginDemo,
   logout,
   me,
   myProfile,
   updateMyBio,
   sessionPayload,
-  addSimulatedLike,
-  removeSimulatedLike,
-  scrapeLikesPuppeteer,
-  seedFakeLikes,
   registerSite,
   verifySiteEmail,
   resendVerification,
@@ -870,5 +827,4 @@ module.exports = {
   createHandoff,
   consumeHandoff,
   applyHandoffGet,
-  MIN_LIKES,
 };

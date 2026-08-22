@@ -1,23 +1,21 @@
 {
-  "name": "you-liked-what",
-  "version": "1.0.0",
-  "description": "Jeu multijoueur — auth par scrape profil Instagram + option ngrok (likes simulés)",
+  "name": "soundguess",
+  "version": "2.0.0",
+  "description": "SoundGuess — blind test musical multijoueur",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "sync-import": "node scripts/copy-import-static.js",
-    "sync-public": "node scripts/copy-import-static.js",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "sync-public": "node scripts/copy-import-static.js"
   },
   "engines": {
     "node": ">=18"
   },
   "keywords": [
-    "instagram",
+    "music",
+    "blind-test",
     "socket.io",
-    "game",
-    "oauth"
+    "game"
   ],
   "license": "MIT",
   "dependencies": {
@@ -31,7 +29,6 @@
     "express-session": "^1.18.1",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.4",
-    "puppeteer": "^24.40.0",
     "socket.io": "^4.8.1",
     "unzipper": "^0.12.3"
   }

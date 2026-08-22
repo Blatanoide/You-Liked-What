@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You Liked What? — Devine qui a liké</title>
+  <title>SoundGuess — Blind test musical</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=Outfit:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f58529'/%3E%3Cstop offset='0.6' stop-color='%23dd2a7b'/%3E%3Cstop offset='1' stop-color='%238134af'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='28' height='28' rx='9' fill='url(%23g)'/%3E%3Ccircle cx='12' cy='12' r='2.4' fill='white'/%3E%3Cpath d='M11.5 18c0-3.2 2.6-5.8 5.8-5.8 2 0 3.7.8 4.9 2.2l-1.6 1.3c-.8-.9-2-1.5-3.3-1.5-2.1 0-3.8 1.7-3.8 3.8h4.4v2h-6.4z' fill='white'/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%23a855f7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='28' height='28' rx='9' fill='url(%23g)'/%3E%3Cpath d='M10 22V10l12 6-12 6z' fill='white'/%3E%3C/svg%3E" />
 </head>
 <body>
-  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="bg-gradient bg-gradient--sound" aria-hidden="true"></div>
 
   <div id="backend-banner" class="backend-banner hidden" role="alert">
     <strong>Connexion au serveur impossible.</strong> Réessaie dans un instant ou recharge la page.
@@ -21,17 +21,15 @@
     <div class="brand">
       <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
         <defs>
-          <linearGradient id="ylwBrandGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#f58529"></stop>
-            <stop offset="0.6" stop-color="#dd2a7b"></stop>
-            <stop offset="1" stop-color="#8134af"></stop>
+          <linearGradient id="sgBrandGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#6366f1"></stop>
+            <stop offset="1" stop-color="#a855f7"></stop>
           </linearGradient>
         </defs>
-        <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#ylwBrandGradient)"></rect>
-        <circle cx="12" cy="12" r="2.4" fill="white"></circle>
-        <path d="M11.5 18c0-3.2 2.6-5.8 5.8-5.8 2 0 3.7.8 4.9 2.2l-1.6 1.3c-.8-.9-2-1.5-3.3-1.5-2.1 0-3.8 1.7-3.8 3.8h4.4v2h-6.4z" fill="white"></path>
+        <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#sgBrandGradient)"></rect>
+        <path d="M10 22V10l12 6-12 6z" fill="white"></path>
       </svg>
-      <span class="brand-text">You Liked What?</span>
+      <span class="brand-text">SoundGuess</span>
     </div>
     <div id="user-pill" class="user-pill hidden">
       <button type="button" id="user-profile-btn" class="user-profile-btn" aria-label="Ouvrir mon profil">
@@ -45,132 +43,67 @@
   <main class="main">
     <p id="auth-error" class="msg-error hidden" role="alert"></p>
     <p id="auth-warn" class="msg-warn hidden" role="status"></p>
-    <!-- Connexion -->
+
     <section id="screen-login" class="screen card">
-      <h1>Devine qui a liké ce post</h1>
+      <h1>Blind test musical</h1>
       <p class="lead" id="login-lead">
-        Crée un <strong>compte sur le site</strong> (pseudo, e-mail, mot de passe). Après vérification par e-mail, tu pourras ajouter tes posts likés et jouer. Instagram n’est plus requis pour te connecter.
+        Crée un compte (pseudo, e-mail, mot de passe). Après vérification par e-mail, rejoins une room et devine les morceaux le plus vite possible.
       </p>
 
       <form id="site-login-form" class="login-form" autocomplete="username">
         <h2 class="login-form__title">Connexion</h2>
         <label class="field-label" for="site-login-id">E-mail ou pseudo</label>
-        <input
-          id="site-login-id"
-          class="input"
-          type="text"
-          autocomplete="username"
-          required
-          placeholder="toi@exemple.com ou pseudo"
-        />
+        <input id="site-login-id" class="input" type="text" autocomplete="username" required placeholder="toi@exemple.com ou pseudo" />
         <label class="field-label" for="site-login-password">Mot de passe</label>
-        <input
-          id="site-login-password"
-          class="input"
-          type="password"
-          autocomplete="current-password"
-          required
-        />
-        <button type="submit" class="btn btn-instagram btn-block" id="btn-site-login">Se connecter</button>
+        <input id="site-login-password" class="input" type="password" autocomplete="current-password" required />
+        <button type="submit" class="btn btn-accent btn-block" id="btn-site-login">Se connecter</button>
       </form>
 
       <p class="login-divider-label" id="site-register-intro">Pas encore de compte ?</p>
       <form id="site-register-form" class="login-form" autocomplete="off">
         <h2 class="login-form__title">Inscription</h2>
-        <label class="field-label" for="site-reg-username">Pseudo affiché (3–30 caractères, converti en minuscules)</label>
+        <label class="field-label" for="site-reg-username">Pseudo affiché</label>
         <div class="login-row">
           <span class="at-prefix" aria-hidden="true">@</span>
-          <input
-            id="site-reg-username"
-            class="input input-username"
-            type="text"
-            maxlength="30"
-            required
-            autocomplete="username"
-            placeholder="blatanoide"
-          />
+          <input id="site-reg-username" class="input input-username" type="text" maxlength="30" required autocomplete="username" placeholder="blatanoide" />
         </div>
         <label class="field-label" for="site-reg-email">E-mail</label>
         <input id="site-reg-email" class="input" type="email" required autocomplete="email" />
         <label class="field-label" for="site-reg-password">Mot de passe</label>
-        <input
-          id="site-reg-password"
-          class="input"
-          type="password"
-          autocomplete="new-password"
-          required
-          minlength="9"
-          title="Au moins 9 caractères et une majuscule"
-        />
+        <input id="site-reg-password" class="input" type="password" autocomplete="new-password" required minlength="9" title="Au moins 9 caractères et une majuscule" />
         <p class="hint">Au moins <strong>9 caractères</strong> et <strong>une majuscule</strong>.</p>
         <button type="submit" class="btn btn-secondary btn-block" id="btn-site-register">Créer mon compte</button>
       </form>
 
       <div id="site-verify-panel" class="hidden">
         <p class="login-divider-label">Vérification e-mail</p>
-        <p class="hint">Même adresse que lors de l’inscription. Si tu ne vois pas le mail, vérifie les spams ou clique sur « Renvoyer le code ».</p>
+        <p class="hint">Code à 6 chiffres reçu par e-mail (vérifie les spams).</p>
         <form id="site-verify-form" class="login-form">
           <label class="field-label" for="site-verify-email">E-mail</label>
-          <input id="site-verify-email" class="input" type="email" required autocomplete="email" placeholder="toi@exemple.com" />
-          <label class="field-label" for="site-verify-code">Code à 6 chiffres (dans le mail, entre crochets)</label>
-          <input
-            id="site-verify-code"
-            class="input"
-            type="text"
-            inputmode="numeric"
-            maxlength="8"
-            required
-            placeholder="123456"
-          />
-          <button type="submit" class="btn btn-instagram btn-block" id="btn-site-verify">Valider le code</button>
+          <input id="site-verify-email" class="input" type="email" required autocomplete="email" />
+          <label class="field-label" for="site-verify-code">Code</label>
+          <input id="site-verify-code" class="input" type="text" inputmode="numeric" maxlength="8" required placeholder="123456" />
+          <button type="submit" class="btn btn-accent btn-block" id="btn-site-verify">Valider le code</button>
         </form>
         <p id="verify-resend-status" class="hint verify-resend-status" role="status" aria-live="polite"></p>
-        <button type="button" class="btn btn-ghost btn-block verify-resend-btn" id="btn-resend-code">
-          Renvoyer le code par e-mail
-        </button>
-      </div>
-
-      <p id="ngrok-hint" class="hint hidden" aria-hidden="true"></p>
-    </section>
-
-    <!-- Likes simulés -->
-    <section id="screen-likes" class="screen card hidden">
-      <h2>Tes « likes » simulés</h2>
-      <p class="lead small">
-        Ajoute au moins <strong id="min-likes-label">3</strong> URLs de posts Instagram. Le jeu en tirera au hasard pour faire deviner aux autres.
-      </p>
-      <p class="import-callout">
-        <a href="/import-likes.html" id="link-import-likes" class="btn btn-instagram btn-block import-callout__btn">
-          Importer mes likes (fichier Instagram)
-        </a>
-        <span class="import-callout__hint">Demande ton export sur Instagram, puis dépose le fichier ici. Toujours passer par ce bouton pour rester connecté.</span>
-      </p>
-      <div class="likes-form">
-        <input type="url" id="like-url-input" class="input" placeholder="https://www.instagram.com/p/…" autocomplete="off" />
-        <button type="button" id="btn-add-like" class="btn btn-primary">Ajouter</button>
-      </div>
-      <p id="likes-msg" class="msg-error hidden" role="status"></p>
-      <ul id="likes-list" class="likes-list"></ul>
-      <div class="row-actions">
-        <button type="button" id="btn-seed-demo" class="btn btn-ghost hidden">Remplir avec des posts démo</button>
-        <button type="button" id="btn-to-lobby" class="btn btn-primary" disabled>Continuer vers le salon</button>
+        <button type="button" class="btn btn-ghost btn-block verify-resend-btn" id="btn-resend-code">Renvoyer le code</button>
       </div>
     </section>
 
-    <!-- Salon : créer / rejoindre -->
     <section id="screen-lobby" class="screen card hidden">
       <h2>Salon</h2>
+      <p class="lead small">Crée une room ou rejoins tes amis avec un code à 6 chiffres.</p>
       <div class="lobby-grid">
         <div class="lobby-panel">
-          <h3>Rejoindre une room</h3>
+          <h3>Rejoindre</h3>
           <input type="text" id="join-code" class="input input-code" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Code 6 chiffres" />
           <button type="button" id="btn-join" class="btn btn-primary btn-block">Rejoindre</button>
         </div>
         <div class="lobby-panel">
-          <h3>Créer une room</h3>
+          <h3>Créer</h3>
           <label class="field-label">Rounds</label>
           <select id="opt-rounds" class="input"></select>
-          <label class="field-label">Temps par round (s)</label>
+          <label class="field-label">Temps par morceau (s)</label>
           <select id="opt-time" class="input"></select>
           <button type="button" id="btn-create" class="btn btn-accent btn-block">Créer la room</button>
         </div>
@@ -178,7 +111,6 @@
       <p id="lobby-msg" class="msg-error hidden" role="status"></p>
     </section>
 
-    <!-- Dans la room -->
     <section id="screen-room" class="screen card hidden">
       <div class="room-head">
         <p class="room-code-label">Code room</p>
@@ -194,45 +126,37 @@
       <p id="room-msg" class="msg-error hidden" role="status"></p>
     </section>
 
-    <!-- Jeu -->
     <section id="screen-game" class="screen card hidden">
       <div class="game-top">
         <span id="round-label" class="pill"></span>
         <span id="timer-display" class="timer"></span>
       </div>
-      <p class="game-question">Qui a « liké » ce post ?</p>
-      <div id="post-container" class="post-container">
-        <div id="post-thumb-wrap" class="post-thumb-wrap hidden">
-          <img id="post-thumb" alt="Aperçu du post" />
-        </div>
-        <div id="post-embed-frame" class="post-embed-frame hidden" aria-hidden="true">
-          <video
-            id="post-video"
-            class="post-video hidden"
-            playsinline
-            webkit-playsinline
-            preload="metadata"
-          ></video>
-          <div id="post-embed-host" class="post-embed-host"></div>
-          <div id="playback-indicator" class="playback-indicator hidden" aria-live="polite"></div>
-          <div id="video-volume-ui" class="video-volume-ui hidden" aria-hidden="true">
-            <button id="video-mute-btn" type="button" class="video-vol-btn" aria-label="Couper le son">🔊</button>
-            <input id="video-volume-range" class="video-vol-range" type="range" min="0" max="100" step="1" value="70" />
-          </div>
-        </div>
-        <a id="post-link" class="post-link" href="#" target="_blank" rel="noopener">Ouvrir sur Instagram</a>
+      <p class="game-question">Quel est ce morceau ?</p>
+
+      <div class="visualizer-wrap">
+        <canvas id="audio-visualizer" class="audio-visualizer" width="640" height="160" aria-hidden="true"></canvas>
+        <audio id="round-audio" class="round-audio" crossorigin="anonymous" preload="auto"></audio>
       </div>
-      <div id="choices" class="choices"></div>
+
+      <form id="guess-form" class="guess-form" autocomplete="off">
+        <label class="field-label" for="guess-input">Titre (ou artiste — titre)</label>
+        <div class="guess-row">
+          <input id="guess-input" class="input" type="text" autocomplete="off" placeholder="Commence à taper…" disabled />
+          <button type="submit" id="btn-guess" class="btn btn-accent" disabled>Valider</button>
+        </div>
+        <ul id="guess-suggestions" class="guess-suggestions hidden" role="listbox"></ul>
+      </form>
       <p id="answer-feedback" class="feedback hidden" role="status"></p>
+
       <div id="scores-panel" class="scores-panel hidden">
         <h3>Scores</h3>
         <ul id="scores-list" class="scores-list"></ul>
       </div>
     </section>
 
-    <!-- Fin de partie -->
     <section id="screen-end" class="screen card hidden">
       <h2>Partie terminée</h2>
+      <p id="end-reveal" class="end-reveal hidden"></p>
       <p id="end-error" class="msg-error hidden" role="alert"></p>
       <ol id="leaderboard" class="leaderboard"></ol>
       <button type="button" id="btn-back-lobby" class="btn btn-primary btn-block">Retour au salon</button>
@@ -240,7 +164,7 @@
   </main>
 
   <footer class="footer">
-    <span>You Liked What? — Made by Anthony "Blatanoide"</span>
+    <span>SoundGuess — Made by Anthony "Blatanoide"</span>
   </footer>
 
   <section id="profile-modal" class="profile-modal hidden" aria-hidden="true">
@@ -253,19 +177,15 @@
           <h2 id="profile-title">Mon profil</h2>
           <p id="profile-username" class="profile-head__username"></p>
           <input type="file" id="profile-avatar-input" class="visually-hidden" accept="image/jpeg,image/png,image/webp,image/gif" />
-          <button type="button" id="profile-change-avatar-btn" class="btn btn-secondary btn-tiny profile-avatar-btn hidden">
-            Changer la photo
-          </button>
+          <button type="button" id="profile-change-avatar-btn" class="btn btn-secondary btn-tiny profile-avatar-btn hidden">Changer la photo</button>
         </div>
       </div>
-
       <label class="field-label" for="profile-bio-input">Bio (500 caractères max)</label>
-      <textarea id="profile-bio-input" class="input profile-bio-input" maxlength="500" rows="4" placeholder="Parle un peu de toi..."></textarea>
+      <textarea id="profile-bio-input" class="input profile-bio-input" maxlength="500" rows="4" placeholder="Parle un peu de toi…"></textarea>
       <div class="profile-bio-row">
         <span id="profile-bio-count" class="hint">0 / 500</span>
         <button type="button" id="profile-save-bio" class="btn btn-secondary">Enregistrer la bio</button>
       </div>
-
       <div class="profile-stats-grid">
         <div class="profile-stat-card">
           <p class="field-label">Victoires</p>
@@ -280,18 +200,16 @@
           <p id="profile-reaction" class="profile-stat-value">—</p>
         </div>
       </div>
-
       <div class="winrate-block">
         <div id="profile-winrate-chart" class="winrate-chart" aria-hidden="true"></div>
         <p id="profile-winrate-label" class="winrate-label">0% de victoires</p>
       </div>
-
       <h3>Top 3 partenaires de jeu</h3>
       <div id="profile-podium" class="podium"></div>
     </div>
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-<script src="/client.js?v=20260501-video-cors" defer></script>
+  <script src="/client.js?v=soundguess-1" defer></script>
 </body>
 </html>

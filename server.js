@@ -1,6 +1,6 @@
 /**
  * Serveur principal — Express + session + Socket.io
- * « You Liked What? » — jeu multijoueur avec likes Instagram simulés.
+ * SoundGuess — blind test musical multijoueur.
  */
 
 const path = require('path');
@@ -14,11 +14,11 @@ const session = require('express-session');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const tracksRoutes = require('./routes/tracks');
 const authController = require('./controllers/authController');
-const instagramOAuth = require('./services/instagramOAuthService');
 const emailService = require('./services/emailService');
 const { attachGameSocket } = require('./sockets/gameSocket');
-const { hydrateLikesMiddleware } = require('./middleware/hydrateLikes');
+const { APP_NAME } = require('./config/constants');
 const SessionSqliteStore = require('./services/sessionSqliteStore');
 const handoffStore = require('./services/handoffStore');
 const handoffProofSvc = require('./services/handoffProof');
@@ -69,7 +69,7 @@ sessionStore.prune(() => {});
 handoffStore.prune();
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://you-liked-what-frontend.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://soundguess-frontend.vercel.app';
 
 /** Plusieurs origines séparées par des virgules (ex. Vercel prod + preview). */
 const CORS_ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || FRONTEND_URL)
@@ -170,13 +170,6 @@ app.use(express.json());
 app.use(sessionMiddleware);
 
 app.use((req, res, next) => {
-  if (req.path.startsWith('/auth') || req.path.startsWith('/api')) {
-    return hydrateLikesMiddleware(req, res, next);
-  }
-  next();
-});
-
-app.use((req, res, next) => {
   console.log(`[HTTP] ${req.method} ${req.url}`);
   next();
 });
@@ -201,25 +194,18 @@ function sendApiBootstrap(req, res) {
   const listenPort = Number(PORT) || 3000;
   res.json({
     ok: true,
-    v: 3,
-    name: 'You Liked What?',
+    v: 4,
+    name: APP_NAME,
     cwd: __dirname,
     port: listenPort,
     listenPort,
-    /** État session : plus besoin de /api/session ni /auth/me au chargement (souvent 404/401 via ngrok). */
     session: authController.sessionPayload(req),
     handoffProof:
       req.session?.user?.id
         ? handoffProofSvc.issueProofForHandoff(req.session.user, req.session.loginMethod)
         : null,
     publicBaseUrl: PUBLIC_BASE_URL || null,
-    demoLoginEnabled: process.env.DEV_FAKE_AUTH === 'true',
-    instagramOAuthEnabled: instagramOAuth.isConfigured(),
-    trustProxy: process.env.TRUST_PROXY === 'true',
-    usePuppeteerProfile: process.env.USE_PUPPETEER_PROFILE === 'true',
-    allowPasswordScrape: process.env.ALLOW_INSTAGRAM_PASSWORD_SCRAPE === 'true',
     emailVerificationConfigured: emailService.isConfigured(),
-    importLikesPath: '/import-likes.html',
     sessionCookieSecure: useSecureCookies,
     forwardedProto: proto,
     host: req.get('host'),
@@ -231,6 +217,7 @@ app.get('/api/config', sendApiBootstrap);
 app.get('/api/meta', sendApiBootstrap);
 
 app.use('/auth', authRoutes);
+app.use('/api/tracks', tracksRoutes);
 
 const uploadsRoot = path.join(__dirname, 'uploads');
 fs.mkdirSync(uploadsRoot, { recursive: true });
@@ -269,17 +256,11 @@ attachGameSocket(io, sessionMiddleware);
 server.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('═══════════════════════════════════════════');
-  console.log('  You Liked What? — serveur démarré');
+  console.log('  SoundGuess — serveur démarré');
   console.log(`  Dossier ${__dirname}`);
   console.log(`  Écoute  http://127.0.0.1:${PORT}  (toutes interfaces : ngrok → ce port)`);
   if (PUBLIC_BASE_URL) {
     console.log(`  Public  ${PUBLIC_BASE_URL}  (même URL dans le navigateur)`);
-  }
-  if (instagramOAuth.isConfigured()) {
-    const base = PUBLIC_BASE_URL || `http://127.0.0.1:${PORT}`;
-    console.log(`  Instagram OAuth  actif — redirect Meta : ${base}/auth/instagram/callback`);
-  } else {
-    console.log('  Instagram OAuth  inactif (INSTAGRAM_APP_ID + INSTAGRAM_APP_SECRET dans .env pour un vrai compte)');
   }
   console.log(
     `  Cookie session : SameSite=${sessionSameSite}, Secure=${sessionCookieSecure}` +
@@ -287,13 +268,13 @@ server.listen(PORT, '0.0.0.0', () => {
   );
   if (tursoCreds().enabled) {
     console.log(`  SQLite (Turso)  réplique locale ${getTursoReplicaFilePath()} — sync cloud gratuit`);
-    console.log('  Persistance comptes/likes/sessions : oui (Turso, sans disque Render).');
+    console.log('  Persistance comptes/sessions : oui (Turso, sans disque Render).');
   } else {
     const sqlitePath = getSqliteDatabasePath();
     console.log(`  SQLite     ${sqlitePath}`);
     const persistEnv = (process.env.SQLITE_PATH || '').trim() || (process.env.DATA_DIR || '').trim();
     if (persistEnv) {
-      console.log('  Persistance comptes/likes : oui (SQLITE_PATH ou DATA_DIR défini — disque monté en prod).');
+      console.log('  Persistance comptes : oui (SQLITE_PATH ou DATA_DIR défini — disque monté en prod).');
     } else if (process.env.RENDER === 'true') {
       console.log(
         '  Persistance : fragile sur Render sans disque — gratuit : Turso (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN) ou disque + SQLITE_PATH'

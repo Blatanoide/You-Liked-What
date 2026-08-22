@@ -3,6 +3,5 @@
  */
 
 module.exports = {
-  /** Minimum de posts « likés » simulés pour jouer */
-  MIN_LIKES: 3,
+  APP_NAME: 'SoundGuess',
 };
