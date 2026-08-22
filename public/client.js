@@ -38,7 +38,6 @@ let currentRoom = null;
 let roundDeadline = null;
 let timerInterval = null;
 let guessLocked = false;
-let visualizerStop = null;
 let suggestTimer = null;
 
 const HANDOFF_PROOF_KEY = 'ylw_handoff_proof';
@@ -236,41 +235,86 @@ function renderScores(scores, players) {
   });
 }
 
-function stopVisualizer() {
+let visualizerStop = null;
+let visualizerRaf = null;
+/** @type {{ audioEl: HTMLAudioElement|null, ctx: AudioContext|null, analyser: AnalyserNode|null, source: MediaElementAudioSourceNode|null }|null} */
+let audioGraph = null;
+
+const VOLUME_STORAGE_KEY = 'soundguess_volume';
+
+function getStoredVolume() {
+  try {
+    const v = Number(localStorage.getItem(VOLUME_STORAGE_KEY));
+    if (Number.isFinite(v) && v >= 0 && v <= 1) return v;
+  } catch (_) {}
+  return 0.75;
+}
+
+function applyVolumeToAudio(audioEl) {
+  if (!audioEl) return;
+  audioEl.volume = getStoredVolume();
+}
+
+function wireVolumeControl() {
+  const slider = $('volume-slider');
+  const label = $('volume-value');
+  if (!slider) return;
+  const pct = Math.round(getStoredVolume() * 100);
+  slider.value = String(pct);
+  if (label) label.textContent = `${pct}%`;
+  slider.addEventListener('input', () => {
+    const vol = Math.max(0, Math.min(100, Number(slider.value))) / 100;
+    try {
+      localStorage.setItem(VOLUME_STORAGE_KEY, String(vol));
+    } catch (_) {}
+    if (label) label.textContent = `${Math.round(vol * 100)}%`;
+    applyVolumeToAudio($('round-audio'));
+  });
+}
+
+function stopVisualizerAnimation() {
+  if (visualizerRaf) {
+    cancelAnimationFrame(visualizerRaf);
+    visualizerRaf = null;
+  }
   if (visualizerStop) {
     visualizerStop();
     visualizerStop = null;
   }
 }
 
-function startVisualizer(audioEl, canvas) {
-  stopVisualizer();
-  if (!audioEl || !canvas) return;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  let audioCtx;
-  let analyser;
-  let raf;
-  let connected = false;
-
-  function connect() {
-    if (connected) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioCtx.createMediaElementSource(audioEl);
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 128;
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    connected = true;
+function ensureAudioGraph(audioEl) {
+  if (audioGraph?.audioEl === audioEl && audioGraph.source) return audioGraph;
+  if (audioGraph?.ctx) {
+    try {
+      audioGraph.ctx.close();
+    } catch (_) {}
   }
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = ctx.createMediaElementSource(audioEl);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 128;
+  source.connect(analyser);
+  analyser.connect(ctx.destination);
+  audioGraph = { audioEl, ctx, analyser, source };
+  return audioGraph;
+}
+
+function startVisualizer(audioEl, canvas) {
+  stopVisualizerAnimation();
+  if (!audioEl || !canvas) return;
+  const ctx2d = canvas.getContext('2d');
+  if (!ctx2d) return;
+
+  const graph = ensureAudioGraph(audioEl);
 
   function draw() {
-    if (!analyser) return;
+    if (!graph.analyser) return;
     const w = canvas.width;
     const h = canvas.height;
-    const buf = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(buf);
-    ctx.clearRect(0, 0, w, h);
+    const buf = new Uint8Array(graph.analyser.frequencyBinCount);
+    graph.analyser.getByteFrequencyData(buf);
+    ctx2d.clearRect(0, 0, w, h);
     const bars = 48;
     const step = Math.floor(buf.length / bars);
     const gap = 3;
@@ -281,32 +325,41 @@ function startVisualizer(audioEl, canvas) {
       const v = sum / step / 255;
       const barH = Math.max(4, v * h * 0.92);
       const x = i * (barW + gap);
-      const grad = ctx.createLinearGradient(0, h, 0, h - barH);
+      const grad = ctx2d.createLinearGradient(0, h, 0, h - barH);
       grad.addColorStop(0, '#6366f1');
       grad.addColorStop(1, '#c084fc');
-      ctx.fillStyle = grad;
-      ctx.fillRect(x, h - barH, barW, barH);
+      ctx2d.fillStyle = grad;
+      ctx2d.fillRect(x, h - barH, barW, barH);
     }
-    raf = requestAnimationFrame(draw);
+    visualizerRaf = requestAnimationFrame(draw);
   }
 
   visualizerStop = () => {
-    cancelAnimationFrame(raf);
-    try {
-      audioCtx?.close();
-    } catch (_) {}
-    connected = false;
+    stopVisualizerAnimation();
   };
 
-  audioEl.addEventListener(
-    'play',
-    () => {
-      connect();
-      if (audioCtx?.state === 'suspended') void audioCtx.resume();
-      draw();
-    },
-    { once: false }
-  );
+  if (graph.ctx?.state === 'suspended') void graph.ctx.resume();
+  draw();
+}
+
+async function playRoundAudio(audioUrl) {
+  const audio = $('round-audio');
+  if (!audio || !audioUrl) return;
+  stopVisualizerAnimation();
+  audio.pause();
+  audio.currentTime = 0;
+  applyVolumeToAudio(audio);
+  audio.src = audioUrl;
+  audio.loop = true;
+  audio.load();
+  try {
+    const graph = ensureAudioGraph(audio);
+    if (graph.ctx?.state === 'suspended') await graph.ctx.resume();
+    await audio.play();
+    startVisualizer(audio, $('audio-visualizer'));
+  } catch (e) {
+    console.warn('[Audio] lecture impossible', e);
+  }
 }
 
 function resetGuessUi() {
@@ -400,12 +453,9 @@ function wireSocketEvents(sock) {
     }, 200);
 
     const audio = $('round-audio');
-    stopVisualizer();
+    stopVisualizerAnimation();
     if (audio && payload.audioUrl) {
-      audio.src = payload.audioUrl;
-      audio.loop = true;
-      startVisualizer(audio, $('audio-visualizer'));
-      void audio.play().catch(() => {});
+      void playRoundAudio(payload.audioUrl);
     }
 
     renderScores(currentRoom?.scores || {}, currentRoom?.players || []);
@@ -417,7 +467,7 @@ function wireSocketEvents(sock) {
   });
 
   sock.on('round_end', (p) => {
-    stopVisualizer();
+    stopVisualizerAnimation();
     $('round-audio')?.pause();
     const fb = $('answer-feedback');
     fb.classList.remove('hidden');
@@ -432,7 +482,7 @@ function wireSocketEvents(sock) {
   });
 
   sock.on('end_game', (p) => {
-    stopVisualizer();
+    stopVisualizerAnimation();
     $('round-audio')?.pause();
     if (timerInterval) clearInterval(timerInterval);
     showScreen('end');
@@ -787,6 +837,7 @@ function wireEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  wireVolumeControl();
   wireEvents();
   bootstrap();
 });

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="api-base" content="https://you-liked-what-backend.onrender.com" />
   <title>SoundGuess — Blind test musical</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -138,6 +139,12 @@
         <audio id="round-audio" class="round-audio" crossorigin="anonymous" preload="auto"></audio>
       </div>
 
+      <div class="volume-control">
+        <label class="volume-control__label" for="volume-slider">Volume</label>
+        <input id="volume-slider" class="volume-control__slider" type="range" min="0" max="100" value="75" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" />
+        <span id="volume-value" class="volume-control__value">75%</span>
+      </div>
+
       <form id="guess-form" class="guess-form" autocomplete="off">
         <label class="field-label" for="guess-input">Titre (ou artiste — titre)</label>
         <div class="guess-row">
@@ -210,6 +217,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-  <script src="/client.js?v=soundguess-1" defer></script>
+  <script src="/client.js?v=soundguess-3" defer></script>
 </body>
 </html>

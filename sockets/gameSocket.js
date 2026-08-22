@@ -180,6 +180,10 @@ async function resolveTrackWithPreview(excludeIds) {
 
 async function startNextRound(io, room) {
   if (room.phase === 'ended') return;
+  if (room.betweenTimer) {
+    clearTimeout(room.betweenTimer);
+    room.betweenTimer = null;
+  }
 
   room.currentRound += 1;
   broadcastToRoom(io, room.code, 'game_preparing', { round: room.currentRound });

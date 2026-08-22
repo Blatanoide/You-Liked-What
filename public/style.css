@@ -1135,6 +1135,35 @@ select.input option {
   pointer-events: none;
 }
 
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 640px;
+  margin: 0.75rem auto 0;
+  padding: 0 0.25rem;
+}
+
+.volume-control__label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 3.5rem;
+}
+
+.volume-control__slider {
+  flex: 1;
+  accent-color: #818cf8;
+  cursor: pointer;
+}
+
+.volume-control__value {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 2.75rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .guess-form {
   max-width: 640px;
   margin: 0 auto;
