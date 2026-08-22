@@ -11,30 +11,68 @@ const cloudinary = require('cloudinary').v2;
 
 let cloudinaryReady = false;
 
+function stripEnvQuotes(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^['"]+|['"]+$/g, '');
+}
+
 function isCloudinaryEnabled() {
-  if ((process.env.CLOUDINARY_URL || '').trim()) return true;
+  if (stripEnvQuotes(process.env.CLOUDINARY_URL)) return true;
   return Boolean(
-    (process.env.CLOUDINARY_CLOUD_NAME || '').trim() &&
-      (process.env.CLOUDINARY_API_KEY || '').trim() &&
-      (process.env.CLOUDINARY_API_SECRET || '').trim()
+    stripEnvQuotes(process.env.CLOUDINARY_CLOUD_NAME) &&
+      stripEnvQuotes(process.env.CLOUDINARY_API_KEY) &&
+      stripEnvQuotes(process.env.CLOUDINARY_API_SECRET)
   );
+}
+
+function cloudinaryCredentialsPresent() {
+  const cfg = cloudinary.config();
+  return Boolean(cfg.cloud_name && cfg.api_key && cfg.api_secret);
 }
 
 function ensureCloudinary() {
   if (cloudinaryReady) return;
-  const url = (process.env.CLOUDINARY_URL || '').trim();
+
+  const url = stripEnvQuotes(process.env.CLOUDINARY_URL);
   if (url) {
-    // CLOUDINARY_URL suffit — ne pas appeler config() vide qui efface les credentials.
-    cloudinaryReady = true;
-    return;
+    process.env.CLOUDINARY_URL = url;
+    cloudinary.config();
+    cloudinary.config({ secure: true });
+  } else {
+    cloudinary.config({
+      cloud_name: stripEnvQuotes(process.env.CLOUDINARY_CLOUD_NAME),
+      api_key: stripEnvQuotes(process.env.CLOUDINARY_API_KEY),
+      api_secret: stripEnvQuotes(process.env.CLOUDINARY_API_SECRET),
+      secure: true,
+    });
   }
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-  });
+
+  if (!cloudinaryCredentialsPresent()) {
+    throw new Error('CLOUDINARY_NOT_CONFIGURED');
+  }
   cloudinaryReady = true;
+}
+
+function getCloudinaryStatus() {
+  if (!isCloudinaryEnabled()) {
+    return { enabled: false, ready: false };
+  }
+  try {
+    ensureCloudinary();
+    const cfg = cloudinary.config();
+    return {
+      enabled: true,
+      ready: true,
+      cloudName: cfg.cloud_name || null,
+    };
+  } catch (e) {
+    return {
+      enabled: true,
+      ready: false,
+      error: e.message || String(e),
+    };
+  }
 }
 
 function extFromMime(mimetype) {
@@ -61,13 +99,16 @@ function publicIdFromCloudinaryUrl(url) {
 function uploadToCloudinary(buffer, userId, mimetype) {
   ensureCloudinary();
   const publicId = publicIdForUser(userId);
+  const mime = String(mimetype || 'image/jpeg').toLowerCase();
+  const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
+    cloudinary.uploader.upload(
+      dataUri,
       {
         public_id: publicId,
         overwrite: true,
         resource_type: 'image',
-        format: extFromMime(mimetype),
       },
       (err, result) => {
         if (err) return reject(err);
@@ -75,7 +116,6 @@ function uploadToCloudinary(buffer, userId, mimetype) {
         resolve(result.secure_url);
       }
     );
-    stream.end(buffer);
   });
 }
 
@@ -88,15 +128,22 @@ function saveLocal(buffer, userId, mimetype) {
   return `/uploads/profiles/${filename}`;
 }
 
+function cloudinaryErrorMessage(err) {
+  if (!err) return 'Erreur Cloudinary inconnue';
+  const parts = [err.message, err.error?.message].filter(Boolean);
+  return parts[0] || 'Erreur Cloudinary inconnue';
+}
+
 async function uploadAvatar(buffer, userId, mimetype) {
   if (isCloudinaryEnabled()) {
     try {
       const url = await uploadToCloudinary(buffer, userId, mimetype);
       return { url, storage: 'cloudinary' };
     } catch (e) {
-      console.error('[Avatar] Cloudinary upload:', e.message || e);
+      console.error('[Avatar] Cloudinary upload:', cloudinaryErrorMessage(e), e.http_code || '');
       const err = new Error('CLOUDINARY_UPLOAD_FAILED');
       err.cause = e;
+      err.detail = cloudinaryErrorMessage(e);
       throw err;
     }
   }
@@ -135,6 +182,7 @@ async function deletePreviousAvatar(storedUrl) {
 
 module.exports = {
   isCloudinaryEnabled,
+  getCloudinaryStatus,
   isObsoleteLocalAvatar,
   uploadAvatar,
   deletePreviousAvatar,

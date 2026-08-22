@@ -691,8 +691,15 @@ async function uploadProfileAvatar(req, res) {
   } catch (e) {
     console.error('[Auth] uploadProfileAvatar:', e.message || e, e.cause?.message || '');
     if (e.message === 'CLOUDINARY_UPLOAD_FAILED') {
-      return res.status(502).json({
-        error: 'Stockage photo indisponible. Vérifie la configuration Cloudinary sur le serveur.',
+      return res.status(503).json({
+        error:
+          'Stockage photo indisponible (Cloudinary). Réessaie dans un instant ou vérifie CLOUDINARY_URL sur Render.',
+        detail: e.detail || undefined,
+      });
+    }
+    if (e.message === 'CLOUDINARY_NOT_CONFIGURED') {
+      return res.status(503).json({
+        error: 'Cloudinary mal configuré sur le serveur (clés manquantes).',
       });
     }
     return res.status(500).json({ error: 'Impossible d’enregistrer la photo.' });

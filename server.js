@@ -208,6 +208,7 @@ function sendApiBootstrap(req, res) {
     publicBaseUrl: PUBLIC_BASE_URL || null,
     emailVerificationConfigured: emailService.isConfigured(),
     avatarStorageConfigured: avatarStorage.isCloudinaryEnabled(),
+    avatarCloudinary: avatarStorage.getCloudinaryStatus(),
     sessionCookieSecure: useSecureCookies,
     forwardedProto: proto,
     host: req.get('host'),
