@@ -1,0 +1,17 @@
+# Render Blueprint — backend Node.
+# Persistance SQLite :
+# - Gratuit sans disque : Turso (turso.tech) → crée une base, copie l’URL libsql://… et le token,
+#   puis sur Render : TURSO_DATABASE_URL + TURSO_AUTH_TOKEN (le backend réplique vers turso-replica.db).
+# - Ou disque payant : Disks → ex. /var/ylw-data, puis SQLITE_PATH=/var/ylw-data/app.db (ou DATA_DIR).
+
+services:
+  - type: web
+    name: you-liked-what-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run sync-public
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production

@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  }
+}
