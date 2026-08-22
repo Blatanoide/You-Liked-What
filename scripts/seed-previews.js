@@ -79,27 +79,42 @@ async function resolvePreview(artist, title) {
   return null;
 }
 
+async function mapPool(items, limit, fn) {
+  const results = new Array(items.length);
+  let i = 0;
+  async function worker() {
+    while (i < items.length) {
+      const idx = i;
+      i += 1;
+      results[idx] = await fn(items[idx], idx);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
+  return results;
+}
+
 async function main() {
   const list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
-  let ok = 0;
-  for (const t of list) {
-    if (t.preview_url) {
-      ok += 1;
-      continue;
-    }
+  const missing = list.filter((t) => !t.preview_url);
+  const CONCURRENCY = Number(process.env.PREVIEW_CONCURRENCY) || 6;
+
+  console.log(`Previews manquantes: ${missing.length}/${list.length}`);
+
+  await mapPool(missing, CONCURRENCY, async (t) => {
     process.stdout.write(`… ${t.artist} — ${t.title}\n`);
     const url = await resolvePreview(t.artist, t.title);
     if (url) {
       t.preview_url = url;
-      ok += 1;
       process.stdout.write(`  OK\n`);
     } else {
       process.stdout.write(`  FAIL\n`);
     }
-    await new Promise((r) => setTimeout(r, 120));
-  }
+    await new Promise((r) => setTimeout(r, 80));
+  });
+
+  const ok = list.filter((t) => t.preview_url).length;
   fs.writeFileSync(seedPath, `${JSON.stringify(list, null, 2)}\n`, 'utf8');
-  console.log(`Previews: ${ok}/${list.length}`);
+  console.log(`Previews: ${ok}/${list.length} (${list.length - ok} sans extrait)`);
 }
 
 main().catch((e) => {
