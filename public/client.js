@@ -39,6 +39,7 @@ let roundDeadline = null;
 let timerInterval = null;
 let guessLocked = false;
 let suggestTimer = null;
+let inRoundReveal = false;
 
 const HANDOFF_PROOF_KEY = 'ylw_handoff_proof';
 let lastBootstrap = null;
@@ -261,15 +262,101 @@ function wireVolumeControl() {
   if (!slider) return;
   const pct = Math.round(getStoredVolume() * 100);
   slider.value = String(pct);
-  if (label) label.textContent = `${pct}%`;
+  slider.setAttribute('aria-valuenow', String(pct));
+  if (label) label.textContent = String(pct);
   slider.addEventListener('input', () => {
     const vol = Math.max(0, Math.min(100, Number(slider.value))) / 100;
+    const pctNow = Math.round(vol * 100);
     try {
       localStorage.setItem(VOLUME_STORAGE_KEY, String(vol));
     } catch (_) {}
-    if (label) label.textContent = `${Math.round(vol * 100)}%`;
+    slider.setAttribute('aria-valuenow', String(pctNow));
+    if (label) label.textContent = String(pctNow);
     applyVolumeToAudio($('round-audio'));
   });
+}
+
+function drawIdleVisualizer() {
+  const canvas = $('audio-visualizer');
+  if (!canvas) return;
+  const ctx2d = canvas.getContext('2d');
+  if (!ctx2d) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx2d.clearRect(0, 0, w, h);
+  const bars = 48;
+  const gap = 3;
+  const barW = (w - gap * (bars - 1)) / bars;
+  for (let i = 0; i < bars; i += 1) {
+    const barH = 5 + (i % 4) * 2;
+    const x = i * (barW + gap);
+    ctx2d.fillStyle = 'rgba(99, 102, 241, 0.22)';
+    ctx2d.fillRect(x, h - barH, barW, barH);
+  }
+}
+
+function stopRoundAudio() {
+  const audio = $('round-audio');
+  if (!audio) return;
+  audio.pause();
+  audio.loop = false;
+  audio.onended = null;
+  try {
+    audio.currentTime = 0;
+  } catch (_) {}
+  audio.removeAttribute('src');
+  audio.load();
+}
+
+function stopRoundTimer(frozen = false) {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  if (frozen) $('timer-display').textContent = '—';
+}
+
+function startRoundTimer(timeLimitSec) {
+  stopRoundTimer();
+  roundDeadline = Date.now() + (timeLimitSec || 20) * 1000;
+  const tick = () => {
+    if (inRoundReveal) return;
+    const left = Math.max(0, Math.ceil((roundDeadline - Date.now()) / 1000));
+    $('timer-display').textContent = `${left}s`;
+    if (left <= 0) stopRoundTimer();
+  };
+  tick();
+  timerInterval = setInterval(tick, 200);
+}
+
+function lockGuessForm() {
+  guessLocked = true;
+  $('guess-input').disabled = true;
+  $('btn-guess').disabled = true;
+  $('guess-suggestions')?.classList.add('hidden');
+}
+
+function showRoundReveal(track, gained) {
+  const wrap = $('round-reveal');
+  const answer = $('round-reveal-answer');
+  const points = $('round-reveal-points');
+  const next = $('round-reveal-next');
+  if (!wrap || !answer) return;
+  answer.textContent = `${track.artist || '?'} — ${track.title || '?'}`;
+  if (gained?.correct && points) {
+    points.textContent = `+${gained.total} pts · bonus vitesse +${gained.bonus}`;
+    points.classList.remove('hidden');
+  } else {
+    points?.classList.add('hidden');
+  }
+  next?.classList.add('hidden');
+  wrap.classList.remove('hidden');
+}
+
+function hideRoundReveal() {
+  $('round-reveal')?.classList.add('hidden');
+  $('round-reveal-next')?.classList.add('hidden');
+  $('round-reveal-points')?.classList.add('hidden');
 }
 
 function stopVisualizerAnimation() {
@@ -346,11 +433,10 @@ async function playRoundAudio(audioUrl) {
   const audio = $('round-audio');
   if (!audio || !audioUrl) return;
   stopVisualizerAnimation();
-  audio.pause();
-  audio.currentTime = 0;
+  stopRoundAudio();
   applyVolumeToAudio(audio);
   audio.src = audioUrl;
-  audio.loop = true;
+  audio.loop = false;
   audio.load();
   try {
     const graph = ensureAudioGraph(audio);
@@ -422,6 +508,10 @@ function wireSocketEvents(sock) {
   });
 
   sock.on('game_preparing', () => {
+    if (!$('screen-game').classList.contains('hidden')) {
+      $('round-reveal-next')?.classList.remove('hidden');
+      return;
+    }
     if ($('start-hint')) $('start-hint').textContent = 'Chargement du morceau…';
     $('room-msg')?.classList.add('hidden');
     const btn = $('btn-start');
@@ -440,24 +530,14 @@ function wireSocketEvents(sock) {
   });
 
   sock.on('new_round', (payload) => {
+    inRoundReveal = false;
+    hideRoundReveal();
     showScreen('game');
     $('scores-panel')?.classList.remove('hidden');
     resetGuessUi();
     $('round-label').textContent = `Morceau ${payload.round} / ${payload.totalRounds}`;
-    roundDeadline = Date.now() + (payload.timeLimitSec || 20) * 1000;
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      const left = Math.max(0, Math.ceil((roundDeadline - Date.now()) / 1000));
-      $('timer-display').textContent = `${left}s`;
-      if (left <= 0) clearInterval(timerInterval);
-    }, 200);
-
-    const audio = $('round-audio');
-    stopVisualizerAnimation();
-    if (audio && payload.audioUrl) {
-      void playRoundAudio(payload.audioUrl);
-    }
-
+    startRoundTimer(payload.timeLimitSec || 20);
+    if (payload.audioUrl) void playRoundAudio(payload.audioUrl);
     renderScores(currentRoom?.scores || {}, currentRoom?.players || []);
   });
 
@@ -467,24 +547,24 @@ function wireSocketEvents(sock) {
   });
 
   sock.on('round_end', (p) => {
+    inRoundReveal = true;
+    stopRoundAudio();
     stopVisualizerAnimation();
-    $('round-audio')?.pause();
-    const fb = $('answer-feedback');
-    fb.classList.remove('hidden');
+    drawIdleVisualizer();
+    stopRoundTimer(true);
+    lockGuessForm();
     const track = p.track || {};
-    fb.textContent = `Réponse : ${track.artist || '?'} — ${track.title || '?'}`;
-    fb.style.color = '#c4b5fd';
     const mine = me?.user?.id;
     const gained = p.pointsThisRound?.[mine];
-    if (gained?.correct) {
-      fb.textContent += ` · +${gained.total} pts (bonus vitesse +${gained.bonus})`;
-    }
+    showRoundReveal(track, gained);
   });
 
   sock.on('end_game', (p) => {
+    inRoundReveal = false;
+    hideRoundReveal();
+    stopRoundAudio();
     stopVisualizerAnimation();
-    $('round-audio')?.pause();
-    if (timerInterval) clearInterval(timerInterval);
+    stopRoundTimer();
     showScreen('end');
     const err = $('end-error');
     if (p.error) {
@@ -657,7 +737,7 @@ function openVerificationPanel(email) {
 
 async function submitGuess(e) {
   e.preventDefault();
-  if (guessLocked || !socket) return;
+  if (guessLocked || inRoundReveal || !socket) return;
   const guess = $('guess-input').value.trim();
   if (!guess) return;
   $('btn-guess').disabled = true;

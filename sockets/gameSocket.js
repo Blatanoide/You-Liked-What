@@ -15,7 +15,7 @@ const ALLOWED_TIMES_SEC = new Set([10, 20, 30, 45, 60]);
 
 const BASE_POINTS = 100;
 const MAX_SPEED_BONUS = 100;
-const BETWEEN_ROUNDS_MS = 2800;
+const BETWEEN_ROUNDS_MS = 5000;
 
 /** @type {Map<string, object>} */
 const rooms = new Map();
@@ -147,9 +147,18 @@ function finalizeRound(io, room, reason) {
     return;
   }
 
+  room.pendingTrackPromise = resolveTrackWithPreview(new Set(room.usedTrackIds));
+
   room.betweenTimer = setTimeout(() => {
     room.betweenTimer = null;
-    startNextRound(io, room);
+    void launchPreparedRound(io, room).catch((e) => {
+      log('launchPreparedRound failed', room.code, e.message || e);
+      room.phase = 'lobby';
+      broadcastToRoom(io, room.code, 'error_message', {
+        error: 'Impossible de démarrer la manche. Réessaie.',
+      });
+      broadcastToRoom(io, room.code, 'room_update', roomPayloadForClient(room));
+    });
   }, BETWEEN_ROUNDS_MS);
 }
 
@@ -176,6 +185,33 @@ async function resolveTrackWithPreview(excludeIds) {
     })
   );
   return settled.find(Boolean) || null;
+}
+
+function beginRoundWithTrack(io, room, track) {
+  room.usedTrackIds.add(track.id);
+
+  const timeLimitMs = room.settings.timePerRoundSec * 1000;
+  const startedAt = Date.now();
+
+  room.phase = 'round';
+  room.roundState = {
+    track,
+    timeLimitMs,
+    startedAt,
+    answers: new Map(),
+    locked: new Set(),
+  };
+
+  broadcastToRoom(io, room.code, 'new_round', {
+    round: room.currentRound,
+    totalRounds: room.settings.rounds,
+    timeLimitSec: room.settings.timePerRoundSec,
+    audioUrl: track.preview_url,
+  });
+
+  room.roundTimer = setTimeout(() => {
+    finalizeRound(io, room, 'timeout');
+  }, timeLimitMs);
 }
 
 async function startNextRound(io, room) {
@@ -205,30 +241,45 @@ async function startNextRound(io, room) {
     return;
   }
 
-  room.usedTrackIds.add(track.id);
+  beginRoundWithTrack(io, room, track);
+}
 
-  const timeLimitMs = room.settings.timePerRoundSec * 1000;
-  const startedAt = Date.now();
+async function launchPreparedRound(io, room) {
+  if (room.phase === 'ended') return;
 
-  room.phase = 'round';
-  room.roundState = {
-    track,
-    timeLimitMs,
-    startedAt,
-    answers: new Map(),
-    locked: new Set(),
-  };
+  room.currentRound += 1;
+  broadcastToRoom(io, room.code, 'game_preparing', { round: room.currentRound });
 
-  broadcastToRoom(io, room.code, 'new_round', {
-    round: room.currentRound,
-    totalRounds: room.settings.rounds,
-    timeLimitSec: room.settings.timePerRoundSec,
-    audioUrl: track.preview_url,
-  });
+  let track = null;
+  try {
+    if (room.pendingTrackPromise) {
+      track = await room.pendingTrackPromise;
+    }
+  } catch (e) {
+    log('pendingTrackPromise error', e.message || e);
+  }
+  room.pendingTrackPromise = null;
 
-  room.roundTimer = setTimeout(() => {
-    finalizeRound(io, room, 'timeout');
-  }, timeLimitMs);
+  if (!track) {
+    try {
+      track = await resolveTrackWithPreview(room.usedTrackIds);
+    } catch (e) {
+      log('resolveTrackWithPreview error', e.message || e);
+      track = null;
+    }
+  }
+
+  if (!track) {
+    log('Plus de morceaux avec preview room', room.code);
+    room.phase = 'ended';
+    broadcastToRoom(io, room.code, 'end_game', {
+      error: 'Impossible de charger un extrait audio. Réessaie plus tard.',
+      finalScores: Object.fromEntries(room.scores),
+    });
+    return;
+  }
+
+  beginRoundWithTrack(io, room, track);
 }
 
 function removePlayerFromRoom(io, socket, roomCode, quiet = false) {
@@ -321,6 +372,7 @@ function attachGameSocket(io, sessionMiddleware) {
         roundState: null,
         roundTimer: null,
         betweenTimer: null,
+        pendingTrackPromise: null,
         reactionStats: new Map(),
         usedTrackIds: new Set(),
       };
