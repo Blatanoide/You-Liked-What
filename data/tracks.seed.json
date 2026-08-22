@@ -1,42 +1,202 @@
 [
-  { "title": "Blinding Lights", "artist": "The Weeknd" },
-  { "title": "Shape of You", "artist": "Ed Sheeran" },
-  { "title": "Levitating", "artist": "Dua Lipa" },
-  { "title": "Bohemian Rhapsody", "artist": "Queen" },
-  { "title": "Smells Like Teen Spirit", "artist": "Nirvana" },
-  { "title": "Billie Jean", "artist": "Michael Jackson" },
-  { "title": "Rolling in the Deep", "artist": "Adele" },
-  { "title": "Uptown Funk", "artist": "Mark Ronson" },
-  { "title": "Happy", "artist": "Pharrell Williams" },
-  { "title": "Despacito", "artist": "Luis Fonsi" },
-  { "title": "Bad Guy", "artist": "Billie Eilish" },
-  { "title": "Someone Like You", "artist": "Adele" },
-  { "title": "Wonderwall", "artist": "Oasis" },
-  { "title": "Lose Yourself", "artist": "Eminem" },
-  { "title": "Hips Don't Lie", "artist": "Shakira" },
-  { "title": "Papaoutai", "artist": "Stromae" },
-  { "title": "Alors on danse", "artist": "Stromae" },
-  { "title": "Formidable", "artist": "Stromae" },
-  { "title": "Je veux", "artist": "Zaz" },
-  { "title": "Dernière danse", "artist": "Indila" },
-  { "title": "Titanium", "artist": "David Guetta" },
-  { "title": "Get Lucky", "artist": "Daft Punk" },
-  { "title": "One More Time", "artist": "Daft Punk" },
-  { "title": "Starboy", "artist": "The Weeknd" },
-  { "title": "As It Was", "artist": "Harry Styles" },
-  { "title": "Flowers", "artist": "Miley Cyrus" },
-  { "title": "Anti-Hero", "artist": "Taylor Swift" },
-  { "title": "Shake It Off", "artist": "Taylor Swift" },
-  { "title": "Waka Waka", "artist": "Shakira" },
-  { "title": "Gangnam Style", "artist": "PSY" },
-  { "title": "Believer", "artist": "Imagine Dragons" },
-  { "title": "Radioactive", "artist": "Imagine Dragons" },
-  { "title": "Counting Stars", "artist": "OneRepublic" },
-  { "title": "Viva La Vida", "artist": "Coldplay" },
-  { "title": "Yellow", "artist": "Coldplay" },
-  { "title": "Mr. Brightside", "artist": "The Killers" },
-  { "title": "Seven Nation Army", "artist": "The White Stripes" },
-  { "title": "Crazy in Love", "artist": "Beyoncé" },
-  { "title": "Single Ladies", "artist": "Beyoncé" },
-  { "title": "Can't Hold Us", "artist": "Macklemore & Ryan Lewis" }
+  {
+    "title": "Blinding Lights",
+    "artist": "The Weeknd",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/b4/8f/17b48f9a-0b93-6bb8-fe1d-3a16623c2cfb/mzaf_9560252727299052414.plus.aac.p.m4a"
+  },
+  {
+    "title": "Shape of You",
+    "artist": "Ed Sheeran",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/c7/4f/44c74f0d-72dc-6143-d4d0-ba14d661ca0d/mzaf_9566898362556366703.plus.aac.p.m4a"
+  },
+  {
+    "title": "Levitating",
+    "artist": "Dua Lipa",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/dc/4d/59dc4dda-93ff-8f1c-c536-f005f6ea6af5/mzaf_3066686759813252385.plus.aac.p.m4a"
+  },
+  {
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8f/11/52/8f1152a9-fd5f-0021-f546-b97579c22ec3/mzaf_3962258993076347789.plus.aac.p.m4a"
+  },
+  {
+    "title": "Smells Like Teen Spirit",
+    "artist": "Nirvana",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a6/53/1e/a6531efa-397c-eb73-ecab-9b2790c1471e/mzaf_16440344883389407474.plus.aac.p.m4a"
+  },
+  {
+    "title": "Billie Jean",
+    "artist": "Michael Jackson",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/dc/bc/8a/dcbc8a3e-4ce1-c00d-cc02-eda2212053c7/mzaf_8347559338388601510.plus.aac.p.m4a"
+  },
+  {
+    "title": "Rolling in the Deep",
+    "artist": "Adele",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9f/07/1d/9f071dc7-791c-c869-dfa2-06b25936a287/mzaf_11077490630806345321.plus.aac.p.m4a"
+  },
+  {
+    "title": "Uptown Funk",
+    "artist": "Mark Ronson",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/62/e1/98/62e19826-cd13-6eff-390e-dbca502bb7b5/mzaf_8006535252627949661.plus.aac.p.m4a"
+  },
+  {
+    "title": "Happy",
+    "artist": "Pharrell Williams",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ed/a0/19/eda019cf-2794-66d1-208d-2e2e74c26c3d/mzaf_16469762943852039623.plus.aac.p.m4a"
+  },
+  {
+    "title": "Despacito",
+    "artist": "Luis Fonsi",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/40/5b/e7/405be722-3ec9-ba27-7469-002182d57b39/mzaf_14120258742032474456.plus.aac.p.m4a"
+  },
+  {
+    "title": "Bad Guy",
+    "artist": "Billie Eilish",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c3/87/1f/c3871f7e-3260-d615-1c66-5fdca2c3a48f/mzaf_10721331211699880949.plus.aac.p.m4a"
+  },
+  {
+    "title": "Someone Like You",
+    "artist": "Adele",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ef/18/7b/ef187b7d-f487-e935-4ca1-af5748313710/mzaf_8455263230305249048.plus.aac.p.m4a"
+  },
+  {
+    "title": "Wonderwall",
+    "artist": "Oasis",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ab/16/93/ab16933c-6203-3db9-9da9-513ff1c8496d/mzaf_16993612140334549994.plus.aac.p.m4a"
+  },
+  {
+    "title": "Lose Yourself",
+    "artist": "Eminem",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/62/0a/a5/620aa56f-189e-708a-80f0-cebdada3872e/mzaf_7131619873177773332.plus.aac.p.m4a"
+  },
+  {
+    "title": "Hips Don't Lie",
+    "artist": "Shakira",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ac/c7/61/acc7619f-c1e3-e0a5-df9b-0329a35af062/mzaf_13106936727189536738.plus.aac.p.m4a"
+  },
+  {
+    "title": "Papaoutai",
+    "artist": "Stromae",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f6/20/69/f6206921-106b-5f68-ea61-2329050cd306/mzaf_4001545940005169400.plus.aac.p.m4a"
+  },
+  {
+    "title": "Alors on danse",
+    "artist": "Stromae",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/84/ae/8784ae2b-8e39-0053-23ad-940bf2f69d87/mzaf_16356168226426243495.plus.aac.p.m4a"
+  },
+  {
+    "title": "Formidable",
+    "artist": "Stromae",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview71/v4/a7/ae/de/a7aedeb0-cf93-0938-9758-9257e4d71dba/mzaf_2813364098433259371.plus.aac.p.m4a"
+  },
+  {
+    "title": "Je veux",
+    "artist": "Zaz",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/10/83/871083b9-3f9a-5cd0-38ae-a3fc1a6bdf95/mzaf_9494055021183912606.plus.aac.p.m4a"
+  },
+  {
+    "title": "Dernière danse",
+    "artist": "Indila",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/42/67/42/426742f2-b4f0-fb7c-d672-83c82e674183/mzaf_14210215464445149835.plus.aac.p.m4a"
+  },
+  {
+    "title": "Titanium",
+    "artist": "David Guetta",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/dd/8f/45dd8ffc-0164-1f70-c53d-bf91a1d80b1a/mzaf_3092057092144618662.plus.aac.p.m4a"
+  },
+  {
+    "title": "Get Lucky",
+    "artist": "Daft Punk",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/d4/d3/1e/d4d31eb4-7405-b806-8346-3c52ad5b4cf4/mzaf_8095545455942962509.plus.aac.p.m4a"
+  },
+  {
+    "title": "One More Time",
+    "artist": "Daft Punk",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/98/96/f6/9896f638-8b47-3f76-c47e-19e43b53677c/mzaf_15900001332254520801.plus.aac.p.m4a"
+  },
+  {
+    "title": "Starboy",
+    "artist": "The Weeknd",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/8d/48/25/8d482573-d8a2-3dd0-9457-c32869900b84/mzaf_16047142159254185315.plus.aac.p.m4a"
+  },
+  {
+    "title": "As It Was",
+    "artist": "Harry Styles",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/10/16/67101606-3869-ca44-6c03-e13d6322cb51/mzaf_1135399237022217274.plus.aac.p.m4a"
+  },
+  {
+    "title": "Flowers",
+    "artist": "Miley Cyrus",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/9e/f7/689ef7fe-14fe-a846-c87f-7d3b2d6344b1/mzaf_4167137058064023087.plus.aac.p.m4a"
+  },
+  {
+    "title": "Anti-Hero",
+    "artist": "Taylor Swift",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1d/56/2a/1d562a07-dc5f-a9c0-1f36-2051a8c14eb7/mzaf_7214829135431340590.plus.aac.p.m4a"
+  },
+  {
+    "title": "Shake It Off",
+    "artist": "Taylor Swift",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/d5/6d/11d56d4a-ce23-e793-8681-70dc4d35d931/mzaf_5886436202259848624.plus.aac.p.m4a"
+  },
+  {
+    "title": "Waka Waka",
+    "artist": "Shakira",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/98/88/e5/9888e55d-4daf-0e96-480b-a38259013586/mzaf_9048311608369053538.plus.aac.p.m4a"
+  },
+  {
+    "title": "Gangnam Style",
+    "artist": "PSY",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3d/65/ae/3d65ae0a-7b2c-f14d-5680-cdafaa8cfb2d/mzaf_11206445915046452880.plus.aac.p.m4a"
+  },
+  {
+    "title": "Believer",
+    "artist": "Imagine Dragons",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c0/3f/36/c03f367a-b66b-fd0a-a54c-30f8250c4410/mzaf_12768434238801682952.plus.aac.p.m4a"
+  },
+  {
+    "title": "Radioactive",
+    "artist": "Imagine Dragons",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/77/70/88/777088e9-60a1-c459-bfa5-6e66f2fd2695/mzaf_7685408661765681881.plus.aac.p.m4a"
+  },
+  {
+    "title": "Counting Stars",
+    "artist": "OneRepublic",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b0/db/7f/b0db7fbe-f8ff-1f67-fe72-ca8185ffbca2/mzaf_15298650366584767800.plus.aac.p.m4a"
+  },
+  {
+    "title": "Viva La Vida",
+    "artist": "Coldplay",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/2b/04/65/2b0465c3-2db1-e461-2362-14b528456b8f/mzaf_1805426141027060154.plus.aac.p.m4a"
+  },
+  {
+    "title": "Yellow",
+    "artist": "Coldplay",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/66/f3/1a/66f31a76-a6ed-cb4c-f353-23310a7ae9a8/mzaf_10593596652344378873.plus.aac.p.m4a"
+  },
+  {
+    "title": "Mr. Brightside",
+    "artist": "The Killers",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c3/a0/30/c3a03008-17c5-aa29-6c6a-5e757ccdbaa5/mzaf_6073120660767081787.plus.aac.p.m4a"
+  },
+  {
+    "title": "Seven Nation Army",
+    "artist": "The White Stripes",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/61/54/97/61549744-a83b-1c4d-58cf-e56b36beb4a7/mzaf_1246579179619940831.plus.aac.p.m4a"
+  },
+  {
+    "title": "Crazy in Love",
+    "artist": "Beyoncé",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/b6/6a/ea/b66aeab3-d82e-d63a-f0df-c5313861675e/mzaf_10508245364886912890.plus.aac.p.m4a"
+  },
+  {
+    "title": "Single Ladies",
+    "artist": "Beyoncé",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/00/78/8d/00788daa-ae6e-0fef-d26f-e9c9d9d22f26/mzaf_1876018181007650438.plus.aac.p.m4a"
+  },
+  {
+    "title": "Can't Hold Us",
+    "artist": "Macklemore & Ryan Lewis",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/3d/2f/3f/3d2f3fbe-5126-164b-a030-2279e7c480e2/mzaf_15238043951746046486.plus.aac.p.m4a"
+  }
 ]

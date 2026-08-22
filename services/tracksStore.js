@@ -23,6 +23,7 @@ function getDb() {
       CREATE INDEX IF NOT EXISTS idx_catalog_tracks_title ON catalog_tracks(title);
     `);
     seedIfEmpty(db);
+    syncPreviewUrlsFromSeed(db);
     schemaReady = true;
   }
   return db;
@@ -39,10 +40,29 @@ function seedIfEmpty(db) {
   } catch {
     return;
   }
-  const ins = db.prepare('INSERT OR IGNORE INTO catalog_tracks (title, artist) VALUES (?, ?)');
+  const ins = db.prepare('INSERT OR IGNORE INTO catalog_tracks (title, artist, preview_url) VALUES (?, ?, ?)');
   for (const t of list) {
     if (!t?.title || !t?.artist) continue;
-    ins.run(String(t.title).trim(), String(t.artist).trim());
+    ins.run(String(t.title).trim(), String(t.artist).trim(), t.preview_url || null);
+  }
+}
+
+function syncPreviewUrlsFromSeed(db) {
+  const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
+  if (!fs.existsSync(seedPath)) return;
+  let list;
+  try {
+    list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+  } catch {
+    return;
+  }
+  const upd = db.prepare(
+    `UPDATE catalog_tracks SET preview_url = ?
+     WHERE title = ? AND artist = ? AND (preview_url IS NULL OR preview_url = '')`
+  );
+  for (const t of list) {
+    if (!t?.title || !t?.artist || !t.preview_url) continue;
+    upd.run(String(t.preview_url), String(t.title).trim(), String(t.artist).trim());
   }
 }
 

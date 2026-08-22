@@ -6,6 +6,15 @@ const axios = require('axios');
 
 const previewCache = new Map();
 
+const HTTP_OPTS = {
+  timeout: Number(process.env.MUSIC_SEARCH_MS) || 8000,
+  validateStatus: () => true,
+  headers: {
+    'User-Agent': 'SoundGuess/1.0 (preview resolver)',
+    Accept: 'application/json',
+  },
+};
+
 function stripAccents(s) {
   return String(s || '')
     .normalize('NFD')
@@ -42,29 +51,66 @@ function isGuessCorrect(guessText, track) {
   return false;
 }
 
+async function searchItunesPreview(artist, title) {
+  const term = encodeURIComponent(`${artist} ${title}`);
+  const { data } = await axios.get(
+    `https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=8`,
+    HTTP_OPTS
+  );
+  const results = Array.isArray(data?.results) ? data.results : [];
+  const normTitle = normalizeGuess(title);
+  const pick =
+    results.find((r) => r.previewUrl && normalizeGuess(r.trackName) === normTitle) ||
+    results.find((r) => r.previewUrl) ||
+    null;
+  return pick?.previewUrl || null;
+}
+
+async function searchDeezerPreview(artist, title) {
+  const q = encodeURIComponent(`artist:"${artist}" track:"${title}"`);
+  const { data } = await axios.get(`https://api.deezer.com/search?q=${q}&limit=8`, HTTP_OPTS);
+  const results = Array.isArray(data?.data) ? data.data : [];
+  const normTitle = normalizeGuess(title);
+  const normArtist = normalizeGuess(artist);
+  const pick =
+    results.find(
+      (r) =>
+        r.preview &&
+        normalizeGuess(r.title) === normTitle &&
+        normalizeGuess(r.artist?.name || '') === normArtist
+    ) ||
+    results.find(
+      (r) =>
+        r.preview &&
+        normalizeGuess(r.title) === normTitle &&
+        normalizeGuess(r.artist?.name || '').includes(normArtist)
+    ) ||
+    results.find((r) => r.preview) ||
+    null;
+  return pick?.preview || null;
+}
+
 async function resolvePreviewUrl(artist, title) {
   const key = `${artist}|${title}`.toLowerCase();
   if (previewCache.has(key)) return previewCache.get(key);
 
+  let url = null;
   try {
-    const term = encodeURIComponent(`${artist} ${title}`);
-    const { data } = await axios.get(
-      `https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=5`,
-      { timeout: Number(process.env.ITUNES_SEARCH_MS) || 4000, validateStatus: () => true }
-    );
-    const results = Array.isArray(data?.results) ? data.results : [];
-    const normTitle = normalizeGuess(title);
-    let pick =
-      results.find((r) => r.previewUrl && normalizeGuess(r.trackName) === normTitle) ||
-      results.find((r) => r.previewUrl) ||
-      null;
-    const url = pick?.previewUrl || null;
-    previewCache.set(key, url);
-    return url;
-  } catch {
-    previewCache.set(key, null);
-    return null;
+    url = await searchItunesPreview(artist, title);
+  } catch (_) {}
+  if (!url) {
+    try {
+      url = await searchDeezerPreview(artist, title);
+    } catch (_) {}
   }
+  if (!url) {
+    try {
+      url = await searchDeezerPreview(artist, title.split('(')[0].trim());
+    } catch (_) {}
+  }
+
+  previewCache.set(key, url);
+  return url;
 }
 
 function suggestFromCatalog(tracks, query, limit = 8) {
