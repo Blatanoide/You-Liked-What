@@ -236,7 +236,6 @@ function renderScores(scores, players) {
   });
 }
 
-let visualizerStop = null;
 let visualizerRaf = null;
 /** @type {{ audioEl: HTMLAudioElement|null, ctx: AudioContext|null, analyser: AnalyserNode|null, source: MediaElementAudioSourceNode|null }|null} */
 let audioGraph = null;
@@ -364,10 +363,6 @@ function stopVisualizerAnimation() {
     cancelAnimationFrame(visualizerRaf);
     visualizerRaf = null;
   }
-  if (visualizerStop) {
-    visualizerStop();
-    visualizerStop = null;
-  }
 }
 
 function ensureAudioGraph(audioEl) {
@@ -420,10 +415,6 @@ function startVisualizer(audioEl, canvas) {
     }
     visualizerRaf = requestAnimationFrame(draw);
   }
-
-  visualizerStop = () => {
-    stopVisualizerAnimation();
-  };
 
   if (graph.ctx?.state === 'suspended') void graph.ctx.resume();
   draw();
