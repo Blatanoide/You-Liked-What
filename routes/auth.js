@@ -2,8 +2,6 @@
  * Auth SoundGuess — compte site, profil, handoff.
  */
 
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const multer = require('multer');
 const authController = require('../controllers/authController');
@@ -11,24 +9,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 const uploadAvatar = multer({
-  storage: multer.diskStorage({
-    destination(req, file, cb) {
-      const dir = path.join(__dirname, '..', 'uploads', 'profiles');
-      fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename(req, file, cb) {
-      const uid = String(req.session?.user?.id || 'x').replace(/[^a-z0-9_-]/gi, '');
-      const map = {
-        'image/jpeg': '.jpg',
-        'image/png': '.png',
-        'image/webp': '.webp',
-        'image/gif': '.gif',
-      };
-      const ext = map[file.mimetype] || '.jpg';
-      cb(null, `${uid}-${Date.now()}${ext}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 3 * 1024 * 1024 },
   fileFilter(req, file, cb) {
     const ok = /^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype);

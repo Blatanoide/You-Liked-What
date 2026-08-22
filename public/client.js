@@ -103,6 +103,13 @@ function fallbackAvatarFor(name) {
   );
 }
 
+function resolveAvatarUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('/')) return apiUrl(url);
+  return url;
+}
+
 function setAvatar(imgEl, url, username) {
   if (!imgEl) return;
   const fallback = fallbackAvatarFor(username);
@@ -111,7 +118,7 @@ function setAvatar(imgEl, url, username) {
     imgEl.onerror = null;
     imgEl.src = fallback;
   };
-  imgEl.src = url || fallback;
+  imgEl.src = resolveAvatarUrl(url) || fallback;
 }
 
 function msToHuman(ms) {
@@ -788,6 +795,41 @@ function wireEvents() {
   });
   $('profile-bio-input')?.addEventListener('input', () => {
     $('profile-bio-count').textContent = `${$('profile-bio-input').value.length} / 500`;
+  });
+
+  $('profile-change-avatar-btn')?.addEventListener('click', () => {
+    $('profile-avatar-input')?.click();
+  });
+  $('profile-avatar-input')?.addEventListener('change', async () => {
+    const input = $('profile-avatar-input');
+    const file = input?.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('photo', file);
+    const btn = $('profile-change-avatar-btn');
+    if (btn) btn.disabled = true;
+    try {
+      const res = await apiFetch('/auth/profile/avatar', { method: 'POST', body: fd });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        $('auth-error').textContent = body.error || 'Impossible de mettre à jour la photo.';
+        $('auth-error').classList.remove('hidden');
+        return;
+      }
+      if (body.user) {
+        me = { ...me, authenticated: true, user: body.user };
+        setUserPill(body.user);
+        const pr = await apiFetch('/auth/profile');
+        const pb = await pr.json().catch(() => ({}));
+        if (pb.profile) renderProfileModal(pb.profile);
+      }
+    } catch (_) {
+      $('auth-error').textContent = 'Erreur réseau lors de l’envoi de la photo.';
+      $('auth-error').classList.remove('hidden');
+    } finally {
+      if (btn) btn.disabled = false;
+      if (input) input.value = '';
+    }
   });
 
   $('site-login-form')?.addEventListener('submit', async (ev) => {

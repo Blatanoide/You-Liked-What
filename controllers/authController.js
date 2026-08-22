@@ -17,6 +17,7 @@ const siteUserStore = require('../services/siteUserStore');
 const emailService = require('../services/emailService');
 const handoffStore = require('../services/handoffStore');
 const handoffProof = require('../services/handoffProof');
+const avatarStorage = require('../services/avatarStorage');
 
 function displayUser(req, user) {
   if (!user) return null;
@@ -658,33 +659,34 @@ async function loginSite(req, res) {
 /**
  * POST multipart field « photo » — avatar (comptes site uniquement).
  */
-function uploadProfileAvatar(req, res) {
+async function uploadProfileAvatar(req, res) {
   if (!req.session?.user?.id || !String(req.session.user.id).startsWith('site_')) {
     return res.status(403).json({ error: 'Réservé aux comptes créés sur le site.' });
   }
-  if (!req.file) {
+  if (!req.file?.buffer) {
     return res.status(400).json({ error: 'Envoie une image (JPEG, PNG, WebP ou GIF).' });
   }
-  const prevRel = req.session.user.profile_picture;
-  if (prevRel && String(prevRel).startsWith('/uploads/profiles/')) {
-    const absPrev = path.join(__dirname, '..', String(prevRel).replace(/^\//, ''));
-    try {
-      fs.unlinkSync(absPrev);
-    } catch (_) {
-      /* fichier déjà absent */
-    }
+  try {
+    await avatarStorage.deletePreviousAvatar(req.session.user.profile_picture);
+    const { url } = await avatarStorage.uploadAvatar(
+      req.file.buffer,
+      req.session.user.id,
+      req.file.mimetype
+    );
+    siteUserStore.updateProfilePicturePath(req.session.user.id, url);
+    req.session.user.profile_picture = url;
+    playerStatsStore.upsertIdentity(req.session.user);
+    req.session.save((err) => {
+      if (err) {
+        console.error('[Auth] uploadProfileAvatar session:', err);
+        return res.status(500).json({ error: 'Erreur session' });
+      }
+      return res.json({ ok: true, user: displayUser(req, req.session.user) });
+    });
+  } catch (e) {
+    console.error('[Auth] uploadProfileAvatar:', e.message || e);
+    return res.status(500).json({ error: 'Impossible d’enregistrer la photo.' });
   }
-  const rel = `/uploads/profiles/${req.file.filename}`;
-  siteUserStore.updateProfilePicturePath(req.session.user.id, rel);
-  req.session.user.profile_picture = rel;
-  playerStatsStore.upsertIdentity(req.session.user);
-  req.session.save((err) => {
-    if (err) {
-      console.error('[Auth] uploadProfileAvatar session:', err);
-      return res.status(500).json({ error: 'Erreur session' });
-    }
-    return res.json({ ok: true, user: displayUser(req, req.session.user) });
-  });
 }
 
 function seedFakeLikes(req, res) {

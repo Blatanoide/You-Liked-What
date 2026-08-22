@@ -22,6 +22,7 @@ const { APP_NAME } = require('./config/constants');
 const SessionSqliteStore = require('./services/sessionSqliteStore');
 const handoffStore = require('./services/handoffStore');
 const handoffProofSvc = require('./services/handoffProof');
+const avatarStorage = require('./services/avatarStorage');
 const { getSqliteDatabasePath } = require('./config/sqlitePath');
 const { tursoCreds, getTursoReplicaFilePath, syncTursoReplica } = require('./services/openDatabase');
 
@@ -206,6 +207,7 @@ function sendApiBootstrap(req, res) {
         : null,
     publicBaseUrl: PUBLIC_BASE_URL || null,
     emailVerificationConfigured: emailService.isConfigured(),
+    avatarStorageConfigured: avatarStorage.isCloudinaryEnabled(),
     sessionCookieSecure: useSecureCookies,
     forwardedProto: proto,
     host: req.get('host'),
@@ -290,6 +292,11 @@ server.listen(PORT, '0.0.0.0', () => {
         console.warn('[DB] Turso sync périodique :', e.message || e);
       }
     }, 20_000);
+  }
+  if (avatarStorage.isCloudinaryEnabled()) {
+    console.log('  Avatars     Cloudinary (stockage durable)');
+  } else {
+    console.log('  Avatars     disque local uploads/ — définir CLOUDINARY_URL sur Render pour persister');
   }
   console.log('═══════════════════════════════════════════');
   console.log('');
