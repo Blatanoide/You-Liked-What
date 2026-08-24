@@ -10,6 +10,7 @@
  */
 
 const nodemailer = require('nodemailer');
+const { APP_NAME } = require('../config/constants');
 
 function smtpPass() {
   const p = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '';
@@ -60,14 +61,14 @@ async function sendVerificationEmail(to, code) {
 
   const transporter = createTransporter();
 
-  const text = `Voici ton code de vérification pour You Liked What :\n\n[${code}]\n\nSi tu n’as pas créé de compte, ignore ce message.`;
+  const text = `Voici ton code de vérification pour ${APP_NAME} :\n\n[${code}]\n\nSi tu n’as pas créé de compte, ignore ce message.`;
 
   try {
     const info = await transporter.sendMail({
-      from: `"You Liked What" <${from}>`,
+      from: `"${APP_NAME}" <${from}>`,
       to,
       replyTo: from,
-      subject: 'Code de vérification — You Liked What?',
+      subject: `Code de vérification — ${APP_NAME}`,
       text,
     });
 
@@ -84,7 +85,43 @@ async function sendVerificationEmail(to, code) {
   }
 }
 
+/**
+ * Code à usage unique pour la connexion (2FA par e-mail).
+ * @param {string} to
+ * @param {string} code
+ * @returns {Promise<{ sent: boolean; skippedReason?: string }>}
+ */
+async function sendLogin2faEmail(to, code) {
+  const from = process.env.EMAIL_FROM || process.env.SMTP_USER || 'youlikedwhatsupport@gmail.com';
+
+  if (!isConfigured()) {
+    console.warn('[Email] SMTP non configuré. Code 2FA connexion pour', to, ':', `[${code}]`);
+    return { sent: false, skippedReason: 'smtp_not_configured' };
+  }
+
+  const transporter = createTransporter();
+  const text = `Quelqu’un tente de se connecter à ton compte ${APP_NAME}.\n\nCode de connexion :\n\n[${code}]\n\nCe code expire dans 10 minutes.\nSi ce n’est pas toi, change ton mot de passe.`;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"${APP_NAME}" <${from}>`,
+      to,
+      replyTo: from,
+      subject: `Code de connexion — ${APP_NAME}`,
+      text,
+    });
+    console.log('[Email] Code 2FA connexion envoyé à', to, info.messageId ? `(id ${info.messageId})` : '');
+    return { sent: true };
+  } catch (e) {
+    const smtpMsg = e.response || e.message || String(e);
+    console.error('[Email] Échec SMTP 2FA pour', to, ':', smtpMsg);
+    console.warn('[Email] Code 2FA de secours pour', to, ':', `[${code}]`);
+    return { sent: false, skippedReason: 'smtp_error', smtpMessage: smtpMsg };
+  }
+}
+
 module.exports = {
   isConfigured,
   sendVerificationEmail,
+  sendLogin2faEmail,
 };

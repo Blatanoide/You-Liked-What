@@ -48,7 +48,7 @@
     <section id="screen-login" class="screen card">
       <h1>Blind test musical</h1>
       <p class="lead" id="login-lead">
-        Crée un compte (pseudo, e-mail, mot de passe). Après vérification par e-mail, rejoins une room et devine les morceaux le plus vite possible.
+        Crée un compte (pseudo, e-mail, mot de passe). À chaque connexion, un code de sécurité est envoyé par e-mail.
       </p>
 
       <form id="site-login-form" class="login-form" autocomplete="username">
@@ -77,8 +77,8 @@
       </form>
 
       <div id="site-verify-panel" class="hidden">
-        <p class="login-divider-label">Vérification e-mail</p>
-        <p class="hint">Code à 6 chiffres reçu par e-mail (vérifie les spams).</p>
+        <p class="login-divider-label" id="site-verify-title">Vérification e-mail</p>
+        <p class="hint" id="site-verify-hint">Code à 6 chiffres reçu par e-mail (vérifie les spams).</p>
         <form id="site-verify-form" class="login-form">
           <label class="field-label" for="site-verify-email">E-mail</label>
           <input id="site-verify-email" class="input" type="email" required autocomplete="email" />

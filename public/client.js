@@ -33,6 +33,7 @@ const ROUNDS_OPTIONS = [5, 10, 15, 20, 30, 50];
 const TIME_OPTIONS = [10, 20, 30, 45, 60];
 
 let me = null;
+let verifyMode = 'register';
 let socket = null;
 let currentRoom = null;
 let roundDeadline = null;
@@ -738,9 +739,24 @@ function wireApiAnchors() {
   if (lo) lo.href = apiUrl('/auth/logout');
 }
 
-function openVerificationPanel(email) {
+function openVerificationPanel(email, mode = 'register') {
+  verifyMode = mode;
   $('site-verify-panel')?.classList.remove('hidden');
   if (email) $('site-verify-email').value = email;
+  $('site-verify-code').value = '';
+  $('verify-resend-status').textContent = '';
+  const title = $('site-verify-title');
+  const hint = $('site-verify-hint');
+  const btn = $('btn-site-verify');
+  if (mode === 'login2fa') {
+    if (title) title.textContent = 'Double authentification';
+    if (hint) hint.textContent = 'Entre le code de connexion reçu par e-mail (valide 10 min).';
+    if (btn) btn.textContent = 'Confirmer la connexion';
+  } else {
+    if (title) title.textContent = 'Vérification e-mail';
+    if (hint) hint.textContent = 'Code à 6 chiffres reçu par e-mail (vérifie les spams).';
+    if (btn) btn.textContent = 'Valider le code';
+  }
 }
 
 async function submitGuess(e) {
@@ -847,7 +863,17 @@ function wireEvents() {
     if (!res.ok) {
       $('auth-error').textContent = body.error || 'Connexion impossible';
       $('auth-error').classList.remove('hidden');
-      if (body.needsVerification) openVerificationPanel(body.email);
+      if (body.needsVerification) openVerificationPanel(body.email, 'register');
+      return;
+    }
+    if (body.needs2fa) {
+      $('auth-error').classList.add('hidden');
+      $('auth-warn').textContent = body.message || 'Code envoyé par e-mail.';
+      if (body.devCode) {
+        $('auth-warn').textContent += ` (dev: ${body.devCode})`;
+      }
+      $('auth-warn').classList.remove('hidden');
+      openVerificationPanel(body.email, 'login2fa');
       return;
     }
     await afterAuthSuccess(body);
@@ -872,12 +898,13 @@ function wireEvents() {
     }
     $('auth-warn').textContent = body.message || 'Vérifie ton e-mail.';
     $('auth-warn').classList.remove('hidden');
-    openVerificationPanel(body.email || $('site-reg-email').value);
+    openVerificationPanel(body.email || $('site-reg-email').value, 'register');
   });
 
   $('site-verify-form')?.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const res = await apiFetch('/auth/verify-email', {
+    const endpoint = verifyMode === 'login2fa' ? '/auth/verify-login-2fa' : '/auth/verify-email';
+    const res = await apiFetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -895,7 +922,8 @@ function wireEvents() {
   });
 
   $('btn-resend-code')?.addEventListener('click', async () => {
-    const res = await apiFetch('/auth/resend-verification', {
+    const endpoint = verifyMode === 'login2fa' ? '/auth/resend-login-2fa' : '/auth/resend-verification';
+    const res = await apiFetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: $('site-verify-email').value.trim() }),

@@ -26,6 +26,8 @@ router.post('/register', authController.registerSite);
 router.post('/verify-email', authController.verifySiteEmail);
 router.post('/resend-verification', authController.resendVerification);
 router.post('/login-site', authController.loginSite);
+router.post('/verify-login-2fa', authController.verifyLogin2fa);
+router.post('/resend-login-2fa', authController.resendLogin2fa);
 router.post('/handoff/create', authController.createHandoff);
 router.get('/handoff/apply', authController.applyHandoffGet);
 router.post('/handoff/consume', authController.consumeHandoff);

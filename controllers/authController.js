@@ -654,11 +654,68 @@ async function loginSite(req, res) {
   if (!row) {
     return res.status(401).json({ error: 'Identifiants incorrects.' });
   }
-  const user = siteUserStore.sessionUserFromRow(row);
+
+  const issued = siteUserStore.issueLogin2faCode(row.id);
+  const emailResult = await emailService.sendLogin2faEmail(row.email, issued.code);
+  const mailFailed = !emailResult.sent && emailResult.skippedReason === 'smtp_error';
+
+  const body = {
+    ok: true,
+    needs2fa: true,
+    email: row.email,
+    emailSent: Boolean(emailResult.sent),
+    message: emailResult.sent
+      ? 'Mot de passe accepté. Entre le code reçu par e-mail pour te connecter.'
+      : mailFailed
+        ? 'Mot de passe accepté, mais l’e-mail n’a pas pu être envoyé. Vérifie SMTP sur le serveur ou consulte les logs.'
+        : 'Mot de passe accepté. SMTP non configuré : le code est dans les logs serveur.',
+  };
+  if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
+    body.devCode = issued.code;
+  }
+  return res.status(200).json(body);
+}
+
+/**
+ * POST { email, code } — valide le 2FA connexion puis ouvre la session.
+ */
+async function verifyLogin2fa(req, res) {
+  const result = siteUserStore.verifyLogin2faCode(req.body?.email, req.body?.code);
+  if (!result.ok) {
+    return res.status(400).json({ error: result.error });
+  }
+  const user = siteUserStore.sessionUserFromRow(result.user);
   req.session.user = user;
   req.session.loginMethod = 'site';
-  console.log('[Auth] Connexion site:', user.username);
+  console.log('[Auth] Connexion site (2FA):', user.username);
   return saveSessionAndReply(req, res, user);
+}
+
+/**
+ * POST { email } — renvoie le code 2FA si une connexion est en cours.
+ */
+async function resendLogin2fa(req, res) {
+  const email = siteUserStore.normalizeEmail(req.body?.email);
+  if (!email) {
+    return res.status(400).json({ error: 'E-mail requis.' });
+  }
+  const regen = siteUserStore.regenerateLogin2faForEmail(email);
+  if (!regen.ok) {
+    return res.status(400).json({ error: regen.error });
+  }
+  const send = await emailService.sendLogin2faEmail(email, regen.code);
+  if (!send.sent) {
+    const isSmtpError = send.skippedReason === 'smtp_error';
+    const hint = isSmtpError
+      ? 'Impossible d’envoyer l’e-mail (SMTP). Vérifie la configuration sur le serveur.'
+      : 'SMTP non configuré. Le code est dans les logs serveur.';
+    return res.status(503).json({
+      ok: false,
+      error: hint,
+      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
+    });
+  }
+  return res.json({ ok: true, message: 'Un nouveau code de connexion a été envoyé.' });
 }
 
 /**
@@ -846,6 +903,8 @@ module.exports = {
   verifySiteEmail,
   resendVerification,
   loginSite,
+  verifyLogin2fa,
+  resendLogin2fa,
   uploadProfileAvatar,
   createHandoff,
   consumeHandoff,

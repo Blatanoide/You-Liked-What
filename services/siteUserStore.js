@@ -9,6 +9,7 @@ const { scheduleTursoPush } = require('./openDatabase');
 
 const SALT_ROUNDS = 10;
 const CODE_TTL_SEC = 60 * 60;
+const LOGIN_2FA_TTL_SEC = 10 * 60;
 
 let siteSchemaReady = false;
 
@@ -23,11 +24,21 @@ function ensureSiteSchema(db) {
       verified INTEGER NOT NULL DEFAULT 0,
       verification_code TEXT,
       verification_expires INTEGER NOT NULL DEFAULT 0,
+      login_2fa_code TEXT,
+      login_2fa_expires INTEGER NOT NULL DEFAULT 0,
       profile_picture TEXT,
       created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
     );
     CREATE INDEX IF NOT EXISTS idx_site_users_email ON site_users(email);
   `);
+  for (const sql of [
+    'ALTER TABLE site_users ADD COLUMN login_2fa_code TEXT',
+    'ALTER TABLE site_users ADD COLUMN login_2fa_expires INTEGER NOT NULL DEFAULT 0',
+  ]) {
+    try {
+      db.exec(sql);
+    } catch (_) {}
+  }
   siteSchemaReady = true;
 }
 
@@ -190,6 +201,61 @@ function regenerateVerificationForEmail(rawEmail) {
   return { ok: true, code, email };
 }
 
+function clearLogin2fa(userId) {
+  const d = getDb();
+  d.prepare('UPDATE site_users SET login_2fa_code = NULL, login_2fa_expires = 0 WHERE id = ?').run(userId);
+  scheduleTursoPush(d);
+}
+
+function issueLogin2faCode(userId) {
+  const code = generateCode();
+  const expires = Math.floor(Date.now() / 1000) + LOGIN_2FA_TTL_SEC;
+  const d = getDb();
+  d.prepare('UPDATE site_users SET login_2fa_code = ?, login_2fa_expires = ? WHERE id = ?').run(
+    code,
+    expires,
+    userId
+  );
+  scheduleTursoPush(d);
+  return { code, expires };
+}
+
+function verifyLogin2faCode(email, codeStr) {
+  const emailN = normalizeEmail(email);
+  const code = String(codeStr || '').replace(/\D/g, '').slice(0, 6);
+  if (!emailN || code.length !== 6) {
+    return { ok: false, error: 'E-mail ou code invalide.' };
+  }
+  const row = findByEmail(emailN);
+  if (!row) {
+    return { ok: false, error: 'Aucun compte trouvé pour cet e-mail.' };
+  }
+  if (!row.verified) {
+    return { ok: false, error: 'Compte non vérifié — valide d’abord ton inscription par e-mail.' };
+  }
+  if (!row.login_2fa_code || row.login_2fa_code !== code) {
+    return { ok: false, error: 'Code incorrect.' };
+  }
+  if (Number(row.login_2fa_expires) < Math.floor(Date.now() / 1000)) {
+    return { ok: false, error: 'Code expiré — reconnecte-toi pour en recevoir un nouveau.' };
+  }
+  clearLogin2fa(row.id);
+  return { ok: true, user: findByEmail(emailN) };
+}
+
+function regenerateLogin2faForEmail(rawEmail) {
+  const email = normalizeEmail(rawEmail);
+  if (!email) return { ok: false, error: 'E-mail invalide.' };
+  const row = findByEmail(email);
+  if (!row) return { ok: false, error: 'Aucun compte pour cet e-mail.' };
+  if (!row.verified) return { ok: false, error: 'Compte non vérifié.' };
+  if (!row.login_2fa_code || Number(row.login_2fa_expires) < Math.floor(Date.now() / 1000)) {
+    return { ok: false, error: 'Aucune connexion en cours — entre d’abord ton mot de passe.' };
+  }
+  const issued = issueLogin2faCode(row.id);
+  return { ok: true, code: issued.code, email };
+}
+
 function updateProfilePicturePath(userId, relativePath) {
   const d = getDb();
   d.prepare('UPDATE site_users SET profile_picture = ? WHERE id = ?').run(relativePath, userId);
@@ -216,6 +282,9 @@ module.exports = {
   getUserRowById,
   verifyEmailCode,
   checkLogin,
+  issueLogin2faCode,
+  verifyLogin2faCode,
+  regenerateLogin2faForEmail,
   regenerateVerificationForEmail,
   updateProfilePicturePath,
   sessionUserFromRow,
