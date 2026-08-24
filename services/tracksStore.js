@@ -8,6 +8,36 @@ const likesStore = require('./likesStore');
 
 let schemaReady = false;
 
+function syncCatalogFromSeed(db) {
+  const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
+  if (!fs.existsSync(seedPath)) return { inserted: 0, updated: 0, seedTotal: 0 };
+  let list;
+  try {
+    list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+  } catch {
+    return { inserted: 0, updated: 0, seedTotal: 0 };
+  }
+  if (!Array.isArray(list)) return { inserted: 0, updated: 0, seedTotal: 0 };
+
+  const before = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get()?.c || 0;
+  const ins = db.prepare(
+    'INSERT OR IGNORE INTO catalog_tracks (title, artist, preview_url) VALUES (?, ?, ?)'
+  );
+  const upd = db.prepare(
+    `UPDATE catalog_tracks SET preview_url = ?
+     WHERE title = ? AND artist = ? AND (preview_url IS NULL OR preview_url = '')`
+  );
+  for (const t of list) {
+    if (!t?.title || !t?.artist) continue;
+    const title = String(t.title).trim();
+    const artist = String(t.artist).trim();
+    ins.run(title, artist, t.preview_url || null);
+    if (t.preview_url) upd.run(String(t.preview_url), title, artist);
+  }
+  const after = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get()?.c || 0;
+  return { inserted: after - before, updated: 0, seedTotal: list.length, catalogTotal: after };
+}
+
 function getDb() {
   const db = likesStore.getDb();
   if (!schemaReady) {
@@ -22,48 +52,28 @@ function getDb() {
       );
       CREATE INDEX IF NOT EXISTS idx_catalog_tracks_title ON catalog_tracks(title);
     `);
-    seedIfEmpty(db);
-    syncPreviewUrlsFromSeed(db);
+    syncCatalogFromSeed(db);
     schemaReady = true;
   }
   return db;
 }
 
-function seedIfEmpty(db) {
-  const row = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get();
-  if (row && row.c > 0) return;
+function catalogStats() {
+  const db = getDb();
+  const total = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get()?.c || 0;
+  const withPreview =
+    db.prepare(
+      "SELECT COUNT(*) AS c FROM catalog_tracks WHERE preview_url IS NOT NULL AND preview_url != ''"
+    ).get()?.c || 0;
+  let seedTotal = 0;
   const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
-  if (!fs.existsSync(seedPath)) return;
-  let list;
-  try {
-    list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
-  } catch {
-    return;
+  if (fs.existsSync(seedPath)) {
+    try {
+      const list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+      seedTotal = Array.isArray(list) ? list.length : 0;
+    } catch (_) {}
   }
-  const ins = db.prepare('INSERT OR IGNORE INTO catalog_tracks (title, artist, preview_url) VALUES (?, ?, ?)');
-  for (const t of list) {
-    if (!t?.title || !t?.artist) continue;
-    ins.run(String(t.title).trim(), String(t.artist).trim(), t.preview_url || null);
-  }
-}
-
-function syncPreviewUrlsFromSeed(db) {
-  const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
-  if (!fs.existsSync(seedPath)) return;
-  let list;
-  try {
-    list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
-  } catch {
-    return;
-  }
-  const upd = db.prepare(
-    `UPDATE catalog_tracks SET preview_url = ?
-     WHERE title = ? AND artist = ? AND (preview_url IS NULL OR preview_url = '')`
-  );
-  for (const t of list) {
-    if (!t?.title || !t?.artist || !t.preview_url) continue;
-    upd.run(String(t.preview_url), String(t.title).trim(), String(t.artist).trim());
-  }
+  return { catalogTotal: total, withPreview, seedTotal };
 }
 
 function listAll() {
@@ -93,4 +103,5 @@ module.exports = {
   getById,
   setPreviewUrl,
   pickRandomTrack,
+  catalogStats,
 };

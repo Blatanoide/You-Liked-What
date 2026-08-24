@@ -15,6 +15,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const tracksRoutes = require('./routes/tracks');
+const tracksStore = require('./services/tracksStore');
 const authController = require('./controllers/authController');
 const emailService = require('./services/emailService');
 const { attachGameSocket } = require('./sockets/gameSocket');
@@ -210,6 +211,7 @@ function sendApiBootstrap(req, res) {
     emailSmtp: emailService.getEmailStatus(),
     avatarStorageConfigured: avatarStorage.isCloudinaryEnabled(),
     avatarCloudinary: avatarStorage.getCloudinaryStatus(),
+    catalog: tracksStore.catalogStats(),
     sessionCookieSecure: useSecureCookies,
     forwardedProto: proto,
     host: req.get('host'),
@@ -320,6 +322,8 @@ server.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log('  E-mail      BREVO_API_KEY ou RESEND_API_KEY requis (Render free bloque SMTP)');
   }
+  const cat = tracksStore.catalogStats();
+  console.log(`  Catalogue   ${cat.catalogTotal} titres (${cat.withPreview} avec preview, seed ${cat.seedTotal})`);
   console.log('═══════════════════════════════════════════');
   console.log('');
 });
