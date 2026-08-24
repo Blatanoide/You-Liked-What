@@ -5,8 +5,6 @@
  *   SMTP_USER=ton-compte@gmail.com
  *   SMTP_PASS=mot_de_passe_application_16_caracteres
  *   SMTP_PORT=465
- *
- * Ne pas laisser EMAIL_DEV_RETURN_CODE=true en production.
  */
 
 const nodemailer = require('nodemailer');
@@ -19,7 +17,7 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 
 let verifyCache = { ok: null, error: null, checkedAt: 0 };
 let lastSend = { at: 0, ok: null, error: null, to: null };
-let transporterSingleton = null;
+let transporterPromise = null;
 
 function stripEnv(value) {
   return String(value || '')
@@ -36,14 +34,29 @@ function smtpPass() {
   return stripEnv(p).replace(/\s/g, '');
 }
 
+function smtpHostname() {
+  return stripEnv(process.env.SMTP_HOST || 'smtp.gmail.com').toLowerCase();
+}
+
 function isConfigured() {
   return Boolean(smtpUser() && smtpPass());
 }
 
-function createTransporter() {
-  const user = smtpUser();
-  const pass = smtpPass();
-  const host = stripEnv(process.env.SMTP_HOST || 'smtp.gmail.com').toLowerCase();
+async function resolveSmtpHost() {
+  const override = stripEnv(process.env.SMTP_HOST_IP);
+  if (override && /^\d+\.\d+\.\d+\.\d+$/.test(override)) return override;
+
+  const hostname = smtpHostname();
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return hostname;
+
+  const addrs = await dns.promises.resolve4(hostname);
+  if (!addrs.length) throw new Error(`Aucune adresse IPv4 pour ${hostname}`);
+  return addrs[0];
+}
+
+async function buildTransporter() {
+  const hostname = smtpHostname();
+  const host = await resolveSmtpHost();
   const port = Number(process.env.SMTP_PORT) || 465;
   const secure =
     process.env.SMTP_SECURE === 'true' || (process.env.SMTP_SECURE !== 'false' && port === 465);
@@ -52,21 +65,23 @@ function createTransporter() {
     host,
     port,
     secure,
-    auth: { user, pass },
+    auth: { user: smtpUser(), pass: smtpPass() },
+    tls: { servername: hostname },
     connectionTimeout: 20_000,
     greetingTimeout: 20_000,
     socketTimeout: 30_000,
-    lookup: (hostname, _opts, cb) => {
-      dns.lookup(hostname, { family: 4, all: false }, cb);
-    },
   });
 }
 
-function getTransporter() {
-  if (!transporterSingleton) {
-    transporterSingleton = createTransporter();
+async function getTransporter() {
+  if (!transporterPromise) {
+    transporterPromise = buildTransporter();
   }
-  return transporterSingleton;
+  return transporterPromise;
+}
+
+function resetTransporter() {
+  transporterPromise = null;
 }
 
 async function verifySmtp() {
@@ -75,10 +90,11 @@ async function verifySmtp() {
     return verifyCache;
   }
   try {
-    await getTransporter().verify();
-    verifyCache = { ok: true, error: null, checkedAt: Date.now() };
+    const transporter = await getTransporter();
+    await transporter.verify();
+    verifyCache = { ok: true, error: null, checkedAt: Date.now(), host: await resolveSmtpHost() };
   } catch (e) {
-    transporterSingleton = null;
+    resetTransporter();
     const msg = e.response || e.message || String(e);
     verifyCache = { ok: false, error: msg, checkedAt: Date.now() };
     console.error('[Email] Vérification SMTP échouée:', msg);
@@ -100,15 +116,11 @@ function getEmailStatus() {
     verified: verifyCache.ok,
     verifyError: verifyCache.ok === false ? verifyCache.error : null,
     smtpUser: smtpUser() ? smtpUser().replace(/(.{2}).*(@.*)/, '$1***$2') : null,
+    smtpHost: smtpHostname(),
+    smtpResolvedIp: verifyCache.host || null,
     smtpPort: port,
-    smtpFamily: 'ipv4',
     lastSend: lastSend.at
-      ? {
-          at: lastSend.at,
-          ok: lastSend.ok,
-          to: lastSend.to,
-          error: lastSend.error,
-        }
+      ? { at: lastSend.at, ok: lastSend.ok, to: lastSend.to, error: lastSend.error }
       : null,
   };
 }
@@ -116,13 +128,13 @@ function getEmailStatus() {
 async function sendMailText(to, subject, text, html) {
   const user = smtpUser();
   if (!isConfigured()) {
-    console.warn('[Email] SMTP non configuré — pas d’envoi à', to);
     lastSend = { at: Date.now(), ok: false, error: 'smtp_not_configured', to: maskEmail(to) };
     return { sent: false, skippedReason: 'smtp_not_configured' };
   }
 
   try {
-    const info = await getTransporter().sendMail({
+    const transporter = await getTransporter();
+    const info = await transporter.sendMail({
       from: `"${APP_NAME}" <${user}>`,
       to,
       replyTo: user,
@@ -134,7 +146,7 @@ async function sendMailText(to, subject, text, html) {
     lastSend = { at: Date.now(), ok: true, error: null, to: maskEmail(to) };
     return { sent: true, messageId: info.messageId || null };
   } catch (e) {
-    transporterSingleton = null;
+    resetTransporter();
     const smtpMsg = e.response || e.message || String(e);
     console.error('[Email] Échec SMTP pour', to, ':', smtpMsg);
     lastSend = { at: Date.now(), ok: false, error: smtpMsg, to: maskEmail(to) };
@@ -144,21 +156,17 @@ async function sendMailText(to, subject, text, html) {
 
 async function sendVerificationEmail(to, code) {
   const text = `Voici ton code de vérification pour ${APP_NAME} :\n\n[${code}]\n\nSi tu n’as pas créé de compte, ignore ce message.`;
-  const html = `<p>Voici ton code de vérification pour <strong>${APP_NAME}</strong> :</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">[${code}]</p><p>Si tu n’as pas créé de compte, ignore ce message.</p>`;
+  const html = `<p>Voici ton code de vérification pour <strong>${APP_NAME}</strong> :</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">[${code}]</p>`;
   const result = await sendMailText(to, `Code de vérification — ${APP_NAME}`, text, html);
-  if (!result.sent) {
-    console.warn('[Email] Code de secours (logs) pour', to, ':', `[${code}]`);
-  }
+  if (!result.sent) console.warn('[Email] Code secours pour', to, ':', `[${code}]`);
   return result;
 }
 
 async function sendLogin2faEmail(to, code) {
-  const text = `Quelqu’un tente de se connecter à ton compte ${APP_NAME}.\n\nCode de connexion :\n\n[${code}]\n\nCe code expire dans 10 minutes.\nSi ce n’est pas toi, change ton mot de passe.`;
-  const html = `<p>Connexion à <strong>${APP_NAME}</strong>.</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">[${code}]</p><p>Ce code expire dans 10 minutes.</p>`;
+  const text = `Connexion ${APP_NAME} — code : [${code}] (10 min).`;
+  const html = `<p>Connexion à <strong>${APP_NAME}</strong>.</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">[${code}]</p>`;
   const result = await sendMailText(to, `Code de connexion — ${APP_NAME}`, text, html);
-  if (!result.sent) {
-    console.warn('[Email] Code 2FA de secours pour', to, ':', `[${code}]`);
-  }
+  if (!result.sent) console.warn('[Email] Code 2FA secours pour', to, ':', `[${code}]`);
   return result;
 }
 
