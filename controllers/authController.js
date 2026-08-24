@@ -529,12 +529,23 @@ async function scrapeLikesPuppeteer(req, res) {
 /**
  * POST { username, email, password } — inscription compte site + e-mail de vérification.
  */
-function emailSendFailureHint(emailResult) {
-  if (emailResult.sent) return '';
-  if (emailResult.skippedReason === 'smtp_error') {
-    return 'Gmail/SMTP a refusé l’envoi — vérifie SMTP_USER et SMTP_PASS (mot de passe d’application) sur Render.';
+function appendDevCode(body, code) {
+  if (process.env.EMAIL_DEV_RETURN_CODE === 'true') {
+    body.devCode = code;
   }
-  return 'SMTP non configuré sur le serveur (SMTP_USER + SMTP_PASS).';
+  return body;
+}
+
+function queueVerificationEmail(email, code) {
+  emailService.sendVerificationEmail(email, code).then((r) => {
+    if (!r.sent) console.warn('[Auth] verification email non envoyé:', email, r.skippedReason || '');
+  }).catch((e) => console.error('[Auth] verification email async:', e.message || e));
+}
+
+function queueLogin2faEmail(email, code) {
+  emailService.sendLogin2faEmail(email, code).then((r) => {
+    if (!r.sent) console.warn('[Auth] 2FA email non envoyé:', email, r.skippedReason || '');
+  }).catch((e) => console.error('[Auth] 2FA email async:', e.message || e));
 }
 
 async function registerSite(req, res) {
@@ -571,20 +582,19 @@ async function registerSite(req, res) {
         if (!regen.ok) {
           return res.status(409).json({ error: regen.error });
         }
-        const emailResult = await emailService.sendVerificationEmail(email, regen.code);
-        const body = {
-          ok: true,
-          email,
-          emailSent: Boolean(emailResult.sent),
-          resent: true,
-          message: emailResult.sent
-            ? 'Compte déjà créé — un nouveau code vient d’être envoyé à ton e-mail.'
-            : `Compte déjà créé. ${emailSendFailureHint(emailResult)} Utilise le code ci-dessous ou « Renvoyer le code ».`,
-        };
-        if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
-          body.devCode = regen.code;
-        }
-        return res.status(200).json(body);
+        queueVerificationEmail(email, regen.code);
+        return res.status(200).json(
+          appendDevCode(
+            {
+              ok: true,
+              email,
+              emailPending: true,
+              resent: true,
+              message: 'Compte déjà créé — un code est en cours d’envoi à ton e-mail.',
+            },
+            regen.code
+          )
+        );
       }
       return res.status(409).json({ error: 'Cette adresse e-mail est déjà utilisée.' });
     }
@@ -592,20 +602,18 @@ async function registerSite(req, res) {
     return res.status(500).json({ error: 'Erreur serveur lors de l’inscription.' });
   }
 
-  const emailResult = await emailService.sendVerificationEmail(email, pending.code);
-
-  const body = {
-    ok: true,
-    email,
-    emailSent: Boolean(emailResult.sent),
-    message: emailResult.sent
-      ? 'Compte créé. Ouvre ton e-mail : le texte contient ton code de vérification entre crochets [123456].'
-      : `Compte créé. ${emailSendFailureHint(emailResult)}`,
-  };
-  if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
-    body.devCode = pending.code;
-  }
-  return res.status(201).json(body);
+  queueVerificationEmail(email, pending.code);
+  return res.status(201).json(
+    appendDevCode(
+      {
+        ok: true,
+        email,
+        emailPending: true,
+        message: 'Compte créé — vérifie ton e-mail dans quelques secondes (regarde les spams).',
+      },
+      pending.code
+    )
+  );
 }
 
 /**
@@ -620,19 +628,13 @@ async function resendVerification(req, res) {
   if (!regen.ok) {
     return res.status(400).json({ error: regen.error });
   }
-  const send = await emailService.sendVerificationEmail(email, regen.code);
-  if (!send.sent) {
-    const isSmtpError = send.skippedReason === 'smtp_error';
-    const hint = isSmtpError
-      ? 'Gmail a refusé la connexion : utilise un mot de passe d’application (compte Google → Sécurité → Mots de passe des applications), pas le mot de passe du compte. Vérifie SMTP_USER et SMTP_PASS sur Render.'
-      : 'SMTP non configuré sur le serveur. Le nouveau code est dans les logs Render (ligne [Email]).';
-    return res.status(503).json({
-      ok: false,
-      error: hint,
-      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
-    });
-  }
-  return res.json({ ok: true, message: 'Un nouveau code a été envoyé à ton adresse.' });
+  queueVerificationEmail(email, regen.code);
+  return res.json(
+    appendDevCode(
+      { ok: true, message: 'Un nouveau code est en cours d’envoi à ton adresse.' },
+      regen.code
+    )
+  );
 }
 
 /**
@@ -673,24 +675,19 @@ async function loginSite(req, res) {
   }
 
   const issued = siteUserStore.issueLogin2faCode(row.id);
-  const emailResult = await emailService.sendLogin2faEmail(row.email, issued.code);
-  const mailFailed = !emailResult.sent && emailResult.skippedReason === 'smtp_error';
-
-  const body = {
-    ok: true,
-    needs2fa: true,
-    email: row.email,
-    emailSent: Boolean(emailResult.sent),
-    message: emailResult.sent
-      ? 'Mot de passe accepté. Entre le code reçu par e-mail pour te connecter.'
-      : mailFailed
-        ? 'Mot de passe accepté, mais l’e-mail n’a pas pu être envoyé. Vérifie SMTP sur le serveur ou consulte les logs.'
-        : 'Mot de passe accepté. SMTP non configuré : le code est dans les logs serveur.',
-  };
-  if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
-    body.devCode = issued.code;
-  }
-  return res.status(200).json(body);
+  queueLogin2faEmail(row.email, issued.code);
+  return res.status(200).json(
+    appendDevCode(
+      {
+        ok: true,
+        needs2fa: true,
+        email: row.email,
+        emailPending: true,
+        message: 'Mot de passe accepté — un code est en cours d’envoi à ton e-mail.',
+      },
+      issued.code
+    )
+  );
 }
 
 /**
@@ -720,19 +717,13 @@ async function resendLogin2fa(req, res) {
   if (!regen.ok) {
     return res.status(400).json({ error: regen.error });
   }
-  const send = await emailService.sendLogin2faEmail(email, regen.code);
-  if (!send.sent) {
-    const isSmtpError = send.skippedReason === 'smtp_error';
-    const hint = isSmtpError
-      ? 'Impossible d’envoyer l’e-mail (SMTP). Vérifie la configuration sur le serveur.'
-      : 'SMTP non configuré. Le code est dans les logs serveur.';
-    return res.status(503).json({
-      ok: false,
-      error: hint,
-      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
-    });
-  }
-  return res.json({ ok: true, message: 'Un nouveau code de connexion a été envoyé.' });
+  queueLogin2faEmail(email, regen.code);
+  return res.json(
+    appendDevCode(
+      { ok: true, message: 'Un nouveau code de connexion est en cours d’envoi.' },
+      regen.code
+    )
+  );
 }
 
 /**

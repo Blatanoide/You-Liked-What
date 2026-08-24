@@ -918,8 +918,8 @@ function wireEvents() {
     const btn = $('btn-site-login');
     setButtonLoading(btn, true, 'Connexion…');
     const slowTimer = setTimeout(() => {
-      showAuthWarn('Le serveur démarre (peut prendre jusqu’à 1 minute)…');
-    }, 4000);
+      showAuthWarn('Connexion au serveur…');
+    }, 2000);
     try {
       const res = await apiFetch('/auth/login-site', {
         method: 'POST',
@@ -964,8 +964,8 @@ function wireEvents() {
     const btn = $('btn-site-register');
     setButtonLoading(btn, true, 'Création du compte…');
     const slowTimer = setTimeout(() => {
-      showAuthWarn('Le serveur démarre (peut prendre jusqu’à 1 minute)…');
-    }, 4000);
+      showAuthWarn('Connexion au serveur…');
+    }, 2000);
     try {
       const res = await apiFetch('/auth/register', {
         method: 'POST',
@@ -1081,6 +1081,7 @@ function wireEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  apiFetch('/api/health').catch(() => {});
   wireVolumeControl();
   wireEvents();
   bootstrap();
