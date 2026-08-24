@@ -559,11 +559,24 @@ async function registerSite(req, res) {
     if (e.message === 'EMAIL_TAKEN') {
       const existing = siteUserStore.findByEmail(email);
       if (existing && !existing.verified) {
-        return res.status(409).json({
-          error: 'Cet e-mail est déjà inscrit mais pas encore vérifié.',
-          pendingVerification: true,
+        const regen = siteUserStore.regenerateVerificationForEmail(email);
+        if (!regen.ok) {
+          return res.status(409).json({ error: regen.error });
+        }
+        const emailResult = await emailService.sendVerificationEmail(email, regen.code);
+        const body = {
+          ok: true,
           email,
-        });
+          emailSent: Boolean(emailResult.sent),
+          resent: true,
+          message: emailResult.sent
+            ? 'Compte déjà créé — un nouveau code vient d’être envoyé à ton e-mail.'
+            : 'Compte déjà créé. SMTP indisponible : consulte les logs serveur ou clique « Renvoyer le code ».',
+        };
+        if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
+          body.devCode = regen.code;
+        }
+        return res.status(200).json(body);
       }
       return res.status(409).json({ error: 'Cette adresse e-mail est déjà utilisée.' });
     }

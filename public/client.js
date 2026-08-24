@@ -894,11 +894,21 @@ function wireEvents() {
     if (!res.ok) {
       $('auth-error').textContent = body.error || 'Inscription impossible';
       $('auth-error').classList.remove('hidden');
+      if (body.pendingVerification) {
+        $('auth-warn').textContent =
+          'Entre le code reçu par e-mail ci-dessous, ou clique « Renvoyer le code ».';
+        $('auth-warn').classList.remove('hidden');
+        openVerificationPanel(body.email || $('site-reg-email').value.trim(), 'register');
+      }
       return;
     }
+    $('auth-error').classList.add('hidden');
     $('auth-warn').textContent = body.message || 'Vérifie ton e-mail.';
+    if (body.devCode) {
+      $('auth-warn').textContent += ` (dev: ${body.devCode})`;
+    }
     $('auth-warn').classList.remove('hidden');
-    openVerificationPanel(body.email || $('site-reg-email').value, 'register');
+    openVerificationPanel(body.email || $('site-reg-email').value.trim(), 'register');
   });
 
   $('site-verify-form')?.addEventListener('submit', async (ev) => {
