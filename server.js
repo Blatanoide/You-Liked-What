@@ -207,6 +207,7 @@ function sendApiBootstrap(req, res) {
         : null,
     publicBaseUrl: PUBLIC_BASE_URL || null,
     emailVerificationConfigured: emailService.isConfigured(),
+    emailSmtp: emailService.getEmailStatus(),
     avatarStorageConfigured: avatarStorage.isCloudinaryEnabled(),
     avatarCloudinary: avatarStorage.getCloudinaryStatus(),
     sessionCookieSecure: useSecureCookies,
@@ -308,6 +309,15 @@ server.listen(PORT, '0.0.0.0', () => {
     });
   } else {
     console.log('  Avatars     disque local uploads/ — définir CLOUDINARY_URL sur Render pour persister');
+  }
+  if (emailService.isConfigured()) {
+    console.log('  E-mail      SMTP configuré');
+    emailService.verifySmtp().then((v) => {
+      if (v.ok) console.log('  SMTP        connexion OK');
+      else console.error('  SMTP        ÉCHEC —', v.error);
+    });
+  } else {
+    console.log('  E-mail      SMTP_USER + SMTP_PASS requis pour envoyer les codes');
   }
   console.log('═══════════════════════════════════════════');
   console.log('');

@@ -818,9 +818,8 @@ function openVerificationPanel(email, mode = 'register') {
 }
 
 function applyDevCodeFromResponse(body) {
-  if (!body?.devCode) return;
-  const codeEl = $('site-verify-code');
-  if (codeEl) codeEl.value = String(body.devCode);
+  if (!body?.devCode || body.emailSent) return;
+  showAuthWarn(`${$('auth-warn')?.textContent || ''} Code secours (SMTP indisponible) : ${body.devCode}`.trim());
 }
 
 async function submitGuess(e) {
