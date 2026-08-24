@@ -165,8 +165,36 @@ function finalizeRound(io, room, reason) {
   }, BETWEEN_ROUNDS_MS);
 }
 
-function resolveTrackWithPreview(excludeIds) {
-  return tracksStore.pickRandomTrack(excludeIds);
+async function ensurePlayableTrack(track) {
+  if (!track) return null;
+  if (await musicService.isPreviewUrlValid(track.preview_url)) return track;
+
+  let url = null;
+  try {
+    url = await musicService.resolvePreviewUrl(track.artist, track.title);
+  } catch (e) {
+    log('resolvePreviewUrl error', track.artist, track.title, e.message || e);
+  }
+
+  if (!url || !(await musicService.isPreviewUrlValid(url))) {
+    tracksStore.setPreviewUrl(track.id, null);
+    return null;
+  }
+
+  tracksStore.setPreviewUrl(track.id, url);
+  return { ...track, preview_url: url };
+}
+
+async function resolveTrackWithPreview(excludeIds) {
+  const tryIds = new Set(excludeIds);
+  for (let i = 0; i < 15; i += 1) {
+    const track = tracksStore.pickRandomTrack(tryIds);
+    if (!track) return null;
+    tryIds.add(track.id);
+    const playable = await ensurePlayableTrack(track);
+    if (playable) return playable;
+  }
+  return null;
 }
 
 function beginRoundWithTrack(io, room, track) {
