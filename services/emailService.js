@@ -53,10 +53,12 @@ function createTransporter() {
     port,
     secure,
     auth: { user, pass },
-    family: 4,
     connectionTimeout: 20_000,
     greetingTimeout: 20_000,
     socketTimeout: 30_000,
+    lookup: (hostname, _opts, cb) => {
+      dns.lookup(hostname, { family: 4, all: false }, cb);
+    },
   });
 }
 
