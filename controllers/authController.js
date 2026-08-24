@@ -555,16 +555,10 @@ function appendDevCode(body, code) {
   return body;
 }
 
-function queueVerificationEmail(email, code) {
-  emailService.sendVerificationEmail(email, code).then((r) => {
-    if (!r.sent) console.warn('[Auth] verification email non envoyé:', email, r.skippedReason || '');
-  }).catch((e) => console.error('[Auth] verification email async:', e.message || e));
-}
-
-function queueLogin2faEmail(email, code) {
-  emailService.sendLogin2faEmail(email, code).then((r) => {
-    if (!r.sent) console.warn('[Auth] 2FA email non envoyé:', email, r.skippedReason || '');
-  }).catch((e) => console.error('[Auth] 2FA email async:', e.message || e));
+function emailOkMessage(sent) {
+  return sent
+    ? 'Code envoyé à ton e-mail — vérifie aussi les spams / courriers indésirables.'
+    : 'Impossible d’envoyer l’e-mail pour le moment. Réessaie ou contacte le support.';
 }
 
 async function registerSite(req, res) {
@@ -601,15 +595,16 @@ async function registerSite(req, res) {
         if (!regen.ok) {
           return res.status(409).json({ error: regen.error });
         }
-        queueVerificationEmail(email, regen.code);
+        const emailResult = await emailService.sendVerificationEmail(email, regen.code);
         return res.status(200).json(
           appendDevCode(
             {
               ok: true,
               email,
-              emailPending: true,
+              emailSent: Boolean(emailResult.sent),
               resent: true,
-              message: 'Compte déjà créé — un code est en cours d’envoi à ton e-mail.',
+              message: emailOkMessage(emailResult.sent),
+              emailError: emailResult.sent ? undefined : emailResult.smtpMessage || emailResult.skippedReason,
             },
             regen.code
           )
@@ -621,14 +616,15 @@ async function registerSite(req, res) {
     return res.status(500).json({ error: 'Erreur serveur lors de l’inscription.' });
   }
 
-  queueVerificationEmail(email, pending.code);
+  const emailResult = await emailService.sendVerificationEmail(email, pending.code);
   return res.status(201).json(
     appendDevCode(
       {
         ok: true,
         email,
-        emailPending: true,
-        message: 'Compte créé — vérifie ton e-mail dans quelques secondes (regarde les spams).',
+        emailSent: Boolean(emailResult.sent),
+        message: emailOkMessage(emailResult.sent),
+        emailError: emailResult.sent ? undefined : emailResult.smtpMessage || emailResult.skippedReason,
       },
       pending.code
     )
@@ -647,13 +643,16 @@ async function resendVerification(req, res) {
   if (!regen.ok) {
     return res.status(400).json({ error: regen.error });
   }
-  queueVerificationEmail(email, regen.code);
-  return res.json(
-    appendDevCode(
-      { ok: true, message: 'Un nouveau code est en cours d’envoi à ton adresse.' },
-      regen.code
-    )
-  );
+  const emailResult = await emailService.sendVerificationEmail(email, regen.code);
+  if (!emailResult.sent) {
+    return res.status(503).json({
+      ok: false,
+      error: emailOkMessage(false),
+      emailError: emailResult.smtpMessage || emailResult.skippedReason,
+      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
+    });
+  }
+  return res.json({ ok: true, message: emailOkMessage(true) });
 }
 
 /**
@@ -694,15 +693,16 @@ async function loginSite(req, res) {
   }
 
   const issued = siteUserStore.issueLogin2faCode(row.id);
-  queueLogin2faEmail(row.email, issued.code);
+  const emailResult = await emailService.sendLogin2faEmail(row.email, issued.code);
   return res.status(200).json(
     appendDevCode(
       {
         ok: true,
         needs2fa: true,
         email: row.email,
-        emailPending: true,
-        message: 'Mot de passe accepté — un code est en cours d’envoi à ton e-mail.',
+        emailSent: Boolean(emailResult.sent),
+        message: emailOkMessage(emailResult.sent),
+        emailError: emailResult.sent ? undefined : emailResult.smtpMessage || emailResult.skippedReason,
       },
       issued.code
     )
@@ -736,13 +736,16 @@ async function resendLogin2fa(req, res) {
   if (!regen.ok) {
     return res.status(400).json({ error: regen.error });
   }
-  queueLogin2faEmail(email, regen.code);
-  return res.json(
-    appendDevCode(
-      { ok: true, message: 'Un nouveau code de connexion est en cours d’envoi.' },
-      regen.code
-    )
-  );
+  const emailResult = await emailService.sendLogin2faEmail(email, regen.code);
+  if (!emailResult.sent) {
+    return res.status(503).json({
+      ok: false,
+      error: emailOkMessage(false),
+      emailError: emailResult.smtpMessage || emailResult.skippedReason,
+      devCode: process.env.EMAIL_DEV_RETURN_CODE === 'true' ? regen.code : undefined,
+    });
+  }
+  return res.json({ ok: true, message: emailOkMessage(true) });
 }
 
 /**

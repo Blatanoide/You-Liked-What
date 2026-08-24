@@ -851,7 +851,7 @@ function openVerificationPanel(email, mode = 'register') {
 
 function applyDevCodeFromResponse(body) {
   if (!body?.devCode || body.emailSent) return;
-  showAuthWarn(`${$('auth-warn')?.textContent || ''} Code secours (SMTP indisponible) : ${body.devCode}`.trim());
+  showAuthWarn(`${$('auth-warn')?.textContent || ''} Code secours : ${body.devCode}`.trim());
 }
 
 async function submitGuess(e) {
@@ -969,10 +969,13 @@ function wireEvents() {
         return;
       }
       if (body.needs2fa) {
-        hideAuthMessages();
-        showAuthWarn(body.message || 'Code envoyé par e-mail.');
-        openVerificationPanel(body.email, 'login2fa');
-        applyDevCodeFromResponse(body);
+      hideAuthMessages();
+      const warnMsg = [body.message, body.emailError && !body.emailSent ? body.emailError : null]
+        .filter(Boolean)
+        .join(' — ');
+      showAuthWarn(warnMsg || 'Code envoyé par e-mail.');
+      openVerificationPanel(body.email, 'login2fa');
+      applyDevCodeFromResponse(body);
         return;
       }
       await afterAuthSuccess(body);
@@ -1014,10 +1017,13 @@ function wireEvents() {
         }
         return;
       }
-      hideAuthMessages();
-      showAuthWarn(body.message || 'Vérifie ton e-mail.');
-      openVerificationPanel(body.email || payload.email, 'register');
-      applyDevCodeFromResponse(body);
+    hideAuthMessages();
+    const warnMsg = [body.message, body.emailError && !body.emailSent ? body.emailError : null]
+      .filter(Boolean)
+      .join(' — ');
+    showAuthWarn(warnMsg || 'Vérifie ton e-mail.');
+    openVerificationPanel(body.email || payload.email, 'register');
+    applyDevCodeFromResponse(body);
     } catch (_) {
       showAuthError('Erreur réseau ou serveur injoignable. Réessaie dans un instant.');
     } finally {
