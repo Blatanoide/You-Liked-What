@@ -757,6 +757,13 @@ function openVerificationPanel(email, mode = 'register') {
     if (hint) hint.textContent = 'Code à 6 chiffres reçu par e-mail (vérifie les spams).';
     if (btn) btn.textContent = 'Valider le code';
   }
+  $('site-verify-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function applyDevCodeFromResponse(body) {
+  if (!body?.devCode) return;
+  const codeEl = $('site-verify-code');
+  if (codeEl) codeEl.value = String(body.devCode);
 }
 
 async function submitGuess(e) {
@@ -869,11 +876,9 @@ function wireEvents() {
     if (body.needs2fa) {
       $('auth-error').classList.add('hidden');
       $('auth-warn').textContent = body.message || 'Code envoyé par e-mail.';
-      if (body.devCode) {
-        $('auth-warn').textContent += ` (dev: ${body.devCode})`;
-      }
       $('auth-warn').classList.remove('hidden');
       openVerificationPanel(body.email, 'login2fa');
+      applyDevCodeFromResponse(body);
       return;
     }
     await afterAuthSuccess(body);
@@ -904,11 +909,9 @@ function wireEvents() {
     }
     $('auth-error').classList.add('hidden');
     $('auth-warn').textContent = body.message || 'Vérifie ton e-mail.';
-    if (body.devCode) {
-      $('auth-warn').textContent += ` (dev: ${body.devCode})`;
-    }
     $('auth-warn').classList.remove('hidden');
     openVerificationPanel(body.email || $('site-reg-email').value.trim(), 'register');
+    applyDevCodeFromResponse(body);
   });
 
   $('site-verify-form')?.addEventListener('submit', async (ev) => {

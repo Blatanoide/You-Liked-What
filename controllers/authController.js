@@ -529,6 +529,14 @@ async function scrapeLikesPuppeteer(req, res) {
 /**
  * POST { username, email, password } — inscription compte site + e-mail de vérification.
  */
+function emailSendFailureHint(emailResult) {
+  if (emailResult.sent) return '';
+  if (emailResult.skippedReason === 'smtp_error') {
+    return 'Gmail/SMTP a refusé l’envoi — vérifie SMTP_USER et SMTP_PASS (mot de passe d’application) sur Render.';
+  }
+  return 'SMTP non configuré sur le serveur (SMTP_USER + SMTP_PASS).';
+}
+
 async function registerSite(req, res) {
   const username = siteUserStore.normalizeSiteUsername(req.body?.username);
   const email = siteUserStore.normalizeEmail(req.body?.email);
@@ -571,7 +579,7 @@ async function registerSite(req, res) {
           resent: true,
           message: emailResult.sent
             ? 'Compte déjà créé — un nouveau code vient d’être envoyé à ton e-mail.'
-            : 'Compte déjà créé. SMTP indisponible : consulte les logs serveur ou clique « Renvoyer le code ».',
+            : `Compte déjà créé. ${emailSendFailureHint(emailResult)} Utilise le code ci-dessous ou « Renvoyer le code ».`,
         };
         if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
           body.devCode = regen.code;
@@ -585,8 +593,6 @@ async function registerSite(req, res) {
   }
 
   const emailResult = await emailService.sendVerificationEmail(email, pending.code);
-  const mailFailed =
-    !emailResult.sent && emailResult.skippedReason === 'smtp_error';
 
   const body = {
     ok: true,
@@ -594,9 +600,7 @@ async function registerSite(req, res) {
     emailSent: Boolean(emailResult.sent),
     message: emailResult.sent
       ? 'Compte créé. Ouvre ton e-mail : le texte contient ton code de vérification entre crochets [123456].'
-      : mailFailed
-        ? 'Compte créé, mais Gmail/SMTP a refusé l’envoi (mot de passe d’application invalide ou compte mal configuré). Le code est dans les logs Render (ligne [Email]). Corrige SMTP_USER + SMTP_PASS sur Render puis « Renvoyer le code ».'
-        : 'Compte créé. Le serveur n’a pas encore d’SMTP : le code est dans les logs serveur (ligne [Email]). Configure SMTP_USER et SMTP_PASS pour l’envoi réel.',
+      : `Compte créé. ${emailSendFailureHint(emailResult)}`,
   };
   if (!emailResult.sent && process.env.EMAIL_DEV_RETURN_CODE === 'true') {
     body.devCode = pending.code;
