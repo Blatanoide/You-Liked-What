@@ -66,7 +66,7 @@
         <label class="field-label" for="site-reg-username">Pseudo affiché</label>
         <div class="login-row">
           <span class="at-prefix" aria-hidden="true">@</span>
-          <input id="site-reg-username" class="input input-username" type="text" maxlength="30" required autocomplete="username" placeholder="blatanoide" />
+          <input id="site-reg-username" class="input input-username" type="text" maxlength="30" required autocomplete="username" placeholder="blatanoide" pattern="[a-z0-9._]{3,30}" title="Minuscules, chiffres, . et _ (3–30 caractères)" />
         </div>
         <label class="field-label" for="site-reg-email">E-mail</label>
         <input id="site-reg-email" class="input" type="email" required autocomplete="email" />
@@ -224,6 +224,6 @@
   </section>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-  <script src="/client.js?v=soundguess-7" defer></script>
+  <script src="/client.js?v=soundguess-8" defer></script>
 </body>
 </html>

@@ -29,6 +29,63 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function showAuthError(msg) {
+  const el = $('auth-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showAuthWarn(msg) {
+  const el = $('auth-warn');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideAuthMessages() {
+  $('auth-error')?.classList.add('hidden');
+  $('auth-warn')?.classList.add('hidden');
+}
+
+function setButtonLoading(btn, loading, loadingText) {
+  if (!btn) return;
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.prevText = btn.textContent;
+    btn.textContent = loadingText || 'Patientez…';
+  } else {
+    btn.disabled = false;
+    if (btn.dataset.prevText) btn.textContent = btn.dataset.prevText;
+  }
+}
+
+function validateRegisterInput() {
+  const username = $('site-reg-username').value.trim().toLowerCase();
+  $('site-reg-username').value = username;
+  const email = $('site-reg-email').value.trim();
+  const password = $('site-reg-password').value;
+  if (!/^[a-z0-9._]{3,30}$/.test(username)) {
+    showAuthError('Pseudo invalide : 3–30 caractères, minuscules, chiffres, . et _ uniquement.');
+    return null;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showAuthError('Adresse e-mail invalide.');
+    return null;
+  }
+  if (password.length < 9) {
+    showAuthError('Mot de passe : au moins 9 caractères.');
+    return null;
+  }
+  if (!/[A-Z]/.test(password)) {
+    showAuthError('Mot de passe : au moins une majuscule.');
+    return null;
+  }
+  return { username, email, password };
+}
+
 const ROUNDS_OPTIONS = [5, 10, 15, 20, 30, 50];
 const TIME_OPTIONS = [10, 20, 30, 45, 60];
 
@@ -858,60 +915,83 @@ function wireEvents() {
 
   $('site-login-form')?.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const res = await apiFetch('/auth/login-site', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        emailOrUsername: $('site-login-id').value.trim(),
-        password: $('site-login-password').value,
-      }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      $('auth-error').textContent = body.error || 'Connexion impossible';
-      $('auth-error').classList.remove('hidden');
-      if (body.needsVerification) openVerificationPanel(body.email, 'register');
-      return;
+    hideAuthMessages();
+    const btn = $('btn-site-login');
+    setButtonLoading(btn, true, 'Connexion…');
+    const slowTimer = setTimeout(() => {
+      showAuthWarn('Le serveur démarre (peut prendre jusqu’à 1 minute)…');
+    }, 4000);
+    try {
+      const res = await apiFetch('/auth/login-site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emailOrUsername: $('site-login-id').value.trim(),
+          password: $('site-login-password').value,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showAuthError(body.error || 'Connexion impossible');
+        if (body.needsVerification) openVerificationPanel(body.email, 'register');
+        return;
+      }
+      if (body.needs2fa) {
+        hideAuthMessages();
+        showAuthWarn(body.message || 'Code envoyé par e-mail.');
+        openVerificationPanel(body.email, 'login2fa');
+        applyDevCodeFromResponse(body);
+        return;
+      }
+      await afterAuthSuccess(body);
+    } catch (_) {
+      showAuthError('Erreur réseau ou serveur injoignable. Réessaie dans un instant.');
+    } finally {
+      clearTimeout(slowTimer);
+      setButtonLoading(btn, false);
     }
-    if (body.needs2fa) {
-      $('auth-error').classList.add('hidden');
-      $('auth-warn').textContent = body.message || 'Code envoyé par e-mail.';
-      $('auth-warn').classList.remove('hidden');
-      openVerificationPanel(body.email, 'login2fa');
-      applyDevCodeFromResponse(body);
-      return;
-    }
-    await afterAuthSuccess(body);
+  });
+
+  $('site-reg-username')?.addEventListener('input', (ev) => {
+    const el = ev.target;
+    el.value = el.value.toLowerCase().replace(/[^a-z0-9._]/g, '');
   });
 
   $('site-register-form')?.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const res = await apiFetch('/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: $('site-reg-username').value.trim(),
-        email: $('site-reg-email').value.trim(),
-        password: $('site-reg-password').value,
-      }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      $('auth-error').textContent = body.error || 'Inscription impossible';
-      $('auth-error').classList.remove('hidden');
-      if (body.pendingVerification) {
-        $('auth-warn').textContent =
-          'Entre le code reçu par e-mail ci-dessous, ou clique « Renvoyer le code ».';
-        $('auth-warn').classList.remove('hidden');
-        openVerificationPanel(body.email || $('site-reg-email').value.trim(), 'register');
+    hideAuthMessages();
+    const payload = validateRegisterInput();
+    if (!payload) return;
+    const btn = $('btn-site-register');
+    setButtonLoading(btn, true, 'Création du compte…');
+    const slowTimer = setTimeout(() => {
+      showAuthWarn('Le serveur démarre (peut prendre jusqu’à 1 minute)…');
+    }, 4000);
+    try {
+      const res = await apiFetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showAuthError(body.error || 'Inscription impossible');
+        if (body.pendingVerification) {
+          showAuthWarn('Entre le code reçu par e-mail ci-dessous, ou clique « Renvoyer le code ».');
+          openVerificationPanel(body.email || payload.email, 'register');
+        }
+        return;
       }
-      return;
+      hideAuthMessages();
+      showAuthWarn(body.message || 'Vérifie ton e-mail.');
+      openVerificationPanel(body.email || payload.email, 'register');
+      applyDevCodeFromResponse(body);
+    } catch (_) {
+      showAuthError('Erreur réseau ou serveur injoignable. Réessaie dans un instant.');
+    } finally {
+      clearTimeout(slowTimer);
+      setButtonLoading(btn, false);
     }
-    $('auth-error').classList.add('hidden');
-    $('auth-warn').textContent = body.message || 'Vérifie ton e-mail.';
-    $('auth-warn').classList.remove('hidden');
-    openVerificationPanel(body.email || $('site-reg-email').value.trim(), 'register');
-    applyDevCodeFromResponse(body);
   });
 
   $('site-verify-form')?.addEventListener('submit', async (ev) => {
