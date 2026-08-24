@@ -6,13 +6,18 @@
  *   SMTP_PASS=mot_de_passe_application_16_caracteres
  *   EMAIL_FROM=ton-compte@gmail.com   (optionnel)
  *   SMTP_HOST=smtp.gmail.com          (optionnel)
- *   SMTP_PORT=587                     (optionnel, 587 STARTTLS ou 465 SSL)
+ *   SMTP_PORT=465                     (optionnel, défaut 465 SSL — recommandé sur Render)
  *
  * Ne pas laisser EMAIL_DEV_RETURN_CODE=true en production une fois SMTP OK.
  */
 
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 const { APP_NAME } = require('../config/constants');
+
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 let verifyCache = { ok: null, error: null, checkedAt: 0 };
 
@@ -39,7 +44,7 @@ function createTransporter() {
   const user = smtpUser();
   const pass = smtpPass();
   const host = stripEnv(process.env.SMTP_HOST || 'smtp.gmail.com').toLowerCase();
-  const port = Number(process.env.SMTP_PORT) || 587;
+  const port = Number(process.env.SMTP_PORT) || 465;
   const secure =
     process.env.SMTP_SECURE === 'true' || (process.env.SMTP_SECURE !== 'false' && port === 465);
 
@@ -48,6 +53,8 @@ function createTransporter() {
     port,
     secure,
     auth: { user, pass },
+    // Render free : IPv6 vers Gmail échoue (ENETUNREACH) — forcer IPv4.
+    family: 4,
     connectionTimeout: 15_000,
     greetingTimeout: 15_000,
     socketTimeout: 20_000,
@@ -72,11 +79,14 @@ async function verifySmtp() {
 }
 
 function getEmailStatus() {
+  const port = Number(process.env.SMTP_PORT) || 465;
   return {
     configured: isConfigured(),
     verified: verifyCache.ok,
     verifyError: verifyCache.ok === false ? verifyCache.error : null,
     smtpUser: smtpUser() ? smtpUser().replace(/(.{2}).*(@.*)/, '$1***$2') : null,
+    smtpPort: port,
+    smtpFamily: 'ipv4',
   };
 }
 
