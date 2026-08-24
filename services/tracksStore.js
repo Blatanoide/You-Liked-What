@@ -1,10 +1,12 @@
 /**
- * Catalogue de morceaux pour SoundGuess (titres + artistes, preview résolu à la volée).
+ * Catalogue de morceaux pour SoundGuess (titres + artistes avec extrait audio).
  */
 
 const fs = require('fs');
 const path = require('path');
 const likesStore = require('./likesStore');
+
+const PREVIEW_WHERE = "preview_url IS NOT NULL AND trim(preview_url) != ''";
 
 let schemaReady = false;
 
@@ -27,15 +29,31 @@ function syncCatalogFromSeed(db) {
     `UPDATE catalog_tracks SET preview_url = ?
      WHERE title = ? AND artist = ? AND (preview_url IS NULL OR preview_url = '')`
   );
+  let seedWithPreview = 0;
   for (const t of list) {
     if (!t?.title || !t?.artist) continue;
+    const preview = t.preview_url ? String(t.preview_url).trim() : '';
+    if (!preview) continue;
+    seedWithPreview += 1;
     const title = String(t.title).trim();
     const artist = String(t.artist).trim();
-    ins.run(title, artist, t.preview_url || null);
-    if (t.preview_url) upd.run(String(t.preview_url), title, artist);
+    ins.run(title, artist, preview);
+    upd.run(preview, title, artist);
   }
+  const purged =
+    db
+      .prepare(
+        "DELETE FROM catalog_tracks WHERE preview_url IS NULL OR trim(preview_url) = ''"
+      )
+      .run().changes || 0;
   const after = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get()?.c || 0;
-  return { inserted: after - before, updated: 0, seedTotal: list.length, catalogTotal: after };
+  return {
+    inserted: after - before,
+    updated: 0,
+    purged,
+    seedTotal: seedWithPreview,
+    catalogTotal: after,
+  };
 }
 
 function getDb() {
@@ -60,25 +78,26 @@ function getDb() {
 
 function catalogStats() {
   const db = getDb();
-  const total = db.prepare('SELECT COUNT(*) AS c FROM catalog_tracks').get()?.c || 0;
-  const withPreview =
-    db.prepare(
-      "SELECT COUNT(*) AS c FROM catalog_tracks WHERE preview_url IS NOT NULL AND preview_url != ''"
-    ).get()?.c || 0;
+  const total =
+    db.prepare(`SELECT COUNT(*) AS c FROM catalog_tracks WHERE ${PREVIEW_WHERE}`).get()?.c || 0;
   let seedTotal = 0;
   const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
   if (fs.existsSync(seedPath)) {
     try {
       const list = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
-      seedTotal = Array.isArray(list) ? list.length : 0;
+      seedTotal = Array.isArray(list)
+        ? list.filter((t) => t?.preview_url && String(t.preview_url).trim()).length
+        : 0;
     } catch (_) {}
   }
-  return { catalogTotal: total, withPreview, seedTotal };
+  return { catalogTotal: total, withPreview: total, seedTotal };
 }
 
 function listAll() {
   return getDb()
-    .prepare('SELECT id, title, artist, preview_url FROM catalog_tracks ORDER BY id ASC')
+    .prepare(
+      `SELECT id, title, artist, preview_url FROM catalog_tracks WHERE ${PREVIEW_WHERE} ORDER BY id ASC`
+    )
     .all();
 }
 
@@ -93,7 +112,7 @@ function setPreviewUrl(id, url) {
 }
 
 function pickRandomTrack(excludeIds = new Set()) {
-  const all = listAll().filter((t) => !excludeIds.has(t.id));
+  const all = listAll().filter((t) => !excludeIds.has(t.id) && t.preview_url);
   if (!all.length) return null;
   return all[Math.floor(Math.random() * all.length)];
 }

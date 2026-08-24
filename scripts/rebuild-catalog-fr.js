@@ -13,7 +13,6 @@ const axios = require('axios');
 
 const seedPath = path.join(__dirname, '..', 'data', 'tracks.seed.json');
 const importPath = path.join(__dirname, '..', 'data', 'tracks-francais-import.txt');
-const noPreviewPath = path.join(__dirname, '..', 'data', 'tracks-no-preview.txt');
 
 const HTTP_OPTS = {
   timeout: 10000,
@@ -161,14 +160,11 @@ async function main() {
   list = list.filter((t) => t.preview_url);
 
   fs.writeFileSync(seedPath, `${JSON.stringify(list, null, 2)}\n`, 'utf8');
-  fs.writeFileSync(
-    noPreviewPath,
-    rejected.map((t) => `${t.artist} - ${t.title}`).join('\n') + (rejected.length ? '\n' : ''),
-    'utf8'
-  );
 
   console.log(`Catalogue final: ${list.length} morceaux (100% avec preview)`);
-  console.log(`Exclus (pas de preview): ${rejected.length} → ${noPreviewPath}`);
+  if (rejected.length) {
+    console.log(`Exclus (pas de preview): ${rejected.length}`);
+  }
 }
 
 main().catch((e) => {

@@ -165,29 +165,8 @@ function finalizeRound(io, room, reason) {
   }, BETWEEN_ROUNDS_MS);
 }
 
-async function resolveTrackWithPreview(excludeIds) {
-  const tryIds = new Set(excludeIds);
-  const candidates = [];
-  for (let i = 0; i < 8 && candidates.length < 6; i += 1) {
-    const track = tracksStore.pickRandomTrack(tryIds);
-    if (!track) break;
-    tryIds.add(track.id);
-    candidates.push(track);
-  }
-  if (!candidates.length) return null;
-
-  const cached = candidates.find((t) => t.preview_url);
-  if (cached) return { ...cached, preview_url: cached.preview_url };
-
-  const settled = await Promise.all(
-    candidates.map(async (track) => {
-      const preview = await musicService.resolvePreviewUrl(track.artist, track.title);
-      if (!preview) return null;
-      tracksStore.setPreviewUrl(track.id, preview);
-      return { ...track, preview_url: preview };
-    })
-  );
-  return settled.find(Boolean) || null;
+function resolveTrackWithPreview(excludeIds) {
+  return tracksStore.pickRandomTrack(excludeIds);
 }
 
 function beginRoundWithTrack(io, room, track) {
