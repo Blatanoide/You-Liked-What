@@ -311,13 +311,14 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('  Avatars     disque local uploads/ — définir CLOUDINARY_URL sur Render pour persister');
   }
   if (emailService.isConfigured()) {
-    console.log('  E-mail      SMTP configuré');
+    const st = emailService.getEmailStatus();
+    console.log(`  E-mail      provider=${st.provider}`);
     emailService.verifySmtp().then((v) => {
-      if (v.ok) console.log('  SMTP        connexion OK');
-      else console.error('  SMTP        ÉCHEC —', v.error);
+      if (v.ok) console.log(`  E-mail      ${v.provider} OK`);
+      else console.error('  E-mail      ÉCHEC —', v.error);
     });
   } else {
-    console.log('  E-mail      SMTP_USER + SMTP_PASS requis pour envoyer les codes');
+    console.log('  E-mail      BREVO_API_KEY ou RESEND_API_KEY requis (Render free bloque SMTP)');
   }
   console.log('═══════════════════════════════════════════');
   console.log('');
