@@ -520,10 +520,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/6/f/0/a6fee1bea8f3ec24b4b86785b197b09b.mp3?hdnea=exp=1787406400~acl=/api/1/1/a/6/f/0/a6fee1bea8f3ec24b4b86785b197b09b.mp3*~data=user_id=0,application_id=42~hmac=8d38816f7c242604d57e48ac2ac0c84d91339a957c5d7f59c2e982b097ca0877"
   },
   {
-    "artist": "Cyndi Lauper",
-    "title": "Time After Time"
-  },
-  {
     "artist": "Bon Jovi",
     "title": "Livin' on a Prayer",
     "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/75/15/30/75153020-b7c4-7958-8907-4aa1b965dc24/mzaf_2377504467597068152.plus.aac.p.m4a"
@@ -749,69 +745,9 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/0/9/0/209e9bb65f9a81c161b5ca39b482e3e6.mp3?hdnea=exp=1787406404~acl=/api/1/1/2/0/9/0/209e9bb65f9a81c161b5ca39b482e3e6.mp3*~data=user_id=0,application_id=42~hmac=e08f56cabacaf85e47dfff47fde8f255c360577595b3cba7a663616e6723395c"
   },
   {
-    "artist": "Marvin Gaye",
-    "title": "Let's Get It On"
-  },
-  {
-    "artist": "Otis Redding",
-    "title": "(Sittin' On) The Dock of the Bay"
-  },
-  {
-    "artist": "Otis Redding",
-    "title": "Try a Little Tenderness"
-  },
-  {
-    "artist": "The Temptations",
-    "title": "My Girl"
-  },
-  {
-    "artist": "The Temptations",
-    "title": "Papa Was a Rollin' Stone"
-  },
-  {
-    "artist": "The Temptations",
-    "title": "Ain't Too Proud to Beg"
-  },
-  {
-    "artist": "The Beach Boys",
-    "title": "Good Vibrations"
-  },
-  {
-    "artist": "The Beach Boys",
-    "title": "Wouldn't It Be Nice"
-  },
-  {
-    "artist": "The Beach Boys",
-    "title": "California Girls"
-  },
-  {
-    "artist": "The Beach Boys",
-    "title": "I Get Around"
-  },
-  {
-    "artist": "Simon & Garfunkel",
-    "title": "The Sound of Silence"
-  },
-  {
-    "artist": "Simon & Garfunkel",
-    "title": "Mrs. Robinson"
-  },
-  {
-    "artist": "Simon & Garfunkel",
-    "title": "Bridge Over Troubled Water"
-  },
-  {
-    "artist": "The Mamas & the Papas",
-    "title": "California Dreamin'"
-  },
-  {
     "artist": "Creedence Clearwater Revival",
     "title": "Fortunate Son",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/3/f/0/53f8f9b3fa586362999409fcb17b8c5e.mp3?hdnea=exp=1787406405~acl=/api/1/1/5/3/f/0/53f8f9b3fa586362999409fcb17b8c5e.mp3*~data=user_id=0,application_id=42~hmac=9fb1bbd501a94de0ed15dfb4e5855826531b8f84a7fa07f5082dbfeac13879fc"
-  },
-  {
-    "artist": "Creedence Clearwater Revival",
-    "title": "Have You Ever Seen the Rain"
   },
   {
     "artist": "Creedence Clearwater Revival",
@@ -1064,146 +1000,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/7/1/0/071903d9430ded2ec139793ad3e9c09d.mp3?hdnea=exp=1787406407~acl=/api/1/1/0/7/1/0/071903d9430ded2ec139793ad3e9c09d.mp3*~data=user_id=0,application_id=42~hmac=5206fff3765b297f5a9cf07e9d3981ca18708ac5fe43717f8a11090ed7e4cc94"
   },
   {
-    "artist": "Slipknot",
-    "title": "Psychosocial"
-  },
-  {
-    "artist": "Foo Fighters",
-    "title": "Everlong"
-  },
-  {
-    "artist": "Foo Fighters",
-    "title": "The Pretender"
-  },
-  {
-    "artist": "Foo Fighters",
-    "title": "Best of You"
-  },
-  {
-    "artist": "Radiohead",
-    "title": "Creep"
-  },
-  {
-    "artist": "Radiohead",
-    "title": "Karma Police"
-  },
-  {
-    "artist": "Radiohead",
-    "title": "No Surprises"
-  },
-  {
-    "artist": "Radiohead",
-    "title": "High and Dry"
-  },
-  {
-    "artist": "Oasis",
-    "title": "Don't Look Back in Anger"
-  },
-  {
-    "artist": "Oasis",
-    "title": "Champagne Supernova"
-  },
-  {
-    "artist": "Oasis",
-    "title": "Live Forever"
-  },
-  {
-    "artist": "Blur",
-    "title": "Song 2"
-  },
-  {
-    "artist": "The Cranberries",
-    "title": "Zombie"
-  },
-  {
-    "artist": "The Cranberries",
-    "title": "Linger"
-  },
-  {
-    "artist": "The Cranberries",
-    "title": "Dreams"
-  },
-  {
-    "artist": "R.E.M.",
-    "title": "Losing My Religion"
-  },
-  {
-    "artist": "R.E.M.",
-    "title": "Everybody Hurts"
-  },
-  {
-    "artist": "R.E.M.",
-    "title": "The One I Love"
-  },
-  {
-    "artist": "The Cure",
-    "title": "Friday I'm in Love"
-  },
-  {
-    "artist": "The Cure",
-    "title": "Boys Don't Cry"
-  },
-  {
-    "artist": "The Cure",
-    "title": "Just Like Heaven"
-  },
-  {
-    "artist": "Depeche Mode",
-    "title": "Enjoy the Silence"
-  },
-  {
-    "artist": "Depeche Mode",
-    "title": "Personal Jesus"
-  },
-  {
-    "artist": "Depeche Mode",
-    "title": "Just Can't Get Enough"
-  },
-  {
-    "artist": "The Smiths",
-    "title": "There Is a Light That Never Goes Out"
-  },
-  {
-    "artist": "The Smiths",
-    "title": "This Charming Man"
-  },
-  {
-    "artist": "Arctic Monkeys",
-    "title": "Do I Wanna Know?"
-  },
-  {
-    "artist": "Arctic Monkeys",
-    "title": "I Bet You Look Good on the Dancefloor"
-  },
-  {
-    "artist": "Arctic Monkeys",
-    "title": "Why'd You Only Call Me When You're High?"
-  },
-  {
-    "artist": "The Killers",
-    "title": "Somebody Told Me"
-  },
-  {
-    "artist": "The Killers",
-    "title": "When You Were Young"
-  },
-  {
-    "artist": "Coldplay",
-    "title": "The Scientist"
-  },
-  {
-    "artist": "Coldplay",
-    "title": "Paradise"
-  },
-  {
-    "artist": "Muse",
-    "title": "Uprising"
-  },
-  {
-    "artist": "Muse",
-    "title": "Starlight"
-  },
-  {
     "artist": "Muse",
     "title": "Supermassive Black Hole",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/5/8/0/4589367276d77cfeb3e1257e7006dd37.mp3?hdnea=exp=1787406410~acl=/api/1/1/4/5/8/0/4589367276d77cfeb3e1257e7006dd37.mp3*~data=user_id=0,application_id=42~hmac=b0d5300a3941ca60272267a1c24b07e9c0c6e7777f9b5939ff56659e02af01a8"
@@ -1254,14 +1050,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/b/3/0/eb360320c6347432eabdb4f1cfa8c117.mp3?hdnea=exp=1787406410~acl=/api/1/1/e/b/3/0/eb360320c6347432eabdb4f1cfa8c117.mp3*~data=user_id=0,application_id=42~hmac=ed10769d39f8ccc793c1d22cb5c76217d230da3918df8465a29dc2ed9a739c15"
   },
   {
-    "artist": "Daft Punk",
-    "title": "Around the World"
-  },
-  {
-    "artist": "Daft Punk",
-    "title": "Harder, Better, Faster, Stronger"
-  },
-  {
     "artist": "Avicii",
     "title": "Wake Me Up",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/3/a/0/93a023759118ca2f5bc17c7c0c07ba1b.mp3?hdnea=exp=1787406410~acl=/api/1/1/9/3/a/0/93a023759118ca2f5bc17c7c0c07ba1b.mp3*~data=user_id=0,application_id=42~hmac=362c1694f8bf4c0056185bea130552c1f7c1d02dc1741def9ab14b08c12d93b1"
@@ -1307,18 +1095,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/2/c/0/72ca11af3f9f7848e3790a48b75ea02d.mp3?hdnea=exp=1787406411~acl=/api/1/1/7/2/c/0/72ca11af3f9f7848e3790a48b75ea02d.mp3*~data=user_id=0,application_id=42~hmac=8aad46823710bf886583b8dfb7414ab3fa550b2d89a2b50338810072c9e2050e"
   },
   {
-    "artist": "The Black Eyed Peas",
-    "title": "I Gotta Feeling"
-  },
-  {
-    "artist": "The Black Eyed Peas",
-    "title": "Where Is the Love?"
-  },
-  {
-    "artist": "The Black Eyed Peas",
-    "title": "Pump It"
-  },
-  {
     "artist": "Britney Spears",
     "title": "...Baby One More Time",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/1/7/0/b17b241965ce5ad2fa504f46a8684da8.mp3?hdnea=exp=1787406411~acl=/api/1/1/b/1/7/0/b17b241965ce5ad2fa504f46a8684da8.mp3*~data=user_id=0,application_id=42~hmac=aeb2ace417f8a8ef07eb46ef6f29a82586f352e1840b8bfabd068050c91ee47e"
@@ -1327,10 +1103,6 @@
     "artist": "Britney Spears",
     "title": "Toxic",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/d/3/0/9d34e72ceb70f4d8e347d3e21e245531.mp3?hdnea=exp=1787406411~acl=/api/1/1/9/d/3/0/9d34e72ceb70f4d8e347d3e21e245531.mp3*~data=user_id=0,application_id=42~hmac=13266495ee9d694019fcfdfaf203963ee8497d4790b7b276f82b1f33b7349bd4"
-  },
-  {
-    "artist": "Britney Spears",
-    "title": "Oops!... I Did It Again"
   },
   {
     "artist": "Britney Spears",
@@ -1428,14 +1200,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/b/a/0/eba6ad7ea2c1736e423fe6d183a583d1.mp3?hdnea=exp=1787406412~acl=/api/1/1/e/b/a/0/eba6ad7ea2c1736e423fe6d183a583d1.mp3*~data=user_id=0,application_id=42~hmac=182e633648979dbd51b5394c9259f0c27ecc332a654f04bd8919628c0fb6ad1f"
   },
   {
-    "artist": "Taylor Swift",
-    "title": "Blank Space"
-  },
-  {
-    "artist": "Taylor Swift",
-    "title": "Love Story"
-  },
-  {
     "artist": "Adele",
     "title": "Hello",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/9/f/0/99f3f9045f87708fcc0518dea2a60ac9.mp3?hdnea=exp=1787406412~acl=/api/1/1/9/9/f/0/99f3f9045f87708fcc0518dea2a60ac9.mp3*~data=user_id=0,application_id=42~hmac=d15b60bbde310a9e221ce95494856ef2c38f7dc4cf609ef7a4a13e31c11fb93d"
@@ -1444,142 +1208,6 @@
     "artist": "Adele",
     "title": "Set Fire to the Rain",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/9/d/0/89d33940ac8fd32e481a6f7ac7fa891a.mp3?hdnea=exp=1787406413~acl=/api/1/1/8/9/d/0/89d33940ac8fd32e481a6f7ac7fa891a.mp3*~data=user_id=0,application_id=42~hmac=df9687bd1ac9d6bc6b1440a5979359346aa58847bce0705bf466ade9f1ce6a4d"
-  },
-  {
-    "artist": "Amy Winehouse",
-    "title": "Back to Black"
-  },
-  {
-    "artist": "Amy Winehouse",
-    "title": "Rehab"
-  },
-  {
-    "artist": "Amy Winehouse",
-    "title": "You Know I'm No Good"
-  },
-  {
-    "artist": "Sia",
-    "title": "Chandelier"
-  },
-  {
-    "artist": "Sia",
-    "title": "Cheap Thrills"
-  },
-  {
-    "artist": "Sia",
-    "title": "Elastic Heart"
-  },
-  {
-    "artist": "P!nk",
-    "title": "Just Like a Pill"
-  },
-  {
-    "artist": "P!nk",
-    "title": "So What"
-  },
-  {
-    "artist": "P!nk",
-    "title": "Just Give Me a Reason"
-  },
-  {
-    "artist": "Shakira",
-    "title": "Whenever, Wherever"
-  },
-  {
-    "artist": "Shakira",
-    "title": "Waka Waka (This Time for Africa)"
-  },
-  {
-    "artist": "Jennifer Lopez",
-    "title": "On the Floor"
-  },
-  {
-    "artist": "Jennifer Lopez",
-    "title": "Jenny from the Block"
-  },
-  {
-    "artist": "Kylie Minogue",
-    "title": "Can't Get You Out of My Head"
-  },
-  {
-    "artist": "Kylie Minogue",
-    "title": "The Loco-Motion"
-  },
-  {
-    "artist": "Dua Lipa",
-    "title": "Don't Start Now"
-  },
-  {
-    "artist": "Dua Lipa",
-    "title": "New Rules"
-  },
-  {
-    "artist": "Billie Eilish",
-    "title": "Happier Than Ever"
-  },
-  {
-    "artist": "Billie Eilish",
-    "title": "Lovely"
-  },
-  {
-    "artist": "Miley Cyrus",
-    "title": "Wrecking Ball"
-  },
-  {
-    "artist": "Miley Cyrus",
-    "title": "Party in the U.S.A."
-  },
-  {
-    "artist": "Ariana Grande",
-    "title": "Thank U, Next"
-  },
-  {
-    "artist": "Ariana Grande",
-    "title": "7 Rings"
-  },
-  {
-    "artist": "Ariana Grande",
-    "title": "Problem"
-  },
-  {
-    "artist": "Bruno Mars",
-    "title": "Just the Way You Are"
-  },
-  {
-    "artist": "Bruno Mars",
-    "title": "Uptown Funk"
-  },
-  {
-    "artist": "Bruno Mars",
-    "title": "Locked Out of Heaven"
-  },
-  {
-    "artist": "Bruno Mars",
-    "title": "Grenade"
-  },
-  {
-    "artist": "Ed Sheeran",
-    "title": "Perfect"
-  },
-  {
-    "artist": "Ed Sheeran",
-    "title": "Thinking Out Loud"
-  },
-  {
-    "artist": "Justin Bieber",
-    "title": "Baby"
-  },
-  {
-    "artist": "Justin Bieber",
-    "title": "Sorry"
-  },
-  {
-    "artist": "Justin Bieber",
-    "title": "Love Yourself"
-  },
-  {
-    "artist": "The Weeknd",
-    "title": "Can't Feel My Face"
   },
   {
     "artist": "Harry Styles",
@@ -1837,114 +1465,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/e/1/0/ee1f78cff459de066182995b5fde2fbb.mp3?hdnea=exp=1787406418~acl=/api/1/1/e/e/1/0/ee1f78cff459de066182995b5fde2fbb.mp3*~data=user_id=0,application_id=42~hmac=8ef55d4613df8e8fa0d7bc8c6af17d4e085e4b9a59a1d9fa60ca968177b62cdf"
   },
   {
-    "artist": "Outkast",
-    "title": "Hey Ya!"
-  },
-  {
-    "artist": "Outkast",
-    "title": "Ms. Jackson"
-  },
-  {
-    "artist": "Outkast",
-    "title": "Roses"
-  },
-  {
-    "artist": "Coolio",
-    "title": "Gangsta's Paradise"
-  },
-  {
-    "artist": "50 Cent",
-    "title": "In da Club"
-  },
-  {
-    "artist": "Missy Elliott",
-    "title": "Work It"
-  },
-  {
-    "artist": "Missy Elliott",
-    "title": "Get Ur Freak On"
-  },
-  {
-    "artist": "Nicki Minaj",
-    "title": "Super Bass"
-  },
-  {
-    "artist": "Nicki Minaj",
-    "title": "Starships"
-  },
-  {
-    "artist": "Cardi B",
-    "title": "Bodak Yellow"
-  },
-  {
-    "artist": "Doja Cat",
-    "title": "Say So"
-  },
-  {
-    "artist": "Doja Cat",
-    "title": "Paint the Town Red"
-  },
-  {
-    "artist": "Alicia Keys",
-    "title": "Fallin'"
-  },
-  {
-    "artist": "Alicia Keys",
-    "title": "If I Ain't Got You"
-  },
-  {
-    "artist": "Alicia Keys",
-    "title": "No One"
-  },
-  {
-    "artist": "Usher",
-    "title": "Yeah!"
-  },
-  {
-    "artist": "Usher",
-    "title": "Burn"
-  },
-  {
-    "artist": "Usher",
-    "title": "U Remind Me"
-  },
-  {
-    "artist": "Ne-Yo",
-    "title": "So Sick"
-  },
-  {
-    "artist": "Ne-Yo",
-    "title": "Closer"
-  },
-  {
-    "artist": "Sean Paul",
-    "title": "Temperature"
-  },
-  {
-    "artist": "Sean Paul",
-    "title": "Get Busy"
-  },
-  {
-    "artist": "Pitbull",
-    "title": "Give Me Everything"
-  },
-  {
-    "artist": "Pitbull",
-    "title": "Timber"
-  },
-  {
-    "artist": "LMFAO",
-    "title": "Party Rock Anthem"
-  },
-  {
-    "artist": "The Chainsmokers",
-    "title": "Closer"
-  },
-  {
-    "artist": "Stromae",
-    "title": "Tous les mêmes"
-  },
-  {
     "artist": "Indila",
     "title": "Tourner dans le vide",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/6/b/0/26b7dc9e037893450c3776d63cfa48ea.mp3?hdnea=exp=1787406420~acl=/api/1/1/2/6/b/0/26b7dc9e037893450c3776d63cfa48ea.mp3*~data=user_id=0,application_id=42~hmac=ba85b43035bb827efc3e075260099860e654961c59e4f64527f6671280eb05fb"
@@ -2195,133 +1715,9 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/f/a/7/0/fa7824d39d4f28c3d578de37e3aa53ad.mp3?hdnea=exp=1787406423~acl=/api/1/1/f/a/7/0/fa7824d39d4f28c3d578de37e3aa53ad.mp3*~data=user_id=0,application_id=42~hmac=0bacd37518cae9628c66ca3f4661384ccd846e1c1afb05991bd5e4af806c1da6"
   },
   {
-    "artist": "Louise Attaque",
-    "title": "Léa"
-  },
-  {
-    "artist": "Rita Mitsouko",
-    "title": "Marcia Baïla"
-  },
-  {
-    "artist": "Rita Mitsouko",
-    "title": "C'est comme ça"
-  },
-  {
-    "artist": "Vanessa Paradis",
-    "title": "Joe le taxi"
-  },
-  {
-    "artist": "Vanessa Paradis",
-    "title": "Divine Idylle"
-  },
-  {
-    "artist": "Zazie",
-    "title": "Je suis un homme"
-  },
-  {
-    "artist": "Zazie",
-    "title": "Zen"
-  },
-  {
-    "artist": "MC Solaar",
-    "title": "Bouge de là"
-  },
-  {
-    "artist": "MC Solaar",
-    "title": "Caroline"
-  },
-  {
-    "artist": "MC Solaar",
-    "title": "Solaar pleure"
-  },
-  {
-    "artist": "IAM",
-    "title": "Je danse le mia"
-  },
-  {
-    "artist": "IAM",
-    "title": "Petit frère"
-  },
-  {
-    "artist": "IAM",
-    "title": "L'Empire du côté obscur"
-  },
-  {
-    "artist": "NTM",
-    "title": "Ma Benz"
-  },
-  {
-    "artist": "NTM",
-    "title": "Laisse pas traîner ton fils"
-  },
-  {
-    "artist": "Orelsan",
-    "title": "Basique"
-  },
-  {
-    "artist": "Orelsan",
-    "title": "La Terre est ronde"
-  },
-  {
-    "artist": "Orelsan",
-    "title": "Tout va bien"
-  },
-  {
-    "artist": "Gims",
-    "title": "Bella"
-  },
-  {
-    "artist": "Gims",
-    "title": "Sapés comme jamais"
-  },
-  {
-    "artist": "Bigflo & Oli",
-    "title": "Dommage"
-  },
-  {
-    "artist": "Bigflo & Oli",
-    "title": "Plus tard"
-  },
-  {
-    "artist": "Aya Nakamura",
-    "title": "Djadja"
-  },
-  {
-    "artist": "Aya Nakamura",
-    "title": "Pookie"
-  },
-  {
-    "artist": "Manau",
-    "title": "La Tribu de Dana"
-  },
-  {
-    "artist": "Los del Río",
-    "title": "Macarena"
-  },
-  {
-    "artist": "Daddy Yankee",
-    "title": "Gasolina"
-  },
-  {
-    "artist": "Daddy Yankee",
-    "title": "Con Calma"
-  },
-  {
-    "artist": "Luis Fonsi",
-    "title": "Échame la culpa"
-  },
-  {
     "artist": "Rammstein",
     "title": "Du hast",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/2/5/0/825a70167777b61271be768dc54b9a96.mp3?hdnea=exp=1787406425~acl=/api/1/1/8/2/5/0/825a70167777b61271be768dc54b9a96.mp3*~data=user_id=0,application_id=42~hmac=c6cdbcc2b53cd30ddaeefa0898e45a39dc8d76ce34cab0ae3cf6559119230f1b"
-  },
-  {
-    "artist": "Rammstein",
-    "title": "Sonne"
-  },
-  {
-    "artist": "Måneskin",
-    "title": "Beggin'"
   },
   {
     "artist": "Chuck Berry",
@@ -2419,10 +1815,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/6/6/0/5661d4a5028406f35da8a31f1e8b4f1a.mp3?hdnea=exp=1787406426~acl=/api/1/1/5/6/6/0/5661d4a5028406f35da8a31f1e8b4f1a.mp3*~data=user_id=0,application_id=42~hmac=e2b2d4f03046b85edfef38356fc725cb0bf1f13b63221affb1be67ac512b3ac5"
   },
   {
-    "artist": "Soft Cell",
-    "title": "Tainted Love"
-  },
-  {
     "artist": "Men at Work",
     "title": "Down Under",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/0/e/0/80ed7c8595ec14993f6860672b7077f2.mp3?hdnea=exp=1787406426~acl=/api/1/1/8/0/e/0/80ed7c8595ec14993f6860672b7077f2.mp3*~data=user_id=0,application_id=42~hmac=a4bcef41cc143ad6f996a0efe4ce548e6067e6670f92a7d4ca7a542e3099c6d2"
@@ -2498,10 +1890,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/2/9/0/e299b1c2ff8ee1041be33389a4d6393d.mp3?hdnea=exp=1787406427~acl=/api/1/1/e/2/9/0/e299b1c2ff8ee1041be33389a4d6393d.mp3*~data=user_id=0,application_id=42~hmac=9000529a21eff00a06327c91c84616a4913a07a0f1d96880d91c2d5215564c0a"
   },
   {
-    "artist": "Nena",
-    "title": "99 Luftballons"
-  },
-  {
     "artist": "Falco",
     "title": "Rock Me Amadeus",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/3/4/0/a3495f3a3ddeb140138b18f32696cf51.mp3?hdnea=exp=1787406427~acl=/api/1/1/a/3/4/0/a3495f3a3ddeb140138b18f32696cf51.mp3*~data=user_id=0,application_id=42~hmac=4a79f2bc7a564f1fdd41078a24e78187c69c6066efeaf0f106272f9001caa971"
@@ -2562,134 +1950,14 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/c/9/0/bc9848c20aeee8c5e31eca4df45921d9.mp3?hdnea=exp=1787406428~acl=/api/1/1/b/c/9/0/bc9848c20aeee8c5e31eca4df45921d9.mp3*~data=user_id=0,application_id=42~hmac=de478552a555155d6750772b61b47c30a9864c9e85b5221bccaff3c9881eb7f9"
   },
   {
-    "artist": "Black Sabbath",
-    "title": "Paranoid"
-  },
-  {
     "artist": "Alice Cooper",
     "title": "School's Out",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/f/a/0/7fa936ae38f55820109b71183c2e4613.mp3?hdnea=exp=1787406428~acl=/api/1/1/7/f/a/0/7fa936ae38f55820109b71183c2e4613.mp3*~data=user_id=0,application_id=42~hmac=4abe5e5f339a6dec6594201d78b8de5d8e564cfd46cca92b4e13cbf872c28889"
   },
   {
-    "artist": "Joan Jett & the Blackhearts",
-    "title": "I Love Rock 'n Roll"
-  },
-  {
-    "artist": "The Clash",
-    "title": "Should I Stay or Should I Go"
-  },
-  {
-    "artist": "Ramones",
-    "title": "Blitzkrieg Bop"
-  },
-  {
-    "artist": "Sex Pistols",
-    "title": "Anarchy in the U.K."
-  },
-  {
-    "artist": "Motörhead",
-    "title": "Ace of Spades"
-  },
-  {
-    "artist": "Iron Maiden",
-    "title": "The Number of the Beast"
-  },
-  {
-    "artist": "Scorpions",
-    "title": "Wind of Change"
-  },
-  {
-    "artist": "Kiss",
-    "title": "I Was Made for Lovin' You"
-  },
-  {
-    "artist": "Def Leppard",
-    "title": "Pour Some Sugar on Me"
-  },
-  {
-    "artist": "Twisted Sister",
-    "title": "We're Not Gonna Take It"
-  },
-  {
-    "artist": "Whitesnake",
-    "title": "Here I Go Again"
-  },
-  {
-    "artist": "The Proclaimers",
-    "title": "I'm Gonna Be (500 Miles)"
-  },
-  {
-    "artist": "4 Non Blondes",
-    "title": "What's Up?"
-  },
-  {
-    "artist": "Spin Doctors",
-    "title": "Two Princes"
-  },
-  {
-    "artist": "The Verve",
-    "title": "Bitter Sweet Symphony"
-  },
-  {
-    "artist": "Semisonic",
-    "title": "Closing Time"
-  },
-  {
-    "artist": "Deep Blue Something",
-    "title": "Breakfast at Tiffany's"
-  },
-  {
-    "artist": "Chumbawamba",
-    "title": "Tubthumping"
-  },
-  {
-    "artist": "The Rembrandts",
-    "title": "I'll Be There for You"
-  },
-  {
-    "artist": "The Cardigans",
-    "title": "Lovefool"
-  },
-  {
-    "artist": "Natalie Imbruglia",
-    "title": "Torn"
-  },
-  {
-    "artist": "Sixpence None the Richer",
-    "title": "Kiss Me"
-  },
-  {
-    "artist": "The Goo Goo Dolls",
-    "title": "Iris"
-  },
-  {
-    "artist": "Third Eye Blind",
-    "title": "Semi-Charmed Life"
-  },
-  {
-    "artist": "Wheatus",
-    "title": "Teenage Dirtbag"
-  },
-  {
-    "artist": "Fountains of Wayne",
-    "title": "Stacy's Mom"
-  },
-  {
-    "artist": "The Darkness",
-    "title": "I Believe in a Thing Called Love"
-  },
-  {
-    "artist": "Jet",
-    "title": "Are You Gonna Be My Girl"
-  },
-  {
     "artist": "Franz Ferdinand",
     "title": "Take Me Out",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/8/3/0/a83b89c2a51d71e1ba168c4bd74d3c1e.mp3?hdnea=exp=1787406430~acl=/api/1/1/a/8/3/0/a83b89c2a51d71e1ba168c4bd74d3c1e.mp3*~data=user_id=0,application_id=42~hmac=473cf5fabf033e8e1de87600f434340f86cd656ac0ce08236e53d412cedac540"
-  },
-  {
-    "artist": "Kaiser Chiefs",
-    "title": "Ruby"
   },
   {
     "artist": "The Fratellis",
@@ -2937,142 +2205,6 @@
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/8/1/0/e8104ece7689ff5305d315956cc4f86e.mp3?hdnea=exp=1787406432~acl=/api/1/1/e/8/1/0/e8104ece7689ff5305d315956cc4f86e.mp3*~data=user_id=0,application_id=42~hmac=464955f290407a5c5765944791b9092358fcec5f4aecb3e741bddedd1dba39b4"
   },
   {
-    "artist": "Stone Temple Pilots",
-    "title": "Plush"
-  },
-  {
-    "artist": "Pixies",
-    "title": "Where Is My Mind?"
-  },
-  {
-    "artist": "The Strokes",
-    "title": "Last Nite"
-  },
-  {
-    "artist": "Yeah Yeah Yeahs",
-    "title": "Maps"
-  },
-  {
-    "artist": "The Hives",
-    "title": "Hate to Say I Told You So"
-  },
-  {
-    "artist": "Bloc Party",
-    "title": "Banquet"
-  },
-  {
-    "artist": "Kasabian",
-    "title": "Club Foot"
-  },
-  {
-    "artist": "alt-J",
-    "title": "Breezeblocks"
-  },
-  {
-    "artist": "Tame Impala",
-    "title": "The Less I Know the Better"
-  },
-  {
-    "artist": "Glass Animals",
-    "title": "Heat Waves"
-  },
-  {
-    "artist": "Twenty One Pilots",
-    "title": "Stressed Out"
-  },
-  {
-    "artist": "Bastille",
-    "title": "Pompeii"
-  },
-  {
-    "artist": "X Ambassadors",
-    "title": "Renegades"
-  },
-  {
-    "artist": "AWOLNATION",
-    "title": "Sail"
-  },
-  {
-    "artist": "The Neighbourhood",
-    "title": "Sweater Weather"
-  },
-  {
-    "artist": "Cage the Elephant",
-    "title": "Ain't No Rest for the Wicked"
-  },
-  {
-    "artist": "M83",
-    "title": "Midnight City"
-  },
-  {
-    "artist": "Empire of the Sun",
-    "title": "Walking on a Dream"
-  },
-  {
-    "artist": "Phoenix",
-    "title": "Lisztomania"
-  },
-  {
-    "artist": "Justice",
-    "title": "D.A.N.C.E."
-  },
-  {
-    "artist": "Modjo",
-    "title": "Lady (Hear Me Tonight)"
-  },
-  {
-    "artist": "Stardust",
-    "title": "Music Sounds Better with You"
-  },
-  {
-    "artist": "Cassius",
-    "title": "1999"
-  },
-  {
-    "artist": "Bob Sinclar",
-    "title": "Love Generation"
-  },
-  {
-    "artist": "Martin Solveig",
-    "title": "Hello"
-  },
-  {
-    "artist": "Eric Prydz",
-    "title": "Call on Me"
-  },
-  {
-    "artist": "Benny Benassi",
-    "title": "Satisfaction"
-  },
-  {
-    "artist": "Darude",
-    "title": "Sandstorm"
-  },
-  {
-    "artist": "Robert Miles",
-    "title": "Children"
-  },
-  {
-    "artist": "Faithless",
-    "title": "Insomnia"
-  },
-  {
-    "artist": "Gala",
-    "title": "Freed from Desire"
-  },
-  {
-    "artist": "Corona",
-    "title": "The Rhythm of the Night"
-  },
-  {
-    "artist": "Snap!",
-    "title": "Rhythm Is a Dancer"
-  },
-  {
-    "artist": "Haddaway",
-    "title": "What Is Love"
-  },
-  {
     "artist": "Technotronic",
     "title": "Pump Up the Jam",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/a/e/0/2aecc8b287853fe365e22a80310d90dc.mp3?hdnea=exp=1787406435~acl=/api/1/1/2/a/e/0/2aecc8b287853fe365e22a80310d90dc.mp3*~data=user_id=0,application_id=42~hmac=e2ada76248db2c3131fd4cc63c88212ffc067da3e7ec5c9efe673caa87a63b75"
@@ -3126,10 +2258,6 @@
     "artist": "Duck Sauce",
     "title": "Barbra Streisand",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/b/a/0/cbadb5b317c1cdf9dcec00d00dc375a1.mp3?hdnea=exp=1787406435~acl=/api/1/1/c/b/a/0/cbadb5b317c1cdf9dcec00d00dc375a1.mp3*~data=user_id=0,application_id=42~hmac=d4333945556094b34459fb935234a339a4b70409dc5c034c923800f3f9a62e26"
-  },
-  {
-    "artist": "Major Lazer & DJ Snake",
-    "title": "Lean On"
   },
   {
     "artist": "DJ Snake",
@@ -3305,5 +2433,775 @@
     "artist": "The Corrs",
     "title": "Breathless",
     "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/a/7/0/4a7a42808cf6f801473de3a89a64db4b.mp3?hdnea=exp=1787406437~acl=/api/1/1/4/a/7/0/4a7a42808cf6f801473de3a89a64db4b.mp3*~data=user_id=0,application_id=42~hmac=5a9d1405fd5ef75e75a15ee1532aa18cb24f2459d780e514526725d03ac5c0a1"
+  },
+  {
+    "artist": "Jacques Brel",
+    "title": "Quand on n'a que l'amour",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/91/23/b8/9123b805-6851-5bff-277a-f3cf45b650dd/mzaf_15136368018193797420.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Jacques Brel",
+    "title": "La Valse à mille temps",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cf/db/a6/cfdba634-d11d-aec1-3ca9-2afdf2b4b6fc/mzaf_14558305519053722245.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Georges Brassens",
+    "title": "Les Copains d'abord",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/02/74/bc/0274bcaf-7036-6858-ae86-117347955997/mzaf_11786734503284670788.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Georges Brassens",
+    "title": "Chanson pour l'Auvergnat",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/87/df/0c/87df0ce0-3ef3-05b8-e488-409ed12387dd/mzaf_18171561217253064462.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Georges Brassens",
+    "title": "La Mauvaise Réputation",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a2/ae/cd/a2aecd33-ff8e-f49f-a219-c7b4f8e663f5/mzaf_14094070090641460528.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Georges Brassens",
+    "title": "Les Amoureux des bancs publics",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d7/24/09/d724091e-74b9-d1c3-9573-6a316ba42af2/mzaf_476524896937727135.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Serge Gainsbourg",
+    "title": "La Javanaise",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/04/27/780427e1-52bf-f958-5fd1-db9476d1d6a9/mzaf_10636168658352134569.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Serge Gainsbourg",
+    "title": "Je t'aime… moi non plus",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/44/40/a0/4440a08f-d848-5c5e-44bd-e2c7915951d3/mzaf_11464675415687193788.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Serge Gainsbourg",
+    "title": "Initials B.B.",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5a/8c/8e/5a8c8e54-e48a-84d8-d6cb-a6d47a63f65c/mzaf_18307469890632934964.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Serge Gainsbourg",
+    "title": "Le Poinçonneur des Lilas",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/82/15/b6/8215b619-f90d-6abb-4f27-fcb0d63513e3/mzaf_7368930992856573550.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Barbara",
+    "title": "L'Aigle noir",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ed/ef/83/edef8390-8ca9-d545-79be-c9cb53f5bac7/mzaf_12164330284736554087.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Barbara",
+    "title": "Göttingen",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5f/6b/43/5f6b4347-9cf5-e121-08f1-4388515bc1ed/mzaf_15654531525770776833.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Léo Ferré",
+    "title": "Avec le temps",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ff/22/3c/ff223cab-a242-4a68-fba0-5991d946a48e/mzaf_6426767046281594519.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Léo Ferré",
+    "title": "C'est extra",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/04/a8/88/04a888f1-3230-78eb-87a2-b26ce08cac64/mzaf_9970263804841908248.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Juliette Gréco",
+    "title": "Déshabillez-moi",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/96/ce/f4/96cef401-53fe-a933-0ab4-021cea92c1bf/mzaf_2652780482466537854.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Yves Montand",
+    "title": "Les Feuilles mortes",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/3e/1c/143e1c50-d7c5-4de3-c26b-b2ca3f7c44a6/mzaf_12011793103275692921.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Henri Salvador",
+    "title": "Jardin d'hiver",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/33/e0/21/33e021d0-9d88-cc57-77dc-fb3d1770c58e/mzaf_1829479223330648951.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Bourvil",
+    "title": "La Tendresse",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9c/d1/0b/9cd10b3f-b152-3f61-5877-b94a04eae5f6/mzaf_7904965870847971050.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gilbert Bécaud",
+    "title": "Et maintenant",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1f/b2/0f/1fb20fd6-70dd-8d17-2fc9-d7f67b3402b8/mzaf_17156326793593727190.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gilbert Bécaud",
+    "title": "Nathalie",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/f8/a7/cb/f8a7cb78-fbae-ae51-74d7-eb41a93bbbb1/mzaf_6599059642930396375.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Dalida",
+    "title": "Paroles, paroles",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/f9/ff/ae/f9ffae36-d213-1edb-6049-43a63a4626be/mzaf_5481524121642551581.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Dalida",
+    "title": "Laissez-moi danser",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/a6/0c/e3/a60ce3d7-00bf-7c96-2925-40bcdbe86928/mzaf_3641120902190472366.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Joe Dassin",
+    "title": "Les Champs-Élysées",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/e4/32/00e4326a-a3d6-4c85-b7be-8a123f04f6cb/mzaf_10395904914225014080.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Joe Dassin",
+    "title": "L'Été indien",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/12/1d/25121d3b-7efc-c95f-eec8-764f5708b37b/mzaf_9134754117971527988.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Claude François",
+    "title": "Le lundi au soleil",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/22/a9/e7/22a9e7f0-6c29-fa3d-62a9-f89d96173e8f/mzaf_5005737330160787880.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Sardou",
+    "title": "Les Lacs du Connemara",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/da/cd/2b/dacd2b07-7a4a-fc57-b0e0-88d3f201cafd/mzaf_8483328548632399670.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Sardou",
+    "title": "La Maladie d'amour",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/dd/a0/64/dda064b5-6a4c-cd89-96b5-4b5743a6ac9b/mzaf_10297301900191305480.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Sardou",
+    "title": "En chantant",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/02/c8/32/02c832d0-cb6d-337a-c741-6ab5f3226483/mzaf_5859261479886545833.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Sardou",
+    "title": "Être une femme",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/30/0c/9d/300c9db1-b5a5-4472-4dc3-fb32a19c72ef/mzaf_14002135554399140829.plus.aac.p.m4a"
+  },
+  {
+    "artist": "France Gall",
+    "title": "Poupée de cire, poupée de son",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/be/f8/e0/bef8e098-805e-8904-71c9-75c8b7656102/mzaf_17959623679260105064.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Daniel Balavoine",
+    "title": "Mon fils, ma bataille",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1e/a5/d8/1ea5d89e-5d83-5688-e509-b102daee4669/mzaf_8998261908942076772.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Berger",
+    "title": "Quelques mots d'amour",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/eb/4d/54/eb4d5431-cf4c-cac9-b350-95cc79e75457/mzaf_6484097276585289249.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Berger",
+    "title": "Celui qui chante",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d8/08/a6/d808a6d3-2f1e-768c-e4d7-d82f353b0df1/mzaf_2573245343525812822.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Johnny Hallyday",
+    "title": "Gabrielle",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/bf/96/4f/bf964f51-f4fc-c13b-7991-66521d399da4/mzaf_2648119993201105423.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Mylène Farmer",
+    "title": "Pourvu qu'elles soient douces",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6d/0c/7c/6d0c7c62-d6e0-795f-7be0-a760b3e98a4e/mzaf_2917594672268984915.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Céline Dion",
+    "title": "S'il suffisait d'aimer",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f3/84/91/f384911f-048e-2f83-37ed-fd4b50aef59d/mzaf_11031377283765225345.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Céline Dion",
+    "title": "Encore un soir",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/32/6a/16326a5e-1326-0655-3d1e-d7ffc3e76aa1/mzaf_17174613546211811624.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Francis Cabrel",
+    "title": "Encore et encore",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1a/88/94/1a88942e-3604-c643-799e-8f9d94b71d18/mzaf_3358523340443334560.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Alain Souchon",
+    "title": "Foule sentimentale",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/fb/0c/7cfb0c06-2fb1-53fd-f051-8a7c93c31fad/mzaf_15416257667834200748.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Alain Souchon",
+    "title": "Allô maman bobo",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a1/65/39/a16539f5-4797-f74b-a80b-fd626c395fe2/mzaf_3312042901595404163.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Laurent Voulzy",
+    "title": "Rockollection",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/90/c5/89/90c58946-e0b1-86ca-5c8d-cc2298cb5234/mzaf_16968559467938219785.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Laurent Voulzy",
+    "title": "Le Soleil donne",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/12/a5/0d/12a50d4b-0dba-a39a-37d2-2fe62b9ec499/mzaf_7850731905990847230.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Véronique Sanson",
+    "title": "Amoureuse",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/fc/c6/1e/fcc61ee8-869b-20d6-f69a-645f7faa2963/mzaf_4535498777777849329.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Véronique Sanson",
+    "title": "Chanson sur ma drôle de vie",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1d/fc/73/1dfc739f-f256-273f-747c-dd2d33ce5c98/mzaf_8350684803221346392.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Maxime Le Forestier",
+    "title": "San Francisco",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/35/bd/2d/35bd2dac-f999-18d0-24ec-d22122aca393/mzaf_5013751489803094505.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Maxime Le Forestier",
+    "title": "Né quelque part",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3f/6d/7d/3f6d7d98-544e-b3a8-8322-1690911f6878/mzaf_9567595626016935777.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Renaud",
+    "title": "Mistral gagnant",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/ac/f4/31acf4fa-4444-c8ea-38ac-2431e7e3b425/mzaf_14030217246881116896.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Renaud",
+    "title": "Dès que le vent soufflera",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/61/fa/91/61fa9142-d24d-7588-a452-ac9e9c1b6e22/mzaf_12619639275024671467.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Bernard Lavilliers",
+    "title": "On the Road Again",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/da/3c/95da3ce9-97b0-7d9c-75a5-7157c3d6875b/mzaf_14572049800301961769.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Bernard Lavilliers",
+    "title": "Idées noires",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/25/c1/ea/25c1ea00-fd79-5c5d-6624-508377f3cb55/mzaf_9173729453694921203.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Nino Ferrer",
+    "title": "Le Sud",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e4/e2/3a/e4e23a3e-20ad-3a4d-4003-86dbb2878290/mzaf_2196025890435206281.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Nino Ferrer",
+    "title": "Mirza",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5f/3a/02/5f3a02ac-24bf-6263-7481-12262a123d56/mzaf_14552410953653609979.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Delpech",
+    "title": "Pour un flirt",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/72/07/48/72074852-237b-5238-a0c4-cb4d85f7cba4/mzaf_4609103843154273129.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Michel Delpech",
+    "title": "Quand j'étais chanteur",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/30/d5/45/30d5456a-c5f0-131a-b789-c49a3ebf9db2/mzaf_11914349713154664469.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gérard Lenorman",
+    "title": "La Ballade des gens heureux",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/0f/24/99/0f2499bd-8836-d9d0-bf81-28aac8da49a7/mzaf_5373530463371917741.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gérard Lenorman",
+    "title": "Voici les clés",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ea/43/8c/ea438c86-8276-5ad5-cd27-0e3cdd226ca7/mzaf_8109368221826207728.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gilbert Montagné",
+    "title": "On va s'aimer",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/46/fb/a9/46fba91a-7325-2273-9ff0-b10e8da0065e/mzaf_10620433677612513953.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Gilbert Montagné",
+    "title": "Les Sunlights des tropiques",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6d/e1/c0/6de1c019-2f34-c530-4a81-4c292b7ea3f2/mzaf_14802127169689990803.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Patrick Bruel",
+    "title": "Casser la voix",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/f/b/0/7fb23c87e112b7eadd0c8f0fb81f01e8.mp3?hdnea=exp=1787611024~acl=/api/1/1/7/f/b/0/7fb23c87e112b7eadd0c8f0fb81f01e8.mp3*~data=user_id=0,application_id=42~hmac=c4a8c85b9faf21a046ca7a0525a63eaf88c056e7a340a858f94e76b693b554c8"
+  },
+  {
+    "artist": "Florent Pagny",
+    "title": "Savoir aimer",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/e/e/0/eeec18abc274ffe58456feedde069009.mp3?hdnea=exp=1787611024~acl=/api/1/1/e/e/e/0/eeec18abc274ffe58456feedde069009.mp3*~data=user_id=0,application_id=42~hmac=534c2cd1ce1dd77f5d67f79fb38965640b417cfdbd3143e3c775c88bf02df613"
+  },
+  {
+    "artist": "Pascal Obispo",
+    "title": "Lucie",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e6/8b/49/e68b4992-e0d8-7fb7-8c39-61986c13b743/mzaf_5568710312922164025.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Calogero",
+    "title": "En apesanteur",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3f/21/53/3f2153b4-ee61-d93b-a255-1677428db6ed/mzaf_266433186351114136.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Christophe",
+    "title": "Aline",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/d/8/0/bd87f5a82b923b0fb12d83f4e930f42d.mp3?hdnea=exp=1787611024~acl=/api/1/1/b/d/8/0/bd87f5a82b923b0fb12d83f4e930f42d.mp3*~data=user_id=0,application_id=42~hmac=24d17f5459096b9595885dee9c84b4f09005ca2af32def95cdc427d4814e308e"
+  },
+  {
+    "artist": "Christophe",
+    "title": "Les Mots bleus",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/75/d3/f2/75d3f250-f759-20fb-5eae-fed0a5cc3bff/mzaf_9188632861464589128.plus.aac.p.m4a"
+  },
+  {
+    "artist": "Alain Bashung",
+    "title": "La nuit je mens",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/a/e/0/cae0b8f5aa9fe81b44dfdc9918d1fa7f.mp3?hdnea=exp=1787611024~acl=/api/1/1/c/a/e/0/cae0b8f5aa9fe81b44dfdc9918d1fa7f.mp3*~data=user_id=0,application_id=42~hmac=cfc930cec33fdd5be6d49247e019e995099a00257dec9912decad1fac267808c"
+  },
+  {
+    "artist": "Alain Bashung",
+    "title": "Osez Joséphine",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/b/8/0/1b8eff00d75cac301ca626bbbd081849.mp3?hdnea=exp=1787611024~acl=/api/1/1/1/b/8/0/1b8eff00d75cac301ca626bbbd081849.mp3*~data=user_id=0,application_id=42~hmac=c27359aeb919d4f33792a227f78ef2f4f9374a9fdb6213d1fe143d7b58289183"
+  },
+  {
+    "artist": "Étienne Daho",
+    "title": "Week-end à Rome",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/f/2/0/bf266feaeed2a1127471721ffbb3e121.mp3?hdnea=exp=1787611024~acl=/api/1/1/b/f/2/0/bf266feaeed2a1127471721ffbb3e121.mp3*~data=user_id=0,application_id=42~hmac=1c96d44b25f393bdc9cb0920735f5025a24d0af69f0a2008528823d4a9aec503"
+  },
+  {
+    "artist": "Patricia Kaas",
+    "title": "Mademoiselle chante le blues",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/3/9/6/0/3966bec6837716cca60d25040e24ca37.mp3?hdnea=exp=1787611024~acl=/api/1/1/3/9/6/0/3966bec6837716cca60d25040e24ca37.mp3*~data=user_id=0,application_id=42~hmac=bdd93074622f568c7febf0d73d6cd4811e537b637a26b8daa262dcd5ed13b34b"
+  },
+  {
+    "artist": "Patricia Kaas",
+    "title": "Mon mec à moi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/3/6/9/0/3693261dfeb75fc2073a3dd95a9b90df.mp3?hdnea=exp=1787611024~acl=/api/1/1/3/6/9/0/3693261dfeb75fc2073a3dd95a9b90df.mp3*~data=user_id=0,application_id=42~hmac=767630e5f502813620cb5433a246a6c9dca1870d4e4eeabeb3fb751954ef41cc"
+  },
+  {
+    "artist": "Vanessa Paradis",
+    "title": "Joe le taxi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/8/5/0/685053ee076f9453578d24628d335db0.mp3?hdnea=exp=1787611024~acl=/api/1/1/6/8/5/0/685053ee076f9453578d24628d335db0.mp3*~data=user_id=0,application_id=42~hmac=aceacdc367a2e82b9ced19f572cf05a1c99bd17904272cfbbcfcb752a6263d20"
+  },
+  {
+    "artist": "Vanessa Paradis",
+    "title": "Tandem",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/9/3/0/d93e889965b56e7c53fec38156c28d50.mp3?hdnea=exp=1787611024~acl=/api/1/1/d/9/3/0/d93e889965b56e7c53fec38156c28d50.mp3*~data=user_id=0,application_id=42~hmac=b03c90b847f948d1108a0c72cf6c2028ef2a9dddd8710253a34d2ad0c9793678"
+  },
+  {
+    "artist": "Zazie",
+    "title": "Je suis un homme",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/9/a/0/29adca4859f09c281db31058436c7d2a.mp3?hdnea=exp=1787611025~acl=/api/1/1/2/9/a/0/29adca4859f09c281db31058436c7d2a.mp3*~data=user_id=0,application_id=42~hmac=2da1460f4f53544723b618d02d32c1326ec1c793edd94fd6ccef7deefe3dcb61"
+  },
+  {
+    "artist": "Zazie",
+    "title": "Zen",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/2/2/0/022105ea77f474027c156fb36dd1c775.mp3?hdnea=exp=1787611025~acl=/api/1/1/0/2/2/0/022105ea77f474027c156fb36dd1c775.mp3*~data=user_id=0,application_id=42~hmac=b79d6b1aaf2bd193c66580386bd6b44e5babb7ef0df19aa79bd4f41113b0d92b"
+  },
+  {
+    "artist": "Axelle Red",
+    "title": "Sensualité",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/3/e/0/73eeb66b8c5f9aed9869141cc627ac90.mp3?hdnea=exp=1787611024~acl=/api/1/1/7/3/e/0/73eeb66b8c5f9aed9869141cc627ac90.mp3*~data=user_id=0,application_id=42~hmac=39c26c5a380247a7968a19e0b6052e32bfbdcf5871d2f5f12a745ac949256d01"
+  },
+  {
+    "artist": "Axelle Red",
+    "title": "Parce que c'est toi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/5/2/0/e5218e85cc1aa39977f442d35483cd66.mp3?hdnea=exp=1787611025~acl=/api/1/1/e/5/2/0/e5218e85cc1aa39977f442d35483cd66.mp3*~data=user_id=0,application_id=42~hmac=b586fcf48b581315d174851fb51351d17f6858c9b6950854ad8fcf8e94602f58"
+  },
+  {
+    "artist": "Lara Fabian",
+    "title": "Je t'aime",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/3/9/0/4398ed43a20cdaf9bcd88dc8e8f2155c.mp3?hdnea=exp=1787611025~acl=/api/1/1/4/3/9/0/4398ed43a20cdaf9bcd88dc8e8f2155c.mp3*~data=user_id=0,application_id=42~hmac=aece008d7ad225cc226aa6cae4d1c3eedb3b336380aff5069f43dcfd9fad7f1c"
+  },
+  {
+    "artist": "Hélène Ségara",
+    "title": "Il y a trop de gens qui t'aiment",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/e/9/0/2e970692f3e7572ad649949ba87c4f06.mp3?hdnea=exp=1787611025~acl=/api/1/1/2/e/9/0/2e970692f3e7572ad649949ba87c4f06.mp3*~data=user_id=0,application_id=42~hmac=bfe8c875a92b8b86fa555b3eb86ccfab06178912d8046c3bf20ae9f7b989de33"
+  },
+  {
+    "artist": "Garou",
+    "title": "Seul",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/b/0/0/ab0ca04dcbfda633139cb96dc33519fd.mp3?hdnea=exp=1787611025~acl=/api/1/1/a/b/0/0/ab0ca04dcbfda633139cb96dc33519fd.mp3*~data=user_id=0,application_id=42~hmac=f1979623cd3bbda46dcb0ba72183aa8001e3723c83b9ca5e0c61246826bc53e6"
+  },
+  {
+    "artist": "Natasha St-Pier",
+    "title": "Tu trouveras",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/b/c/0/8bce3c0647970afface3bb35eaf919c9.mp3?hdnea=exp=1787611025~acl=/api/1/1/8/b/c/0/8bce3c0647970afface3bb35eaf919c9.mp3*~data=user_id=0,application_id=42~hmac=6b9e16ca268e39de5d6d62f738daa8f99d0422cb990b3bd24f6f4e5b30cb5dc5"
+  },
+  {
+    "artist": "Amel Bent",
+    "title": "Ma philosophie",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/5/d/0/45d18ff244d13299036a1ad3f71d303f.mp3?hdnea=exp=1787611025~acl=/api/1/1/4/5/d/0/45d18ff244d13299036a1ad3f71d303f.mp3*~data=user_id=0,application_id=42~hmac=eaad9f4ad9c271f8ba10525b68d20cf612f81c4000d181170ef2f44bf04d0966"
+  },
+  {
+    "artist": "Jenifer",
+    "title": "Au soleil",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/8/0/0/e80db62a018cfa43c6fbe8c55dff685b.mp3?hdnea=exp=1787611025~acl=/api/1/1/e/8/0/0/e80db62a018cfa43c6fbe8c55dff685b.mp3*~data=user_id=0,application_id=42~hmac=69f9eb59e426f7a5edcd0077e14f8a83e53811ee0f5d52fc9af90372b7d2c8e3"
+  },
+  {
+    "artist": "Alizée",
+    "title": "Moi… Lolita",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/9/5/0/c958c496d6fa2788fa66ea0d29b530d1.mp3?hdnea=exp=1787611025~acl=/api/1/1/c/9/5/0/c958c496d6fa2788fa66ea0d29b530d1.mp3*~data=user_id=0,application_id=42~hmac=29da9c2b35cc9610f85517e88eee12ade4187df7ed2e45f7a1741f5410fa56fc"
+  },
+  {
+    "artist": "Lorie",
+    "title": "Je serai (ta meilleure amie)",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/f/4/5/0/f45ea705b7c391761b0392cb5e3c555b.mp3?hdnea=exp=1787611025~acl=/api/1/1/f/4/5/0/f45ea705b7c391761b0392cb5e3c555b.mp3*~data=user_id=0,application_id=42~hmac=efee6e588306ae070858184cc0a8c34a04daf85a720b321da791492e0c459ef5"
+  },
+  {
+    "artist": "Téléphone",
+    "title": "New York avec toi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/d/c/0/5dc0a294e14b972e9594cbe67bb3f888.mp3?hdnea=exp=1787611025~acl=/api/1/1/5/d/c/0/5dc0a294e14b972e9594cbe67bb3f888.mp3*~data=user_id=0,application_id=42~hmac=031c380958235195bdcaa53df0f8f927657376c2e628ca89f37b1ee837471e53"
+  },
+  {
+    "artist": "Louise Attaque",
+    "title": "Ton invitation",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/1/9/0/019f00d396a347628e046c6b2ef8448c.mp3?hdnea=exp=1787611025~acl=/api/1/1/0/1/9/0/019f00d396a347628e046c6b2ef8448c.mp3*~data=user_id=0,application_id=42~hmac=110af0a4eda0290dfb29b901f02f915d1234aa0b456ac102fdb0b872f468792b"
+  },
+  {
+    "artist": "Les Rita Mitsouko",
+    "title": "Marcia Baïla",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/b/b/0/bbb9f82215b9494690d9340845e2881f.mp3?hdnea=exp=1787611025~acl=/api/1/1/b/b/b/0/bbb9f82215b9494690d9340845e2881f.mp3*~data=user_id=0,application_id=42~hmac=6eba63f5977535ffca099731469a9e0c2b11033a489c8b54eba7c47471dee35f"
+  },
+  {
+    "artist": "Les Rita Mitsouko",
+    "title": "C'est comme ça",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/5/1/0/d51fc23442541a67631f32b5c81891e2.mp3?hdnea=exp=1787611025~acl=/api/1/1/d/5/1/0/d51fc23442541a67631f32b5c81891e2.mp3*~data=user_id=0,application_id=42~hmac=bcdceb1458002a30d6ad893b8d91dc6278a8646a2ed1f405a682e87b4d672cf4"
+  },
+  {
+    "artist": "Niagara",
+    "title": "L'Amour à la plage",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/1/3/0/e1389af6e77880e3dafb5a36b9686107.mp3?hdnea=exp=1787611025~acl=/api/1/1/e/1/3/0/e1389af6e77880e3dafb5a36b9686107.mp3*~data=user_id=0,application_id=42~hmac=0e6b7bfa7584631bdb0c19a628a1d3a5b5a913c20bf8c0d707833f644c1ee588"
+  },
+  {
+    "artist": "Niagara",
+    "title": "J'ai vu",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/a/a/0/9aa90ebba72c7f8ab3be735c6210be82.mp3?hdnea=exp=1787611025~acl=/api/1/1/9/a/a/0/9aa90ebba72c7f8ab3be735c6210be82.mp3*~data=user_id=0,application_id=42~hmac=f691f16d1e5ea0849d78316f0846a7900cecdba7ba30a5507ce32ee3baa2a8e9"
+  },
+  {
+    "artist": "Les Innocents",
+    "title": "L'Autre Finistère",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/b/b/0/1bbb7e39219ec0755bd76f4fc9aa9e98.mp3?hdnea=exp=1787611025~acl=/api/1/1/1/b/b/0/1bbb7e39219ec0755bd76f4fc9aa9e98.mp3*~data=user_id=0,application_id=42~hmac=4bbf7b36468aa446152d95b170bacd7a5d643dd4234953562821c0bfda92677f"
+  },
+  {
+    "artist": "Les Innocents",
+    "title": "Un homme extraordinaire",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/e/b/0/4ebde91d1a3f4e30a153ba8b5ce22834.mp3?hdnea=exp=1787611025~acl=/api/1/1/4/e/b/0/4ebde91d1a3f4e30a153ba8b5ce22834.mp3*~data=user_id=0,application_id=42~hmac=a8fc5cfea327b9cebbd149c65c55658a89a80cc8a5ef266577547fd8b4ed6699"
+  },
+  {
+    "artist": "Kyo",
+    "title": "Dernière danse",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/2/b/0/52bc6f6517e72cde221640aeab6f7c7b.mp3?hdnea=exp=1787611025~acl=/api/1/1/5/2/b/0/52bc6f6517e72cde221640aeab6f7c7b.mp3*~data=user_id=0,application_id=42~hmac=cbc95bed0681c9f43c3ddc725a877e6e380999e3167ae25c011af8069df4770c"
+  },
+  {
+    "artist": "Kyo",
+    "title": "Le Chemin",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/4/a/0/d4af4ab2cd9ca5cc5de0d15cbbb74c0b.mp3?hdnea=exp=1787611025~acl=/api/1/1/d/4/a/0/d4af4ab2cd9ca5cc5de0d15cbbb74c0b.mp3*~data=user_id=0,application_id=42~hmac=68bd54f98c72299efe9304e993546ca8d7f4893a5d4d8fe15850c0844a21521c"
+  },
+  {
+    "artist": "Superbus",
+    "title": "Butterfly",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/1/3/0/0130dce3a396a9e2c8039d554b80815e.mp3?hdnea=exp=1787611025~acl=/api/1/1/0/1/3/0/0130dce3a396a9e2c8039d554b80815e.mp3*~data=user_id=0,application_id=42~hmac=6521b3924f0702b173635fcc213ad70ae20825af2c59ff7c6ac47f308bfb35ee"
+  },
+  {
+    "artist": "Superbus",
+    "title": "Lola",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/e/d/0/6eda3d0c3c6ee86506d0d164485eb643.mp3?hdnea=exp=1787611025~acl=/api/1/1/6/e/d/0/6eda3d0c3c6ee86506d0d164485eb643.mp3*~data=user_id=0,application_id=42~hmac=6094055dff705d23eecde43f389d1ee95d3698ed233b465ebc112f94de293018"
+  },
+  {
+    "artist": "BB Brunes",
+    "title": "Dis-moi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/8/f/0/b8f856c31bb126ea2b74ced9dcc97a73.mp3?hdnea=exp=1787611025~acl=/api/1/1/b/8/f/0/b8f856c31bb126ea2b74ced9dcc97a73.mp3*~data=user_id=0,application_id=42~hmac=b25ed65dbc3c1139e955feb04f1eddcda82035338fc601eba4266c21c6ec667a"
+  },
+  {
+    "artist": "BB Brunes",
+    "title": "Coups et blessures",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/5/0/0/6500a20c815411a8e07fe0854fd6cb1c.mp3?hdnea=exp=1787611025~acl=/api/1/1/6/5/0/0/6500a20c815411a8e07fe0854fd6cb1c.mp3*~data=user_id=0,application_id=42~hmac=4cb701532d5c2a24544a56d740bdeed9fdb27a9f03610f7cc6b34fc439e18844"
+  },
+  {
+    "artist": "M",
+    "title": "Je dis aime",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/b/7/0/cb75f1e9fcfd2727ee24d43680fe003f.mp3?hdnea=exp=1787611025~acl=/api/1/1/c/b/7/0/cb75f1e9fcfd2727ee24d43680fe003f.mp3*~data=user_id=0,application_id=42~hmac=4683e1a09e16161856f2d86c70f8079d668117ec9621159b4c6d9468fb0de20e"
+  },
+  {
+    "artist": "M",
+    "title": "Qui de nous deux",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/3/f/0/63f867d41c25e952dbe479f05752d03a.mp3?hdnea=exp=1787611025~acl=/api/1/1/6/3/f/0/63f867d41c25e952dbe479f05752d03a.mp3*~data=user_id=0,application_id=42~hmac=b59cfc0d83b55d8e8c35e7414f48be58c83b512df9f4cc100a51664bba060b3c"
+  },
+  {
+    "artist": "Saez",
+    "title": "Jeune et con",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/a/e/0/caee17f2f88b281cf570cba24e935f4e.mp3?hdnea=exp=1787611025~acl=/api/1/1/c/a/e/0/caee17f2f88b281cf570cba24e935f4e.mp3*~data=user_id=0,application_id=42~hmac=f4e365501ce844034d6f7b69b426d56db6596ef9c0a3ea79ecb87fa4ba7d9181"
+  },
+  {
+    "artist": "Matmatah",
+    "title": "Lambé an dro",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/3/a/0/c3a6bc9e160040a74f60f1b85b8ad5b1.mp3?hdnea=exp=1787611025~acl=/api/1/1/c/3/a/0/c3a6bc9e160040a74f60f1b85b8ad5b1.mp3*~data=user_id=0,application_id=42~hmac=b2ca4045133dd221ba4e146117876fef57bb159c27f138bbca7110f09298bc4f"
+  },
+  {
+    "artist": "Tryo",
+    "title": "L'Hymne de nos campagnes",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/c/0/3/0/c0340dd4ed50cce7bd4d915d82599856.mp3?hdnea=exp=1787611026~acl=/api/1/1/c/0/3/0/c0340dd4ed50cce7bd4d915d82599856.mp3*~data=user_id=0,application_id=42~hmac=02f29707fb07791fdbc5dad405563ff6421837259cd252c3b733137ed243da73"
+  },
+  {
+    "artist": "Sinsemilia",
+    "title": "Tout le bonheur du monde",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/4/6/0/4465af9fa2b78362a6381d0271efa69a.mp3?hdnea=exp=1787611025~acl=/api/1/1/4/4/6/0/4465af9fa2b78362a6381d0271efa69a.mp3*~data=user_id=0,application_id=42~hmac=cc0133a0d8671b6e366ced9fd6f31da3eab3d1b008347b416f0acbd7cc1cd1e1"
+  },
+  {
+    "artist": "Zebda",
+    "title": "Tomber la chemise",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/8/c/0/a8c98385041e0044577817c987c53e53.mp3?hdnea=exp=1787611025~acl=/api/1/1/a/8/c/0/a8c98385041e0044577817c987c53e53.mp3*~data=user_id=0,application_id=42~hmac=eb3643fa32d753a2bc4481a01e530413b09f8ec699871320493ddfbddf13cc76"
+  },
+  {
+    "artist": "Les Négresses Vertes",
+    "title": "Voilà l'été",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/e/d/0/aed3c7d0bb26e6cde6308afaa704b615.mp3?hdnea=exp=1787611026~acl=/api/1/1/a/e/d/0/aed3c7d0bb26e6cde6308afaa704b615.mp3*~data=user_id=0,application_id=42~hmac=8c1928c43efe75154239434d8fea0ce4a0e7908e64ac8eb632e8f4f4003d3508"
+  },
+  {
+    "artist": "Soldat Louis",
+    "title": "Du rhum, des femmes",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/3/7/2/0/372a2218ba6680c926c360949a2102af.mp3?hdnea=exp=1787611026~acl=/api/1/1/3/7/2/0/372a2218ba6680c926c360949a2102af.mp3*~data=user_id=0,application_id=42~hmac=b87722ec8fb7da58fbb6ebbe42acf88f1ca5fafb3a1fc5bb73bcd5c60325dc6d"
+  },
+  {
+    "artist": "Elmer Food Beat",
+    "title": "Daniela",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/3/d/0/03d4371a63e760e7a3c14ae2ab4e4514.mp3?hdnea=exp=1787611026~acl=/api/1/1/0/3/d/0/03d4371a63e760e7a3c14ae2ab4e4514.mp3*~data=user_id=0,application_id=42~hmac=888028c45ed5cee760035ac602676a0a1a9c5c1a34508103835c0e77e6e228f3"
+  },
+  {
+    "artist": "Au Bonheur des Dames",
+    "title": "Oh les filles",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/2/a/0/42a4c878a1263089fa3460261bf1c332.mp3?hdnea=exp=1787611026~acl=/api/1/1/4/2/a/0/42a4c878a1263089fa3460261bf1c332.mp3*~data=user_id=0,application_id=42~hmac=d3a214132e32a88a9b0185e527e4d5f426dd0974396f43b4e4929706a2db01a1"
+  },
+  {
+    "artist": "Plastic Bertrand",
+    "title": "Ça plane pour moi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/b/9/0/1b98014b9e97998cfcef32e295b402c0.mp3?hdnea=exp=1787611026~acl=/api/1/1/1/b/9/0/1b98014b9e97998cfcef32e295b402c0.mp3*~data=user_id=0,application_id=42~hmac=6ee19047e24b9d71c0abe40e4b0810a130ae0748769dc0639bb9d55f3eec38e0"
+  },
+  {
+    "artist": "Trust",
+    "title": "Antisocial",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/5/f/0/15fce4be9ab42dccf084d7921b4dde53.mp3?hdnea=exp=1787611026~acl=/api/1/1/1/5/f/0/15fce4be9ab42dccf084d7921b4dde53.mp3*~data=user_id=0,application_id=42~hmac=7d4cb4f112bdf1d0fb98bd909c5c96c7f1c79e4038f7e5e69e3c3b3bda3064df"
+  },
+  {
+    "artist": "Bérurier Noir",
+    "title": "Salut à toi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/b/1/0/eb1709509ea6b057efa8fac111af62db.mp3?hdnea=exp=1787611026~acl=/api/1/1/e/b/1/0/eb1709509ea6b057efa8fac111af62db.mp3*~data=user_id=0,application_id=42~hmac=6e12380a3b236e949a836ebc88165e4955f475c277251f02aefdb2821c36e7c1"
+  },
+  {
+    "artist": "Fonky Family",
+    "title": "Art de rue",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/7/e/0/a7e9b6f595eab63370ba6cbfe9e5f2e6.mp3?hdnea=exp=1787611029~acl=/api/1/1/a/7/e/0/a7e9b6f595eab63370ba6cbfe9e5f2e6.mp3*~data=user_id=0,application_id=42~hmac=e3bf61183833e8239ceb43bb50df6e2b42d01b5a3927bb1cb217abd6dbd56e93"
+  },
+  {
+    "artist": "Sniper",
+    "title": "Gravé dans la roche",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/f/d/0/9fd00b81c4e718d4a82d756cc823767a.mp3?hdnea=exp=1787611029~acl=/api/1/1/9/f/d/0/9fd00b81c4e718d4a82d756cc823767a.mp3*~data=user_id=0,application_id=42~hmac=46e808722ee0df7c4a4e7869533e1011174f3d646d4419a17d27d872efc1ee66"
+  },
+  {
+    "artist": "Booba",
+    "title": "Boulbi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/5/4/0/954b74e9f8df37e8bd0d0678d8f50974.mp3?hdnea=exp=1787611029~acl=/api/1/1/9/5/4/0/954b74e9f8df37e8bd0d0678d8f50974.mp3*~data=user_id=0,application_id=42~hmac=6ef7b4bb32412df784e04a0888af519a2f2136471ab158cc09e9fa6fb02b6eec"
+  },
+  {
+    "artist": "La Fouine",
+    "title": "Du ferme",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/f/a/0/5faad53782eaf90557e6213b8b2ef6e6.mp3?hdnea=exp=1787611029~acl=/api/1/1/5/f/a/0/5faad53782eaf90557e6213b8b2ef6e6.mp3*~data=user_id=0,application_id=42~hmac=0fef433d6b98083e5b032fab2a74116ac90d1a82db402fc19e5bf180baa9b6de"
+  },
+  {
+    "artist": "Rohff",
+    "title": "Qui est l'exemple ?",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/d/e/0/8de7a054e27d39c96032dcc32a0736ee.mp3?hdnea=exp=1787611029~acl=/api/1/1/8/d/e/0/8de7a054e27d39c96032dcc32a0736ee.mp3*~data=user_id=0,application_id=42~hmac=ea2ad0ebb404bc1257831511ff741647a75b8bb1d94fab7657ca8695baccb928"
+  },
+  {
+    "artist": "Kaaris",
+    "title": "Zoo",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/2/0/0/220dd9fa56d624e19ad429e15803f388.mp3?hdnea=exp=1787611029~acl=/api/1/1/2/2/0/0/220dd9fa56d624e19ad429e15803f388.mp3*~data=user_id=0,application_id=42~hmac=cbe2fb0860461b65b916f9245253a2ab5e931530e53b104e49641d69ecfb1462"
+  },
+  {
+    "artist": "PNL",
+    "title": "Le monde ou rien",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/3/4/0/634f27871bd0e10f754a15b734e80fbb.mp3?hdnea=exp=1787611029~acl=/api/1/1/6/3/4/0/634f27871bd0e10f754a15b734e80fbb.mp3*~data=user_id=0,application_id=42~hmac=593e7f40292f9d0125d5145524143199fdb18a098499d9228b23a43d4f66a7a8"
+  },
+  {
+    "artist": "SCH",
+    "title": "Champs-Élysées",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/2/0/0/420caa507c638adaed13edb552bf2f83.mp3?hdnea=exp=1787611029~acl=/api/1/1/4/2/0/0/420caa507c638adaed13edb552bf2f83.mp3*~data=user_id=0,application_id=42~hmac=d6ecd4c75a91eafc4a30402649277a47533ffa7b759639e671c209f49a319b07"
+  },
+  {
+    "artist": "Damso",
+    "title": "Macarena",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/8/b/0/78bc5602a8df02ee51d1f3b66383715a.mp3?hdnea=exp=1787611029~acl=/api/1/1/7/8/b/0/78bc5602a8df02ee51d1f3b66383715a.mp3*~data=user_id=0,application_id=42~hmac=254dad654ac592c923d3fe2b1b3c1903e93f614fb88327f16569fa9a900a7046"
+  },
+  {
+    "artist": "Nekfeu",
+    "title": "On verra",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/7/5/0/47557dd9f0c9f5cca82d9a6c3b2c3e02.mp3?hdnea=exp=1787611029~acl=/api/1/1/4/7/5/0/47557dd9f0c9f5cca82d9a6c3b2c3e02.mp3*~data=user_id=0,application_id=42~hmac=503ba70e8b5698f680e06807e2bb5d3c2b4dfc17533df0914c11b80ba3ea7b35"
+  },
+  {
+    "artist": "Lomepal",
+    "title": "Trop beau",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/9/5/1/0/951805aa5e540e07afc1f4e1eadf65d8.mp3?hdnea=exp=1787611029~acl=/api/1/1/9/5/1/0/951805aa5e540e07afc1f4e1eadf65d8.mp3*~data=user_id=0,application_id=42~hmac=d1a76829cf3649428362dec654abc4914d44b5cc9cf0f9462954784c8e86f3b6"
+  },
+  {
+    "artist": "Vald",
+    "title": "Désaccordé",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/b/4/0/0b44acdc4446be74a75083380eb8547f.mp3?hdnea=exp=1787611029~acl=/api/1/1/0/b/4/0/0b44acdc4446be74a75083380eb8547f.mp3*~data=user_id=0,application_id=42~hmac=b36fc62fca1ba8852e81b8256cc084f24b04934c847a40f7b8d16b2d2b35bac6"
+  },
+  {
+    "artist": "Niska",
+    "title": "Réseaux",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/d/5/0/8d5c7ce95339dfde314859556d088db0.mp3?hdnea=exp=1787611029~acl=/api/1/1/8/d/5/0/8d5c7ce95339dfde314859556d088db0.mp3*~data=user_id=0,application_id=42~hmac=11e8802222a16a895c3c55f35aeb79aa80ce8a8bdcc62993fe5b5ee0e92a11b9"
+  },
+  {
+    "artist": "Ninho",
+    "title": "Jefe",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/4/e/0/d4e0dfb92480c49c713af4c04f59e829.mp3?hdnea=exp=1787611029~acl=/api/1/1/d/4/e/0/d4e0dfb92480c49c713af4c04f59e829.mp3*~data=user_id=0,application_id=42~hmac=3905cfa946757aab4596295460b2180ca9b75232bfb125d8f2539c2676caea04"
+  },
+  {
+    "artist": "Jul",
+    "title": "Bande organisée",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/b/d/0/4bd97b1a2a6322a7ad927205555be490.mp3?hdnea=exp=1787611029~acl=/api/1/1/4/b/d/0/4bd97b1a2a6322a7ad927205555be490.mp3*~data=user_id=0,application_id=42~hmac=e4bb35f81b5d7a38796acfa10a0be6bdcce75dccbea56da94a0ab05e7d339df3"
+  },
+  {
+    "artist": "Vegedream",
+    "title": "Ramenez la coupe à la maison",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/5/4/0/d54d218f79447b07405ba8cbb381a5de.mp3?hdnea=exp=1787611029~acl=/api/1/1/d/5/4/0/d54d218f79447b07405ba8cbb381a5de.mp3*~data=user_id=0,application_id=42~hmac=4c92e6b2d8e8a66bf849b0a8d98495ed07fa6590c8dc956ed4c8105d35d1356d"
+  },
+  {
+    "artist": "Heuss L'Enfoiré",
+    "title": "Moulaga",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/8/f/8/0/8f8cc89baa281e72f2c72a5ad0fcab2f.mp3?hdnea=exp=1787611029~acl=/api/1/1/8/f/8/0/8f8cc89baa281e72f2c72a5ad0fcab2f.mp3*~data=user_id=0,application_id=42~hmac=d9cfa759a752fc8fc9d67c2d9086faee852b376f0e9896d28eb2e1c4a10233af"
+  },
+  {
+    "artist": "Lartiste",
+    "title": "Chocolat",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/c/9/0/2c949c562c0b52f7242323abd807aa33.mp3?hdnea=exp=1787611029~acl=/api/1/1/2/c/9/0/2c949c562c0b52f7242323abd807aa33.mp3*~data=user_id=0,application_id=42~hmac=0645f1c1d53944ff0b47cd47ed3ad756f18c6b318dfea7056cc2c6b5e208ab3e"
+  },
+  {
+    "artist": "Tragédie",
+    "title": "Hey Oh",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/f/5/e/0/f5eaad07f436f1b33698b9a8167c1aea.mp3?hdnea=exp=1787611029~acl=/api/1/1/f/5/e/0/f5eaad07f436f1b33698b9a8167c1aea.mp3*~data=user_id=0,application_id=42~hmac=e0c64957300b1ce49e63762d482289723ed5e8983c9710f5fe34201a0a331019"
+  },
+  {
+    "artist": "Nâdiya",
+    "title": "Parle-moi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/3/e/0/b3eb04f86315c0d07d3ce8fd2f5b0b97.mp3?hdnea=exp=1787611029~acl=/api/1/1/b/3/e/0/b3eb04f86315c0d07d3ce8fd2f5b0b97.mp3*~data=user_id=0,application_id=42~hmac=b1781551672088c151ce3a889381471a76d46f3c31111d6a6986973788719645"
+  },
+  {
+    "artist": "Zaho",
+    "title": "C'est chelou",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/3/9/0/439c782880acc9ad232750343d092f17.mp3?hdnea=exp=1787611029~acl=/api/1/1/4/3/9/0/439c782880acc9ad232750343d092f17.mp3*~data=user_id=0,application_id=42~hmac=3db494ff128942883e6d0eb1716302ef3b314cd0dea2205175d1441687bd522b"
+  },
+  {
+    "artist": "Vitaa",
+    "title": "À fleur de toi",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/5/3/3/0/5331c815343f06d0882448ebeb7cde1a.mp3?hdnea=exp=1787611029~acl=/api/1/1/5/3/3/0/5331c815343f06d0882448ebeb7cde1a.mp3*~data=user_id=0,application_id=42~hmac=0c71ceef09fc3aa4f52b05e12287eea4653c5fe84095541aca780117d4db811c"
+  },
+  {
+    "artist": "Shy'm",
+    "title": "Femme de couleur",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/7/8/0/178ba3445a0458f3084f7d72b91718a2.mp3?hdnea=exp=1787611029~acl=/api/1/1/1/7/8/0/178ba3445a0458f3084f7d72b91718a2.mp3*~data=user_id=0,application_id=42~hmac=f87c5b03b43d62413582947b6e1fdea9f06192faefc6e2852d87022ebbb6bee4"
+  },
+  {
+    "artist": "Tal",
+    "title": "Le Sens de la vie",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/5/a/0/15ae2a79d70fd7de56a474bf3a25c676.mp3?hdnea=exp=1787611029~acl=/api/1/1/1/5/a/0/15ae2a79d70fd7de56a474bf3a25c676.mp3*~data=user_id=0,application_id=42~hmac=d8d35fcc574c56c96eb938db92c342b421ed1824091e05845b8b526277323913"
+  },
+  {
+    "artist": "Aya Nakamura",
+    "title": "Djadja",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/4/4/0/e44f868a58a2b500ecc8bfcb1af51810.mp3?hdnea=exp=1787611029~acl=/api/1/1/e/4/4/0/e44f868a58a2b500ecc8bfcb1af51810.mp3*~data=user_id=0,application_id=42~hmac=478b48265a8b18e0d257bbecfedc2c40206c89a26ecd6367c34de2a6e908580c"
+  },
+  {
+    "artist": "Aya Nakamura",
+    "title": "Pookie",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/7/0/0/b7014d872d8c915f94ce14a28a85921c.mp3?hdnea=exp=1787611029~acl=/api/1/1/b/7/0/0/b7014d872d8c915f94ce14a28a85921c.mp3*~data=user_id=0,application_id=42~hmac=639ca8a1969ef9ffebec77fab5834e7036c5fdc5288159487c6556907729188a"
+  },
+  {
+    "artist": "Keblack",
+    "title": "Bazardée",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/2/c/d/0/2cd8db2375db29d9dbc995f5ed5e01fe.mp3?hdnea=exp=1787611029~acl=/api/1/1/2/c/d/0/2cd8db2375db29d9dbc995f5ed5e01fe.mp3*~data=user_id=0,application_id=42~hmac=e91b0497fc5c5215443a52526949acb794f20e2ea5dfb2d344858f05b56fa34f"
+  },
+  {
+    "artist": "Marwa Loud",
+    "title": "Fallait pas",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/0/5/0/705a4090f063ddd3cc5e9eb889d1be1f.mp3?hdnea=exp=1787611030~acl=/api/1/1/7/0/5/0/705a4090f063ddd3cc5e9eb889d1be1f.mp3*~data=user_id=0,application_id=42~hmac=5f7b7398ac9c3b38a2d4dedebe85a0e2137e78453f7abb384071a1e6f98c12c2"
+  },
+  {
+    "artist": "Wejdene",
+    "title": "Anissa",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/b/f/0/1bf8a88f9e6bb0445b6bbbc091ac4314.mp3?hdnea=exp=1787611030~acl=/api/1/1/1/b/f/0/1bf8a88f9e6bb0445b6bbbc091ac4314.mp3*~data=user_id=0,application_id=42~hmac=f7c9da2c9b7d8c7c97d375d9794f8fdb7b28e2c443566efb31badfcc21e48882"
+  },
+  {
+    "artist": "Lous and the Yakuza",
+    "title": "Dilemme",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/1/8/0/e186642c261f26000d58e5bfe315a1c7.mp3?hdnea=exp=1787611030~acl=/api/1/1/e/1/8/0/e186642c261f26000d58e5bfe315a1c7.mp3*~data=user_id=0,application_id=42~hmac=f17b2d0cc362f244918701a21bcd814e263921a759aeac7ec25a43b9f13a5731"
+  },
+  {
+    "artist": "Gaël Faye",
+    "title": "Petit pays",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/3/0/0/e304586206bb131d53b5be5dbabd4196.mp3?hdnea=exp=1787611030~acl=/api/1/1/e/3/0/0/e304586206bb131d53b5be5dbabd4196.mp3*~data=user_id=0,application_id=42~hmac=c7ff3da9f640748c1e28b2c328bece30101e2a182c716681c0224bb4b53f2527"
+  },
+  {
+    "artist": "Grand Corps Malade",
+    "title": "Mesdames",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/4/1/5/0/415a908142c0a3036aa4f42cfc250a0a.mp3?hdnea=exp=1787611030~acl=/api/1/1/4/1/5/0/415a908142c0a3036aa4f42cfc250a0a.mp3*~data=user_id=0,application_id=42~hmac=df33a6089c230b3e6869b219907cf9ef25706ad611a0eacc66a9284698ccc9f1"
+  },
+  {
+    "artist": "Manau",
+    "title": "La Tribu de Dana",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/c/1/0/ac10a2ed6f0fd269bd8ae587cb5ce9b3.mp3?hdnea=exp=1787611030~acl=/api/1/1/a/c/1/0/ac10a2ed6f0fd269bd8ae587cb5ce9b3.mp3*~data=user_id=0,application_id=42~hmac=cc2b5074a2a1a569b5922ba6d0df188f0a12c8f293e54cae22be0bc6d3e3a3b1"
+  },
+  {
+    "artist": "Rachid Taha",
+    "title": "Ya Rayah",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/5/8/0/e58dfe45f0114785795a880d13743d3b.mp3?hdnea=exp=1787611030~acl=/api/1/1/e/5/8/0/e58dfe45f0114785795a880d13743d3b.mp3*~data=user_id=0,application_id=42~hmac=5c7e5e1b2a901397d43651b1a6ef70b4889d8dabd8a322adbdf421aee6b86d80"
+  },
+  {
+    "artist": "Khaled",
+    "title": "Aïcha",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/6/a/e/0/6aeccdd01607a0dba06abb68afac5e60.mp3?hdnea=exp=1787611030~acl=/api/1/1/6/a/e/0/6aeccdd01607a0dba06abb68afac5e60.mp3*~data=user_id=0,application_id=42~hmac=bd50eb878f93345865a366a523b77d8edd7f1f37b245866cecedaa567eafbc34"
+  },
+  {
+    "artist": "Faudel",
+    "title": "Tellement N'brick",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/1/5/f/0/15fa062c36e4a53356583f20c772bb0b.mp3?hdnea=exp=1787611030~acl=/api/1/1/1/5/f/0/15fa062c36e4a53356583f20c772bb0b.mp3*~data=user_id=0,application_id=42~hmac=cd6c743079dafe8f6d4bf3a213abe5df256fbf7f21023de8306c24c990f35d64"
+  },
+  {
+    "artist": "Nuttea",
+    "title": "Elles dansent",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/e/b/4/0/eb42e3e9b70cb743f8c6923a962b4b8f.mp3?hdnea=exp=1787611030~acl=/api/1/1/e/b/4/0/eb42e3e9b70cb743f8c6923a962b4b8f.mp3*~data=user_id=0,application_id=42~hmac=a28817f6c82f248824ba9767b3fb63cff46eeefa0a4d6519478fac16a815cff1"
+  },
+  {
+    "artist": "Saïan Supa Crew",
+    "title": "Angela",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/9/d/0/09d0f214c460fc7dc46a33954d7cd90a.mp3?hdnea=exp=1787611030~acl=/api/1/1/0/9/d/0/09d0f214c460fc7dc46a33954d7cd90a.mp3*~data=user_id=0,application_id=42~hmac=a0bbefed5a675453b4910a113c072702d61383bf0d113f1bda9eb266b50754bc"
+  },
+  {
+    "artist": "Neg' Marrons",
+    "title": "Le bilan",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/b/4/9/0/b4962907abe8373495648f737643b1e1.mp3?hdnea=exp=1787611030~acl=/api/1/1/b/4/9/0/b4962907abe8373495648f737643b1e1.mp3*~data=user_id=0,application_id=42~hmac=d9ce4a8e0d2e0868a517db03e758a1e2b4d0bfeab271c35b27cbc7de41f970a4"
+  },
+  {
+    "artist": "Tribal King",
+    "title": "Façon Sex",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/d/d/a/0/dda002dddd2870337b7c0541038000d9.mp3?hdnea=exp=1787611030~acl=/api/1/1/d/d/a/0/dda002dddd2870337b7c0541038000d9.mp3*~data=user_id=0,application_id=42~hmac=02a1af4fed0ecfd05e85e8aa41a8d7af07afbd6d011c06bc1dddda273e2f0ce4"
+  },
+  {
+    "artist": "Leslie",
+    "title": "Sobri (Notre destin)",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/0/2/b/0/02bad60b8b0efdf37825d206891f419a.mp3?hdnea=exp=1787611030~acl=/api/1/1/0/2/b/0/02bad60b8b0efdf37825d206891f419a.mp3*~data=user_id=0,application_id=42~hmac=864e2b04448dd896727bf4c00f18c02ed709ed57428daa9ce1913f69ab058f8d"
+  },
+  {
+    "artist": "In-Grid",
+    "title": "Tu es foutu",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/7/9/3/0/793ea144c248fcf26b5aeb5b98aab479.mp3?hdnea=exp=1787611030~acl=/api/1/1/7/9/3/0/793ea144c248fcf26b5aeb5b98aab479.mp3*~data=user_id=0,application_id=42~hmac=d142f9aabb1e37a50102466227b0e804817af2db10b4416037278120c5429208"
+  },
+  {
+    "artist": "Kate Ryan",
+    "title": "Désenchantée",
+    "preview_url": "https://cdnt-preview.dzcdn.net/api/1/1/a/d/8/0/ad85ac2e1c532b4cc0237164d341d616.mp3?hdnea=exp=1787611030~acl=/api/1/1/a/d/8/0/ad85ac2e1c532b4cc0237164d341d616.mp3*~data=user_id=0,application_id=42~hmac=bda829281227eac15c93cb9ac7113c91b9759e8ffc34659bb8ae8b1cc2a983c8"
   }
 ]
