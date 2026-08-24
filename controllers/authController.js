@@ -329,11 +329,30 @@ function loginDemo(req, res) {
 }
 
 function logout(req, res) {
-  const name = req.session.user?.username;
+  const name = req.session?.user?.username;
+  const fe = (process.env.FRONTEND_URL || '').trim().replace(/\/$/, '');
+  const clearOpts = {
+    path: '/',
+    httpOnly: true,
+    secure: Boolean(req.session?.cookie?.secure),
+    sameSite: req.session?.cookie?.sameSite || 'lax',
+  };
+
+  const finish = () => {
+    res.clearCookie('ylw.sid', clearOpts);
+    if (req.method === 'POST') {
+      return res.status(200).json({ ok: true });
+    }
+    if (fe) return res.redirect(302, `${fe}/?logged_out=1`);
+    return res.redirect(302, '/?logged_out=1');
+  };
+
+  if (!req.session) return finish();
+
   req.session.destroy((err) => {
     if (err) console.error('[Auth] logout:', err);
     else console.log('[Auth] Déconnexion:', name || 'inconnu');
-    res.redirect('/');
+    finish();
   });
 }
 

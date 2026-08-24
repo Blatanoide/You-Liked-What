@@ -673,6 +673,32 @@ async function refreshSessionFromServer() {
   }
 }
 
+function clearLocalAuthState() {
+  try {
+    sessionStorage.removeItem(HANDOFF_PROOF_KEY);
+  } catch (_) {}
+  me = { authenticated: false };
+  setUserPill(null);
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+  currentRoom = null;
+  if (lastBootstrap) lastBootstrap.session = { authenticated: false };
+  showScreen('login');
+}
+
+async function performLogout(ev) {
+  ev.preventDefault();
+  try {
+    await apiFetch('/auth/logout', { method: 'POST' });
+  } catch (_) {}
+  clearLocalAuthState();
+  $('auth-error')?.classList.add('hidden');
+  $('auth-warn')?.classList.add('hidden');
+  window.history.replaceState({}, '', window.location.pathname);
+}
+
 async function afterAuthSuccess(body) {
   persistHandoffProofFromPayload(body);
   await refreshSessionFromServer();
@@ -783,17 +809,23 @@ async function bootstrap() {
 }
 
 function readQueryError() {
-  const e = new URLSearchParams(window.location.search).get('auth_error');
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('logged_out') === '1') {
+    clearLocalAuthState();
+    window.history.replaceState({}, '', window.location.pathname);
+    return;
+  }
+  const e = params.get('auth_error');
   if (e) {
     $('auth-error').textContent = decodeURIComponent(e);
     $('auth-error').classList.remove('hidden');
-    window.history.replaceState({}, '', '/');
+    window.history.replaceState({}, '', window.location.pathname);
   }
 }
 
 function wireApiAnchors() {
   const lo = $('logout-btn');
-  if (lo) lo.href = apiUrl('/auth/logout');
+  if (lo) lo.href = '#';
 }
 
 function openVerificationPanel(email, mode = 'register') {
@@ -859,6 +891,7 @@ async function submitGuess(e) {
 }
 
 function wireEvents() {
+  $('logout-btn')?.addEventListener('click', performLogout);
   $('user-profile-btn')?.addEventListener('click', openProfileModal);
   $('profile-close-btn')?.addEventListener('click', closeProfileModal);
   $('profile-close-backdrop')?.addEventListener('click', closeProfileModal);

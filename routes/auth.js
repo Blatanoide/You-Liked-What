@@ -52,6 +52,7 @@ router.post('/profile/avatar', (req, res, next) => {
 });
 
 router.get('/logout', authController.logout);
+router.post('/logout', authController.logout);
 router.get('/me', authController.me);
 router.get('/profile', authController.myProfile);
 router.post('/profile/bio', authController.updateMyBio);
